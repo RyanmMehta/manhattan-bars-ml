@@ -178,10 +178,11 @@ Full formulas: `docs/prd/specs/PRD.md` §5–7 (built version moves to `docs/spe
 Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit tests for ml-recs and backend.
 
 ## B. Demo time and data window
-- Simulated history: Thu–Sat nights from **Thu Sep 3 → Sat Nov 14, 2026** (11 weeks,
-  33 nights), seed 42, 20:00–03:00 ET. Detailed reports for all nights. This gives
+- Simulated history: Thu–Sat nights from **Thu Aug 27 → Sat Nov 14, 2026** (12 weeks,
+  36 nights), seed 42, 20:00–03:00 ET. Detailed reports for all nights. This gives
   coursework ≥ 10 weeks for churn and ml-recs ≥ 8 nights for a temporal holdout
-  (hold out the last 2 nights: Nov 13–14).
+  (hold out the last 2 nights: Nov 13–14)
+- Scout churn label (coursework): no report in 21 days; ~150 scouts in weekly cohorts.
 - Scouts follow an engagement process with drop-off (latent engagement decays; bounties/rewards bump it).
 - **DEMO_NOW = 2026-11-14T23:30:00-05:00** for every workstream (tableau's "tonight"
   heatmap uses Sat Nov 14 20:00–03:00). The class demo replays this moment.
@@ -218,9 +219,10 @@ Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit te
 - **Evaluation-only** (never read by the app or API, never used as model features):
   `syn_true_state` (venue_id, ts 15-min slots, crowd_true, dancing_true, line_minutes_true,
   cover_usd_true, genre_true, occupancy, is_synthetic) — replaces specs' `syn_venue_truth`;
-  `syn_scout_truth` (scout_id, archetype honest|casual|sloppy|gamer|shill, home_venue_id, latent_churn_date, is_synthetic).
+  `syn_scout_truth` (scout_id, archetype honest|casual|sloppy|gamer|shill, home_venue_id, true_accuracy, cohort_week, churned_at, is_synthetic).
 - research (own folder, not in the DB): `syn_interviews`, `syn_interview_quotes`, `syn_survey_responses`.
-- Shared genre vocabulary (lowercase): `hip-hop, r&b, house, techno, pop, top-40, latin, reggaeton, afrobeats, rock, indie, jazz, soul, funk, disco, 90s-00s, edm, live-band, karaoke, mixed`. live-sim publishes it as `simulator/genres.py` (`GENRES`).
+- Shared genre vocabulary (17 slugs, owned by live-sim at `simulator/config/genres.json`): `hip-hop, r&b, afrobeats, latin, reggaeton, house, techno, edm, disco, pop, top-40, throwbacks, indie, rock, punk, jazz, soul-funk`.
+- `syn_scout_reputation_history` (scout_id, as_of_date, reputation, points, level, is_synthetic): models and evaluation must join reputation **as of the report date** — joining the final `syn_scouts.reputation` to past reports leaks the future. The live app uses current reputation.
 - Real app tables mirror their `syn_` twins without the prefix (`scout_reports`, `venue_updates`, `venue_events`, …). Backend reads `UNION ALL`; `INCLUDE_SYNTHETIC=0` hides synthetic rows. That switch is the swap-to-real-data path.
 
 ## F. recs interface additions
@@ -257,3 +259,11 @@ Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit te
 Upstream deliverables pushed by **Fri Nov 13 18:00 ET** (moved up a day from integration's Nov 14 so there is slack); integration merges from Nov 13 in the order
 specs → research → tableau → coursework → live-sim → ml-recs → backend → frontend; deploy dry-run Nov 15; freeze Nov 16 20:00; demo Nov 17.
 Frontend mockup PNGs (overdue Nov 10 deliverable) are the first frontend priority: target Thu Nov 12.
+
+## J. v2.2 additions (Nov 11)
+- **Vibe label bands** (frontend copy): 0–34 "Chill", 35–64 "Lively", 65–100 "Packed"; null → no label.
+- **Stale cutoff:** inputs older than 180 min are ignored (§A). In the UI, freshness > 60 min shows a "stale" tag even if confidence clears the threshold.
+- **Map tiles:** MapLibre GL with a free no-key style (OpenFreeMap or CARTO dark-matter); no paid tile keys.
+- **Demo-night snapshots** (live-sim): `data/synthetic_live/demo_night_snapshots.csv` — venue_id, snapshot_ts (every 30 min, 20:00–03:00 Sat Nov 14), crowd, dancing, line_minutes, vibe_score, confidence, n_reports, is_synthetic. Values are recs Live Venue State computed at snapshot_ts. Tableau's hourly cell for hour HH uses the **HH:30** snapshot.
+- **Backend CR-11..14 accepted:** `/api/venues` takes optional `lat`, `lon` (distance_km computed, sort by distance when given); on Postgres, synthetic tables are copied in (no ATTACH); real twin tables (`scout_reports`, `venue_updates`, `venue_events`, `feedback`, `bounties`, `disputes`, `points_ledger`) exist empty from day one; owner identity = demo-login with `role=owner` + `venue_id`, one owner per venue in MVP.
+- **live_sim.db generation** runs at **build time** (Render build command / `make data`), not at boot; live-sim targets < 60 s for the full 36-night run on a laptop CPU.
