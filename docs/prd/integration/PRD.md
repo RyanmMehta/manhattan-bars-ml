@@ -1,7 +1,7 @@
 # PRD — integration (Nightlife Autopilot, Mockups V1 / Nov 17)
 
 Workstream: `integration` · Branch: `nightlife/integration` (from `nightlife/contracts`) · Owner: Ryan Mehta
-Status: planning (no code yet) · Written 2026-11-11, **rev 2 for Contracts v2 (commit 2129052)** · Upstream deadline **Fri 2026-11-13 18:00 ET** · Hard deadline: **Tue 2026-11-17, class demo**
+Status: planning (no code yet) · Written 2026-11-11, **rev 3 for Contracts v2.2 + §J (commit b46d75f)** · Upstream deadline **Fri 2026-11-13 18:00 ET** · Hard deadline: **Tue 2026-11-17, class demo**
 
 > Rev 2: CR-1…CR-7 accepted in CONTRACTS.md v2 (§C, §D, §G, §H). Synthetic tables now live in a separate uncommitted `data/live_sim.db` (seed 42); deploys use `data/launch_venues_full.csv` (integration-owned) instead of the 39 MB DB; `DEMO_NOW = 2026-11-14T23:30:00-05:00` confirmed.
 
@@ -85,6 +85,7 @@ synthetic table and API response matches CONTRACTS.md.
   `backend/` or `recs/` runtime code (grep test + an API test with those tables dropped).
 - AC: golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) pass through the
   deployed API path, not only in unit tests.
+- AC: `demo_night_snapshots.csv` values match the API's live state at each snapshot_ts (tolerance vibe ±1, conf ±0.01).
 - AC: with `INCLUDE_SYNTHETIC=0` the API returns empty live state / `"data": "real"`
   without errors (the swap-to-real switch works).
 
@@ -164,7 +165,7 @@ Functional
   uncommitted `data/live_sim.db` (seed 42). Integration reuses the generator, it does
   not write its own.
 - R3 In deploy the backend reads `launch_venues_full.csv` + `live_sim.db` (`LIVE_SIM_DB`)
-  only; the Docker build runs the generator. `manhattan_bars.db` stays local/pipeline-only.
+  only; the Render build command and `make data` both run exactly `python -I -m simulator --seed 42 --out data/live_sim.db`. `manhattan_bars.db` stays local/pipeline-only.
 - R4 All read endpoints accept `now=`; the frontend forwards a single demo time.
 - R5 Feature flags `FEATURE_ROUTING`, `FEATURE_HEATMAP` (backend env) and
   `VITE_FEATURE_*` (frontend) default off until their e2e checks pass.
@@ -234,7 +235,7 @@ Accounts: Render and Vercel accounts + GitHub app connection must be supplied by
 - Q1 Does `nightlife/integration` get merged to `main` after Nov 17, and who does it? (assumed: Ryan, manually)
 - ~~Q2 demo time~~ — resolved: `DEMO_NOW = 2026-11-14T23:30:00-05:00` (v2 §B).
 - ~~Q3 39 MB DB on Render~~ — resolved: `launch_venues_full.csv` + generated `live_sim.db` (v2 §D).
-- Q3b Generate `live_sim.db` at Docker build time or at container start? (assumed build time; start-time fallback if build exceeds Render limits)
+- ~~Q3b build vs boot~~ — resolved: build time, `python -I -m simulator --seed 42 --out data/live_sim.db` (v2.2 §J).
 - Q4 Render/Vercel account owner, project names, custom domain? (assumed default subdomains)
 - ~~Q5 auth~~ — resolved: `POST /api/auth/demo-login` (v2 §G); demo script uses pre-chosen personas.
 - Q6 Are POSTs during the demo persisted (Render disk is ephemeral)? (assumed reset on redeploy; acceptable)
