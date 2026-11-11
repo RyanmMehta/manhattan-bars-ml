@@ -259,3 +259,12 @@ Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit te
 Upstream deliverables pushed by **Fri Nov 13 18:00 ET** (moved up a day from integration's Nov 14 so there is slack); integration merges from Nov 13 in the order
 specs → research → tableau → coursework → live-sim → ml-recs → backend → frontend; deploy dry-run Nov 15; freeze Nov 16 20:00; demo Nov 17.
 Frontend mockup PNGs (overdue Nov 10 deliverable) are the first frontend priority: target Thu Nov 12.
+
+## J. v2.2 additions (Nov 11)
+- **Vibe label bands** (frontend copy): 0–34 "Chill", 35–64 "Lively", 65–100 "Packed"; null → no label.
+- **Stale cutoff:** inputs older than 180 min are ignored (§A). In the UI, freshness > 60 min shows a "stale" tag even if confidence clears the threshold.
+- **Map tiles:** MapLibre GL with a free no-key style (OpenFreeMap or CARTO dark-matter); no paid tile keys.
+- **Demo-night snapshots** (live-sim): `data/synthetic_live/demo_night_snapshots.csv` — venue_id, snapshot_ts (every 30 min, 20:00–03:00 Sat Nov 14), crowd, dancing, line_minutes, vibe_score, confidence, n_reports, is_synthetic. Values are recs Live Venue State computed at snapshot_ts. Tableau's hourly cell for hour HH uses the **HH:30** snapshot.
+- **Backend CR-11..14 accepted:** `/api/venues` takes optional `lat`, `lon` (distance_km computed, sort by distance when given); on Postgres, synthetic tables are copied in (no ATTACH); real twin tables (`scout_reports`, `venue_updates`, `venue_events`, `feedback`, `bounties`, `disputes`, `points_ledger`) exist empty from day one; owner identity = demo-login with `role=owner` + `venue_id`, one owner per venue in MVP.
+- **live_sim.db generation** runs at **build time** (Render build command / `make data`), not at boot; live-sim targets < 60 s for the full 36-night run on a laptop CPU.
+- **Data build command (fixed):** `python -I -m simulator --seed 42 --out data/live_sim.db` (live-sim provides `simulator/__main__.py`; `--nights N` for quick mode). Integration's `make data` and backend's Render build command both call exactly this.
