@@ -45,7 +45,11 @@ CONTRACTS.md wins, then this file, then the PRD.
 - Contract tables have exactly the columns in CONTRACTS.md, in that order, with
   those names. Extra columns go in separate truth tables, never in contract tables.
 - Enums exactly as written: style `dive|cocktail|club|lounge|pub|restaurant-bar`;
-  crowd 1–5; dancing 0/1/2; genres pipe-separated lowercase.
+  crowd 1–5; dancing 0/1/2; genres pipe-separated lowercase, and only values from
+  `simulator/config/genres.json` (shared vocabulary; other workstreams read it, so
+  never rename a genre without bumping its `version` and telling the master session).
+- Reputation joined to past reports must come from `syn_scout_reputation_history`
+  (as-of), never from the final `syn_scouts` snapshot.
 - `ts` is ISO 8601 with offset, America/New_York, e.g. `2026-11-14T23:30:00-05:00`.
 - `venue_id` is the SLA `license_id` from `data/launch_venues.csv`.
 - Nullable fields are empty in CSV and `NULL` in SQLite. Never fill a missing
@@ -118,6 +122,6 @@ CONTRACTS.md wins, then this file, then the PRD.
 - [ ] `docs/synthetic/live-sim.md` registry complete; `docs/workstreams/live-sim.md`
       says what was built, how to run it, known limits, open issues, contract change
       requests.
-- [ ] Output ≤ 20 MB; generation ≤ 60 s.
+- [ ] 36 nights generated; output ≤ 20 MB; generation ≤ 90 s.
 - [ ] `grep -rn "SYNTHETIC:" simulator/` covers every module that invents data.
 - [ ] Branch pushed; master session told the pinned seed and demo time.

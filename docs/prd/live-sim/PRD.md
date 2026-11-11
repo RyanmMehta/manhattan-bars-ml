@@ -65,17 +65,22 @@ easy to delete and replace once real Scout data arrives.
 | backend | CSVs / `syn_` tables to load; a defined `now` filter for replay; seeded IDs |
 | frontend | believable cards, leaderboard, bounties and offers on the demo night |
 | tableau | hourly crowd and report-volume extracts by style and weekday |
-| coursework | user and scout activity history that could feed the churn exercise |
+| coursework | ≥ 10 weeks of Scout activity with realistic drop-off for the churn model |
 | integration | one pinned seed and demo night that every piece agrees on |
 | Ryan / graders | a clear story of what is fake, why it is plausible and how to swap it |
 
 ## 5. User stories and acceptance criteria
 
-**LS-1 Generate a season.** As ml-recs, I want several weekends of Thu–Sat nights so
-I can train on early nights and test on later ones.
+**LS-1 Generate a season.** As ml-recs and coursework, I want many weeks of Thu–Sat
+nights so ml-recs can train on early nights and test on later ones, and coursework can
+study Scout drop-off over time.
 - `python -I -m simulator generate --seed 42` writes all 7 contract tables plus the
-  2 truth tables to `data/synthetic_live/` in under 60 s *(placeholder)* on a laptop.
-- Default window: 4 weekends, Thu 2026-10-22 to Sat 2026-11-14, 12 nights *(placeholder)*.
+  3 evaluation tables to `data/synthetic_live/` in under 90 s *(placeholder)* on a laptop.
+- Default window: 12 weeks of Thu–Sat, Thu 2026-08-27 to Sat 2026-11-14, 36 nights
+  (meets ml-recs' ≥ 8 nights and coursework's ≥ 10 weeks). Holiday shocks: Sat
+  Sep 5 (Labor Day weekend), Sat Oct 31 (Halloween).
+- ml-recs temporal test set = the last 2 nights (Fri 2026-11-13, Sat 2026-11-14);
+  everything earlier is training.
 - Every row has `is_synthetic = 1`. Columns and order match CONTRACTS.md exactly.
 
 **LS-2 Realistic nightly rhythm.** As tableau and ml-recs, I want report volume and
@@ -93,6 +98,23 @@ reputation weighting has something to catch.
 - Measured against truth, honest-scout crowd MAE ≤ 0.6 and gamer/shill crowd
   MAE ≥ 1.2 *(placeholders)*, checked by validation.
 - Gamers produce report bursts (≥ 4 reports in 10 min) and low `verified_presence`.
+
+**LS-3b Scout churn.** As coursework, I want Scouts who join, stay active for a while
+and drop off, so a churn model has a real signal to find.
+- New scouts join every week (cohorts); active scouts drop off with a weekly hazard
+  that falls with engagement (bounties won, points, streak) and rises after a
+  week with no activity *(placeholder rules)*.
+- Over 12 weeks, ~40–60% of scouts who ever joined have churned (no report in the
+  last 21 days) *(placeholder)*. Week-4 retention of each cohort is 35–60%.
+- True churn week and engagement drivers are in `syn_scout_truth` so the churn model
+  can be sanity-checked; the observable label is derived only from reports.
+
+**LS-3c Reputation per report.** As ml-recs, I want each report's scout reputation
+*as it was at report time*, so weighting doesn't use future information.
+- `syn_scout_reputation_history` (scout_id, as_of_date, reputation, points, level)
+  has one row per scout per night they were active. ml-recs joins it as-of the
+  report's night. `syn_scouts.reputation` is the final snapshot only, and the
+  registry warns that joining it to past reports leaks the future.
 
 **LS-4 Gaps and nulls.** As ml-recs and frontend, I want missing data so that
 "null, not a favourable default" and the confidence score get exercised.
@@ -124,11 +146,13 @@ post-visit feedback.
 
 **LS-9 Replay a night.** As integration, I want to show "what the app saw at 23:30
 on Saturday".
-- `simulator replay --now 2026-11-14T23:30` prints per-venue counts of visible
+- `simulator replay --now 2026-11-13T23:30` prints per-venue counts of visible
   reports, live offers and open bounties at that moment.
 - `simulator.replay.visible(tables, now)` returns only rows the app could know at
   `now` (reports with `ts <= now`, offers not expired, bounties created and not yet
   claimed). Backend can import it or copy its rules for `?now=`.
+- Default demo night (shared with tableau's "tonight" heatmap): **Fri 2026-11-13,
+  20:00–03:00, seed 42**. `--preset demo` selects it.
 - `--shift-to 2026-11-17` re-dates the demo night so the Nov 17 live demo can say
   "tonight". Shifted output is written to a separate folder and still marked synthetic.
 
@@ -181,22 +205,27 @@ everything safely.
 - `has_dance_floor`: club 0.9, lounge 0.3, dive 0.2, others 0.05 *(placeholders)*.
 - `capacity`: club 150–400, others 40–150, scaled by `density_100m`.
 - `typical_cover_usd`: 0 unless club or dance floor; then 10–30 in steps of 5.
-- `genres`: 1–3 from a style-dependent menu (hip-hop, r&b, house, techno, latin,
-  pop, indie, rock, jazz, top-40), pipe-separated.
+- `genres`: 1–3 from a style-dependent menu, pipe-separated, using only the shared
+  genre vocabulary (section 7.8).
 - `price_level` 1–4 by style and `liquor_tier`.
 - A hidden `popularity` factor per venue (from log `noise_complaints` plus noise,
   standardised) scales demand. It goes into the truth table, not the contract table.
 
 ### 7.3 Scouts (`syn_scouts`, hidden `syn_scout_truth`)
-- 60 scouts *(placeholder)*. Archetype shares: honest 55%, casual 25%, sloppy 10%,
+- ~150 scouts ever joined over 12 weeks, ~40–60 active in any one week
+  *(placeholders)*: 50 at launch week, then 5–15 new per week. Archetype shares: honest 55%, casual 25%, sloppy 10%,
   gamer 6%, shill 4%.
+- Lifecycle: join date (weekly cohort), weekly churn hazard by archetype and
+  engagement (gamers churn fast or get "banned" at a placeholder rate; honest
+  scouts with bounty wins stay longest), optional return after a gap (5%).
 - Per archetype: nights active per weekend, reports per visit, observation noise σ
   per field, presence probability, bias (shill: +2 crowd at its "home" venue; gamer:
   random venues, bursts, copies of the last report).
 - `reputation`, `points`, `level`, `reports_count` are computed after reports exist,
   using placeholder rules (10 pts/report, bounty points, reputation = smoothed
-  agreement with truth). The rules are labelled `# SYNTHETIC:` until `specs`
-  publishes the real formulas.
+  agreement with truth). They are recomputed after every night, giving
+  `syn_scout_reputation_history`. The rules are labelled `# SYNTHETIC:` until
+  `specs` publishes the real formulas.
 
 ### 7.4 True state and reports
 - True state per venue per 15-min step: `occupancy = capacity × curve_style(hour) ×
@@ -229,13 +258,27 @@ everything safely.
 
 ### 7.6 Outputs
 - `data/synthetic_live/<table>.csv` for 7 contract tables + `syn_true_state.csv`,
-  `syn_scout_truth.csv`, `manifest.json`, `validation.json`.
+  `syn_scout_truth.csv`, `syn_scout_reputation_history.csv`, `manifest.json`,
+  `validation.json`.
+
+### 7.8 Shared genre vocabulary
+One lowercase list, used by `syn_venue_attributes.genres`, `syn_scout_reports.music_genre`,
+`syn_venue_updates.genres` and `prefs_json.genres`, and offered to research
+(`syn_interviews`, `syn_survey_responses`), ml-recs, backend and frontend filters:
+
+`hip-hop`, `r&b`, `afrobeats`, `latin`, `reggaeton`, `house`, `techno`, `edm`, `disco`, `pop`, `top-40`, `throwbacks`, `indie`, `rock`, `punk`, `jazz`, `soul-funk`
+
+- Lives in `simulator/config/genres.json` (`{"version": 1, "genres": [...]}`) so other
+  workstreams can read it instead of copying it.
+- Validation fails on any genre outside the list. Adding a genre = bump `version`
+  and tell the master session.
+- `throwbacks` covers 90s/00s nights; `soul-funk` covers soul, funk and motown.
 - Total size ≤ 20 MB *(placeholder)*. CSVs are committed; the modified `.db` is not.
 
 ### 7.7 Non-functional
 - Python 3.13, pandas ≥ 3, numpy ≥ 2 (already in `requirements.txt`). pytest for
   tests. No new runtime dependencies.
-- Runtime ≤ 60 s for 12 nights × 35 venues; memory ≤ 1 GB.
+- Runtime ≤ 90 s for 36 nights × 35 venues *(placeholder)*; memory ≤ 1 GB.
 - Pure functions per stage, so ml-recs can import `simulator` in notebooks.
 
 ## 8. Dependencies on other workstreams
@@ -243,12 +286,12 @@ everything safely.
 | Workstream | live-sim needs from them | live-sim gives them |
 |---|---|---|
 | specs | style enum confirmation; points, level and reputation formulas; half-life (to set report spacing that tests decay); confidence display threshold | ground truth for checking those rules against simulated nights |
-| research | persona shares and preference ranges for users; scout behaviour assumptions from interviews; typical cover and line ranges | a data dictionary for synthetic interview data to stay consistent with |
-| tableau | chart list, to decide which extracts help most | hourly crowd and report-volume CSVs by style and weekday |
-| ml-recs | agreement on truth-table format; later, `recs.scoring.recommend` for the feedback loop | reports, updates, truth for `live_state` evaluation and crowd-model temporal validation (train Oct 22–Nov 7, test Nov 12–14) |
+| research | persona shares and preference ranges for users; scout behaviour and drop-off assumptions from interviews; typical cover and line ranges | shared genre vocabulary (`simulator/config/genres.json`) for `syn_interviews` / `syn_survey_responses` |
+| tableau | chart list, to decide which extracts help most | hourly crowd and report-volume CSVs by style and weekday; demo-night (Fri Nov 13 20:00–03:00) per-venue snapshots for the tonight heatmap |
+| ml-recs | agreement on truth-table format; later, `recs.scoring.recommend` for the feedback loop | reports, updates, truth for `live_state` evaluation and crowd-model temporal validation (train Aug 27–Nov 12, test Fri Nov 13 + Sat Nov 14); reputation as of each report's night |
 | backend | DB path and whether `syn_` tables go into `manhattan_bars.db` or a separate file; `now=` semantics | loadable tables, `replay.visible()` rule, seeded IDs |
 | frontend | where "demo data" badges go | believable demo-night content (leaderboard, offers, bounties) |
-| coursework | whether churn exercise wants scout/user activity | activity history per scout and user across nights |
+| coursework | churn label definition (plan: no report in 21 days) and feature list | 12 weeks of scout activity with cohorts and drop-off; true churn week in `syn_scout_truth` |
 | integration | demo date/time and pinned seed | `--preset demo`, frozen outputs and a demo script |
 
 ## 9. Success metrics
@@ -260,7 +303,7 @@ everything safely.
   means the simulator is too easy and should get more noise.
 - Reputation-weighted `live_state` has lower crowd error vs truth than unweighted
   (shows anti-gaming matters).
-- Demo replay at Sat 23:30 shows ≥ 25 of 35 venues with a fresh report (≤ 60 min)
+- Demo replay at Fri 2026-11-13 23:30 shows ≥ 25 of 35 venues with a fresh report (≤ 60 min)
   and ≥ 3 open bounties *(placeholders)*.
 - Zero untagged synthetic rows or files (checked by validation and by grep for
   `# SYNTHETIC:` in every module that invents numbers).
@@ -286,10 +329,10 @@ everything safely.
 3. May the team hand-label the 35 venues' style and genres from public knowledge? That
    would be more realistic, but those rows would then be "manual estimates" rather
    than purely synthetic. Plan: keep `is_synthetic=1` and add a note.
-4. Demo night and time: plan assumes Sat 2026-11-14 23:30, shifted to Tue 2026-11-17
-   for the live demo. Confirm with integration.
+4. Demo night: Fri 2026-11-13 20:00–03:00 (agreed with tableau), shown live at
+   23:30 and shifted to Tue 2026-11-17. Confirm with integration.
 5. Points, levels and reputation formulas: placeholders until `specs` publishes them.
-6. Number of weekends: 4 is enough for one temporal split. Does ml-recs want more?
+6. Churn label: plan uses "no report in the last 21 days". Does coursework want a different window?
 7. Who owns synthetic owner-dashboard demand (views, taps)? This plan proposes
    live-sim (new table, see below).
 
@@ -299,7 +342,13 @@ everything safely.
    crowd_true (float 1–5), dancing_true (float 0–2), line_minutes_true,
    cover_usd_true (nullable), genre_true (nullable), occupancy, is_synthetic`.
 2. **Add `syn_scout_truth`** (evaluation only): `scout_id, archetype
-   (honest|casual|sloppy|gamer|shill), home_venue_id (nullable), is_synthetic`.
+   (honest|casual|sloppy|gamer|shill), true_accuracy (crowd σ), home_venue_id
+   (nullable), cohort_week, churned_at (nullable), is_synthetic`.
+2b. **Add `syn_scout_reputation_history`**: `scout_id, as_of_date, reputation,
+   points, level, is_synthetic` (one row per scout per active night) so reputation
+   can be joined to reports without leaking the future.
+2c. **Add the shared genre vocabulary** (`simulator/config/genres.json`) to CONTRACTS.md
+   as the allowed values for every genre field.
 3. **Extend `syn_bounties`** with `expires_at` and `claimed_at` (both nullable) so
    `now=` replay can tell open from expired or claimed bounties.
 4. **Add `syn_venue_demand`** for the owner dashboard: `venue_id, ts (hourly), views,
