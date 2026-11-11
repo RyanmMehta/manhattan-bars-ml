@@ -1,7 +1,9 @@
 # RULES — ml-recs build session
 
-Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
-`docs/prd/ml-recs/PRD.md` and `OUTLINE.md` before writing code.
+Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`
+(**including the v2 amendments, which override the top**), `docs/specs/SCORING.md` +
+`PARAMETERS.md` (or `docs/prd/specs/PRD.md` §5 until they exist),
+`docs/prd/ml-recs/PRD.md` and `OUTLINE.md` before writing code. Rev 3, 2026-11-11 (CONTRACTS v2.2).
 
 ## Stack and versions
 - Python **3.13** (container: 3.13.x). No other language.
@@ -14,16 +16,18 @@ Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
 - Models: `sklearn.ensemble.HistGradientBoostingRegressor` (crowd),
   `HistGradientBoostingClassifier` (complaint risk, same setup as `src/evaluate.py`),
   `sklearn.cluster.KMeans(n_init=10, random_state=SEED)`.
-- Distances: haversine in `recs/geo.py`, walking = haversine × 1.3 (Manhattan
-  factor, placeholder) at 5 km/h.
+- Distances: haversine in `recs/geo.py`; walking speed 4.5 km/h (specs §5.12), routing walk cost 10 per km.
 
 ## Folder ownership
 - You own **`recs/`** only, plus `docs/workstreams/ml-recs.md` and
   `docs/synthetic/ml-recs.md`, and `docs/prd/ml-recs/`.
-- Read-only: `data/manhattan_bars.db`, `data/launch_venues.csv`,
-  `data/synthetic_live/` (live-sim), `docs/specs/` (specs), `src/`.
+- Read-only: `data/manhattan_bars.db`, `data/live_sim.db` (live-sim; separate DB, CONTRACTS v2 §D),
+  `data/launch_venues.csv` (header `license_id`, alias `AS venue_id`), `data/launch_venues_full.csv`,
+  `data/venue_attributes_manual.csv`, `docs/specs/` (specs), `simulator/config/genres.json`, `data/synthetic_live/` (live-sim), `src/`.
 - Never touch: `src/`, `backend/`, `frontend/`, `simulator/`, `analytics/`,
-  `research/`, `coursework/`, `docs/CONTRACTS.md`, other workstreams' docs, `main`.
+  `research/`, `coursework/`, `tests/`, `scripts/`, `.github/`, `Makefile` (integration),
+  `docs/CONTRACTS.md`, other workstreams' docs, `main`.
+- Do not import `simulator` or `backend` at runtime; copy the 17 genre slugs into `config.GENRES` with a source comment.
 - Open DB connections read-only: `sqlite3.connect("file:...?mode=ro", uri=True)`.
 
 ## Coding conventions
@@ -35,11 +39,20 @@ Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
   JSON-serializable dicts (no numpy scalars, no NaN — use `None`). Round:
   scores int, crowd/dancing 1 dp, confidence 2 dp.
 - `now` and timestamps: tz-aware, America/New_York (`zoneinfo`). Accept ISO strings.
-- Every constant in `recs/config.py` with a comment `# spec: docs/specs/<file>#<section>`
-  or `# PLACEHOLDER until specs`.
-- Missing data → `None`, listed in `missing`. **Never fill with a favourable default.**
+- Every constant in `recs/config.py` with a comment `# spec: docs/specs/<file>#<section>`.
+  Values must equal CONTRACTS v2 §A (half-life 30/60/120 min, cutoff 180 min / now+2 min,
+  `w_rep = 0.25 + 0.75·r`, unverified 0.6, k 1.5, display 0.40/0.20, unknown component 0.4,
+  `rank_score = match · (0.75 + 0.25·conf)`, trend Δ ±0.4). Never tune them locally; raise them with specs.
+- Compute on unrounded values; round only when building output dicts (golden G5 depends on it).
+- Inputs may be lists of dicts or DataFrames; normalise once in `recs/io.py`.
+- Missing data → `None`, listed in `missing`; unknown match components score 0.4. **Never fill with a favourable default.**
+- `predicted_crowd` never overwrites observed fields and never raises `confidence`.
+- Evaluation-only tables `syn_true_state` and `syn_scout_truth` may be read **only** in
+  `crowd_model.evaluate` (and reports). Never as features, never in `live_state`/`scoring`/`routing`.
+- Training/evaluation joins reputation **as of the report date** from `syn_scout_reputation_history`; never join the
+  final `syn_scouts.reputation` to past reports. The live path uses the `reputation` the backend passes in.
 - `complaint_risk` is always labelled "311 noise-complaint risk"; never feeds
-  `match_score`/`vibe_score`; never described as quality.
+  `match_score`/`rank_score`/`vibe_score`/reasons/routing; never described as quality.
 - Type hints on public functions; docstrings state inputs, outputs, units.
 - Formatting: PEP 8, line ≤ 110, `ruff` if available (not required).
 - Seeds: `config.SEED = 42`; every random op takes a seed.
@@ -53,7 +66,8 @@ Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
    synthetic inputs carry `is_synthetic: true`.
 2. Synthetic files live under a path containing `synthetic`
    (`recs/tests/fixtures/synthetic/`, `recs/artifacts/synthetic/`, `recs/synthetic/`);
-   any DB table we would create is prefixed `syn_` (we don't plan to create any).
+   any DB table we would create is prefixed `syn_` (we don't plan to create any). Synthetic IDs
+   we create (fixtures, stub) start with `syn-` (e.g. `syn-r-000123`).
 3. Mark every code spot that uses synthetic data:
    `# SYNTHETIC: <real source that replaces this>`.
 4. Register every synthetic dataset/artifact in `docs/synthetic/ml-recs.md`:
@@ -63,8 +77,12 @@ Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
 
 ## Testing requirements
 - `pytest recs/tests -q` passes with zero failures before every push.
+- Golden vectors G1–G8 (specs) reproduced within ±1 point / ±0.01 confidence.
+- Differential test against specs' `docs/specs/tools/reference_scoring.py` when present.
 - Contract-shape tests for `live_state.compute`, `scoring.recommend`,
-  `routing.plan_night` (keys, types, ranges, JSON-serializable).
+  `routing.plan_night` (keys, types, ranges, JSON-serializable, list vs DataFrame inputs equal).
+- A test that fails if library modules reference `syn_true_state` / `syn_scout_truth`, and one proving the training table
+  is unchanged when future reputation-history rows change.
 - Property tests: removing a report never raises confidence; adding an older
   duplicate report changes state less than a fresh one; unknown values never cause
   exclusion; removing information never increases `match_score`; output stable under input order shuffle.
@@ -78,13 +96,15 @@ Rules for the session that builds `recs/`. Read this, `docs/CONTRACTS.md`,
 ## Git
 - Branch `nightlife/ml-recs` only; `git push -u origin nightlife/ml-recs`.
 - No PRs, no pushes to `main`, no force-push of others' history.
+- Push deadline: **Fri Nov 13 18:00 ET** (CONTRACTS v2 §I).
 - Small commits with clear messages.
 
 ## Definition of done
 - [ ] Public functions match CONTRACTS shapes; approved optional keys only.
 - [ ] All tests pass; latency budgets in PRD N1 met (measured in a test or report).
 - [ ] `recs/reports/crowd_model.md`, `clustering.md`, `routing.md`, `chaining.md` generated by the CLI.
-- [ ] `python -m recs demo --now 2026-11-14T23:30:00-05:00` prints recs + plan.
+- [ ] Golden G1–G8 pass.
+- [ ] `python -m recs demo --now 2026-11-14T23:30:00-05:00` (DEMO_NOW) prints recs + plan.
 - [ ] `docs/workstreams/ml-recs.md` (what/how to run/open issues/contract change requests).
 - [ ] `docs/synthetic/ml-recs.md` lists every synthetic item.
 - [ ] grep check: every file reading synthetic data has a `# SYNTHETIC:` comment.
