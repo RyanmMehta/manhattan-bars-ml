@@ -1,7 +1,9 @@
 # PRD — integration (Nightlife Autopilot, Mockups V1 / Nov 17)
 
 Workstream: `integration` · Branch: `nightlife/integration` (from `nightlife/contracts`) · Owner: Ryan Mehta
-Status: planning (no code yet) · Written 2026-11-11 · Hard deadline: **Tue 2026-11-17, class demo**
+Status: planning (no code yet) · Written 2026-11-11, **rev 2 for Contracts v2 (commit 2129052)** · Upstream deadline **Fri 2026-11-13 18:00 ET** · Hard deadline: **Tue 2026-11-17, class demo**
+
+> Rev 2: CR-1…CR-7 accepted in CONTRACTS.md v2 (§C, §D, §G, §H). Synthetic tables now live in a separate uncommitted `data/live_sim.db` (seed 42); deploys use `data/launch_venues_full.csv` (integration-owned) instead of the 39 MB DB; `DEMO_NOW = 2026-11-14T23:30:00-05:00` confirmed.
 
 ## 1. Problem
 
@@ -26,8 +28,8 @@ swap it for real data.
    API (mock mode off) for every MVP screen.
 3. **G3 Tested end to end.** A contract test suite (API shapes vs CONTRACTS.md) and a
    browser smoke test (Playwright) that run in one command and in CI.
-4. **G4 Seeded demo night.** A fixed, reproducible simulated night (default:
-   Saturday 2026-11-14, 21:00–02:00 ET, placeholder) the demo replays with `now=`.
+4. **G4 Seeded demo night.** The fixed, reproducible simulated history (Thu–Sat,
+   Sep 3 → Nov 14, seed 42, v2 §B); the demo replays `DEMO_NOW = 2026-11-14T23:30:00-05:00`.
 5. **G5 Deployed.** Backend on Render, frontend on Vercel, both reachable from a
    phone, health check green, cold-start understood.
 6. **G6 Honest about synthetic data.** Root `SYNTHETIC_DATA.md` that consolidates
@@ -70,11 +72,21 @@ app runs from a single checkout.
 
 **US-2 Contract check** — As integration, I want an automated check that every
 synthetic table and API response matches CONTRACTS.md.
-- AC: `pytest tests/contract` validates column sets of all 7 `syn_*` tables, the
-  Live Venue State, Recommendation result and every `/api/*` route in the table
-  (status 200, required keys, types, `null` allowed only where the contract says).
-- AC: every `syn_*` row has `is_synthetic = 1`; every `venue_id` in synthetic data is
-  one of the 35 in `data/launch_venues.csv`.
+- AC: `pytest tests/contract` validates column sets of every app `syn_*` table in
+  `data/live_sim.db` (the 7 v1 tables with v2 §E additions, plus `syn_venue_events`,
+  `syn_disputes`, `syn_points_ledger`), the Live Venue State (v2 §F optional keys),
+  Recommendation result (incl. `rank_score`, `rank`, `excluded_reason`, `complaint_risk`)
+  and every `/api/*` route (status, required keys, types, `is_synthetic` on every object,
+  `X-Data` header on lists, v2 §G error shape). Backend's `/openapi.json` is diffed
+  against `tests/contract/schemas.py`.
+- AC: every `syn_*` row has `is_synthetic = 1` and a `syn-` primary key; every
+  `venue_id` is one of the 35 in `data/launch_venues.csv` (`license_id AS venue_id`).
+- AC: evaluation-only tables (`syn_true_state`, `syn_scout_truth`) are never read by
+  `backend/` or `recs/` runtime code (grep test + an API test with those tables dropped).
+- AC: golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) pass through the
+  deployed API path, not only in unit tests.
+- AC: with `INCLUDE_SYNTHETIC=0` the API returns empty live state / `"data": "real"`
+  without errors (the swap-to-real switch works).
 
 **US-3 Group gets a pick** — As a group of 4 on Ludlow St at 23:30, I want to enter
 preferences and get ranked venues with reasons.
@@ -87,14 +99,15 @@ preferences and get ranked venues with reasons.
 
 **US-4 Scout reports and sees the effect** — As a Scout, I want to submit a 10-second
 vibe check and see the venue update.
-- AC: submitting a report in the UI → `POST /api/reports` returns 201 with server-set
-  `report_id`/`ts`; `GET /api/venues/{id}/state` afterwards shows `n_reports` +1 and
+- AC: after `POST /api/auth/demo-login` (role scout), submitting a report in the UI →
+  `POST /api/reports` returns `{report_id, ts, status, points_pending}`; `GET /api/venues/{id}/state` afterwards shows `n_reports` +1 and
   `freshness_minutes` ≈ 0.
 - AC: leaderboard and bounties screens render real API data with the demo badge.
 
 **US-5 Operator posts an update** — As a venue operator, I want to post tonight's
 cover/DJ/offer and see demand analytics.
-- AC: `POST /api/owner/{id}/updates` then the venue profile shows the new cover/offer;
+- AC: demo-login as owner → `POST /api/owner/{id}/updates` then the venue profile shows
+  the new cover/offer; an owner reporting their own venue is rejected;
   owner dashboard renders views/taps/reports/demand labelled "demo data".
 
 **US-6 Run My Night & heatmap** (later-tier, included if delivered) —
@@ -105,8 +118,9 @@ cover/DJ/offer and see demand analytics.
 **US-7 Replay the demo night** — As the presenter, I want the app pinned to a demo time.
 - AC: frontend env `VITE_DEMO_NOW` (or a URL param `?now=`) is passed to all read
   endpoints; a visible clock chip shows the simulated time.
-- AC: `make seed-demo` rebuilds the demo DB from seeds with byte-identical `syn_*`
-  CSV hashes (recorded in `docs/workstreams/integration.md`).
+- AC: `make seed-demo` regenerates `data/live_sim.db` with seed 42; a per-table row
+  count + content hash (ordered `SELECT *`) matches the values recorded in
+  `docs/workstreams/integration.md` on two machines (or two runs).
 
 **US-8 See what's fake** — As a classmate/instructor, I want to know what's synthetic.
 - AC: `SYNTHETIC_DATA.md` lists every dataset from every `docs/synthetic/*.md` with:
@@ -117,7 +131,9 @@ cover/DJ/offer and see demand analytics.
 **US-9 Deployed** — As anyone, I want to open one link.
 - AC: `https://<frontend>.vercel.app` (placeholder) loads on mobile Safari/Chrome;
   `https://<backend>.onrender.com/api/health` returns `{"ok": true}`.
-- AC: CORS allows only the Vercel origin(s) + localhost.
+- AC: CORS (`CORS_ORIGINS`) allows only the Vercel origin(s) + localhost.
+- AC: the Render image contains `data/launch_venues_full.csv` and a freshly generated
+  `data/live_sim.db`, not the 39 MB `manhattan_bars.db`.
 - AC: a warm-up step (curl health 2 min before class) is in the demo script.
 
 **US-10 Docs** — As a reader of the repo, I want an accurate README.
@@ -142,17 +158,22 @@ venues", complaint-risk display, Tableau embed/link, CI deploy previews, Postgre
 
 Functional
 - R1 Merge order and conflict policy as in OUTLINE §2; ownership from CONTRACTS.md wins.
-- R2 Single data build step `scripts/build_app_db.py` (or backend's equivalent, if it
-  already exists — reuse, don't duplicate) producing `data/app.db` from
-  `data/manhattan_bars.db` launch venues + `data/synthetic_live/*.csv`.
-- R3 Backend reads only `data/app.db` in deploy (the 39 MB pipeline DB is not shipped
-  to Render unless backend already does so and it fits; see Q3).
+- R2 Data build: `scripts/build_launch_venues_full.py` (integration, v2 §D) writes
+  committed `data/launch_venues_full.csv` (35 launch venues + OSM name, opening hours,
+  website flag, neighborhood) from `manhattan_bars.db`; live-sim's generator writes
+  uncommitted `data/live_sim.db` (seed 42). Integration reuses the generator, it does
+  not write its own.
+- R3 In deploy the backend reads `launch_venues_full.csv` + `live_sim.db` (`LIVE_SIM_DB`)
+  only; the Docker build runs the generator. `manhattan_bars.db` stays local/pipeline-only.
 - R4 All read endpoints accept `now=`; the frontend forwards a single demo time.
 - R5 Feature flags `FEATURE_ROUTING`, `FEATURE_HEATMAP` (backend env) and
   `VITE_FEATURE_*` (frontend) default off until their e2e checks pass.
 - R6 `recs/` import falls back to backend's stub only if `recs` import fails; the
-  fallback logs a warning and `/api/health` reports `{"ok": true, "recs": "stub"|"real"}`
-  (see CR-2).
+  fallback logs a warning and `/api/health` reports v2 §G keys (`recs`, `data`, `demo_now`).
+- R7 Swap path: real tables mirror `syn_` twins without the prefix; `INCLUDE_SYNTHETIC`
+  toggles synthetic rows (v2 §E). `SYNTHETIC_DATA.md` documents this as step 1 of every swap.
+- R8 Root files from specs: copy `docs/specs/team/` PR template → `.github/pull_request_template.md`
+  and CONTRIBUTING → root `CONTRIBUTING.md`; move `backend/render.yaml` to root if Render needs it (v2 §C).
 
 Non-functional
 - N1 Reproducible: fixed seeds; `make demo` from clean checkout < 5 min (placeholder).
@@ -165,25 +186,25 @@ Non-functional
 
 | Workstream | Integration needs (must arrive by) |
 |---|---|
-| **specs** | final scoring constants (half-life, display threshold, match weights) in `docs/specs/`; architecture diagram for README — **Nov 13** |
-| **research** | nothing blocking; one-line positioning + interview status for README/demo — Nov 15 |
-| **tableau** | extracts + PNG in `analytics/tableau/`; link for README/demo slide — Nov 15 |
-| **live-sim** | `data/synthetic_live/*.csv` for all 7 `syn_*` tables covering the demo night, CLI with seed, `docs/synthetic/live-sim.md` — **Nov 13** |
-| **ml-recs** | `recs/` importable with the 4 contract functions, pinned deps, unit tests passing; routing optional — **Nov 14** |
-| **backend** | all MVP endpoints, loader for syn_ tables, Dockerfile + render.yaml, pytest suite, CORS env var — **Nov 14** |
-| **frontend** | MVP screens against the contract API, mock mode toggle (`VITE_API_MODE=mock|live`), demo badge component, `VITE_API_BASE`, vercel config — **Nov 14** |
-| **coursework** | stays inside `coursework/`, doesn't change root requirements — Nov 16 |
+| **specs** | `docs/specs/SCORING.md` matching v2 §A constants + golden vectors G1/G5; architecture diagram; `docs/specs/team/` PR template + CONTRIBUTING — **Nov 13 18:00** |
+| **research** | nothing blocking; one-line positioning + interview status for README/demo; `syn_interviews`/`syn_interview_quotes`/`syn_survey_responses` registered — Nov 13 18:00 (soft) |
+| **tableau** | extracts (synthetic ones under `analytics/tableau/extracts/synthetic/`) + PNG; link for README/demo slide — Nov 13 18:00 (soft) |
+| **live-sim** | deterministic generator (seed 42) → `data/live_sim.db` with all v2 §E tables, Sep 3 → Nov 14 nights, `simulator/genres.py`, `docs/synthetic/live-sim.md` — **Nov 13 18:00** |
+| **ml-recs** | `recs/` importable with the 4 contract functions + v2 §F keys, accepts lists of dicts or DataFrames, G1/G5 tests green; routing optional — **Nov 13 18:00** |
+| **backend** | all MVP endpoints incl. v2 §G (demo-login, error shape, `X-Data`, `/openapi.json`), attaches `live_sim.db`, `INCLUDE_SYNTHETIC`, Dockerfile + `backend/render.yaml`, pytest — **Nov 13 18:00** |
+| **frontend** | mockup PNGs (target Nov 12); MVP screens against the contract API, `VITE_API_MODE=mock|live`, `VITE_DEMO_NOW`/`?now=`, demo badge, `VITE_API_BASE`, vercel config — **Nov 13 18:00** |
+| **coursework** | stays inside `coursework/`, doesn't change root requirements — Nov 13 18:00 (soft) |
 | **integration** | (this) merges from Nov 13, deploy dry-run Nov 15, freeze Nov 16 20:00 |
 
 Accounts: Render and Vercel accounts + GitHub app connection must be supplied by Ryan
-(blocking for G5) — **Nov 14**.
+(blocking for G5) — **Nov 13**.
 
 ## 9. Success metrics (for Nov 17)
 
 | Metric | Target (placeholder) |
 |---|---|
 | Branches merged | 8/8 (≥ 6/8 with documented reasons minimum) |
-| Contract tests passing | 100% of MVP routes and 7/7 syn tables |
+| Contract tests passing | 100% of MVP routes and every v2 §E app table; G1/G5 golden vectors |
 | Playwright smoke | 100% green on deployed URL, 3 consecutive runs |
 | Demo script rehearsal | ≥ 2 full run-throughs, each ≤ 5 min, zero hard failures |
 | `/api/recommend` p95 warm | < 1.5 s |
@@ -195,9 +216,11 @@ Accounts: Render and Vercel accounts + GitHub app connection must be supplied by
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| Upstream branches late (esp. backend/frontend) | High | merge whatever is pushed daily from Nov 13; backend stub + frontend mock mode as fallbacks; feature flags |
+| Upstream branches late (esp. backend/frontend) | High | deadline Fri Nov 13 18:00 ET gives a day of slack; merge whatever is pushed; backend stub + frontend mock mode as fallbacks; feature flags |
 | Schema drift vs CONTRACTS.md | Med | contract tests run first after each merge; adapters only in integration-owned shim with a CR filed |
-| Binary `data/manhattan_bars.db` conflicts (two branches rewrite it) | Med | DB is regenerated, never hand-merged; syn_ tables live in CSV + `data/app.db` (gitignored or rebuilt) |
+| Binary `.db` conflicts | Low (v2 §D: `live_sim.db` uncommitted) | `manhattan_bars.db` always taken from `nightlife/contracts`; any committed `live_sim.db` is removed and gitignored |
+| Generator non-determinism across machines (pandas/numpy versions) | Med | pin versions in the Docker image; compare row counts + content hashes, not file bytes |
+| Evaluation-only truth tables leak into app/features | Low/high impact | grep + drop-table contract test |
 | `requirements.txt` / root file conflicts | High | union + pin; one root `requirements.txt` plus per-package `backend/requirements.txt`, `recs/pyproject.toml` |
 | Render free tier cold start / sleep mid-demo | High | warm-up curl; keep-alive ping during class; local fallback (`make demo` on laptop) + recorded video |
 | Render image too big / build slow (pandas, sklearn) | Med | slim app DB; only install backend + recs deps |
@@ -209,17 +232,21 @@ Accounts: Render and Vercel accounts + GitHub app connection must be supplied by
 ## 11. Open questions
 
 - Q1 Does `nightlife/integration` get merged to `main` after Nov 17, and who does it? (assumed: Ryan, manually)
-- Q2 Exact demo night date/time — must match a night live-sim generates (placeholder Sat 2026-11-14 23:30 ET).
-- Q3 Ship the 39 MB `manhattan_bars.db` to Render or a slim `app.db`? (assumed slim, launch venues + needed columns)
+- ~~Q2 demo time~~ — resolved: `DEMO_NOW = 2026-11-14T23:30:00-05:00` (v2 §B).
+- ~~Q3 39 MB DB on Render~~ — resolved: `launch_venues_full.csv` + generated `live_sim.db` (v2 §D).
+- Q3b Generate `live_sim.db` at Docker build time or at container start? (assumed build time; start-time fallback if build exceeds Render limits)
 - Q4 Render/Vercel account owner, project names, custom domain? (assumed default subdomains)
-- Q5 Should scout/owner auth be faked (pick-a-persona) for the demo? (assumed yes, per backend's MVP auth)
+- ~~Q5 auth~~ — resolved: `POST /api/auth/demo-login` (v2 §G); demo script uses pre-chosen personas.
 - Q6 Are POSTs during the demo persisted (Render disk is ephemeral)? (assumed reset on redeploy; acceptable)
 - Q7 Do Run My Night and heatmap count toward "working model"? (assumed nice-to-have)
 - Q8 Is CI (GitHub Actions) wanted, or local `make test` enough for the course?
 
 ## 12. Contract change requests
 
-Recorded here per the brief (also copied to `docs/workstreams/integration.md` at build time). CONTRACTS.md is not edited.
+Recorded here per the brief. CONTRACTS.md is not edited.
+**Status (Contracts v2, commit 2129052): CR-1 … CR-7 all accepted** — CR-1 → v2 §C,
+CR-2/CR-6 → §G, CR-3 → §D, CR-4 → §B, CR-5 → §H, CR-7 → §C. No open CRs.
+Original text kept below for history.
 
 - **CR-1 Integration-owned paths.** CONTRACTS.md's folder table has no row for
   integration. Proposed rows: `tests/e2e/`, `tests/contract/`, `scripts/` (integration

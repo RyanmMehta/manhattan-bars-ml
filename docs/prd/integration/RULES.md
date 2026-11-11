@@ -37,8 +37,10 @@ and verify; you do not re-implement other workstreams' features.
 
 ## 4. Folders integration owns (may create/edit freely)
 - `tests/contract/`, `tests/e2e/`, `tests/conftest.py` (root-level test glue only)
-- `scripts/integration/` (merge audit, build demo DB, consolidate synthetic docs, warm-up)
-- `Makefile`, `requirements-dev.txt`, `.github/workflows/integration.yml`
+- `scripts/` (v2 §C; integration's own scripts under `scripts/integration/`, plus `scripts/build_launch_venues_full.py`)
+- `data/launch_venues_full.csv` (v2 §D; real public data, `is_synthetic` not needed)
+- root `CONTRIBUTING.md`, root `render.yaml`, `.dockerignore`, `.github/` (v2 §C)
+- `Makefile`, `requirements-dev.txt`
 - `SYNTHETIC_DATA.md`, `DEMO.md`, `README.md` (root; preserve existing pipeline sections)
 - `docs/prd/integration/`, `docs/workstreams/integration.md`, `docs/synthetic/integration.md`
 - `.gitignore` (append only)
@@ -59,7 +61,8 @@ and verify; you do not re-implement other workstreams' features.
    `.gitignore` → union; `README.md` → integration rewrites last (others' text moved into
    their own docs, linked).
 3. Binary files (`*.db`, images): never hand-merge. Take `nightlife/contracts` for
-   `manhattan_bars.db`; regenerate derived DBs (`data/app.db`) from CSV.
+   `manhattan_bars.db`. `data/live_sim.db` is never committed (v2 §D) — if a branch
+   commits it, `git rm --cached` it, gitignore it, and regenerate with seed 42.
 4. Contract disagreements: CONTRACTS.md wins; if the producer is wrong, write an
    adapter in `scripts/integration/` or the consumer only as a last resort, and file a CR.
 5. Record every non-trivial resolution in `docs/workstreams/integration.md` → "Merge log".
@@ -67,7 +70,7 @@ and verify; you do not re-implement other workstreams' features.
 ## 7. Coding conventions
 - Python: PEP 8, type hints on public functions, module docstring with usage line,
   `pathlib` paths relative to repo root, run scripts with `python -I`. No notebooks.
-- Scripts are idempotent and take `--seed` / `--now` where relevant; default seed 17 (placeholder).
+- Scripts are idempotent and take `--seed` / `--now` where relevant; default seed **42** and `--now` default `DEMO_NOW = 2026-11-14T23:30:00-05:00` (v2 §B).
 - Timestamps: ISO 8601 with offset, America/New_York (contract). Never naive datetimes in tests.
 - TS (only for wiring fixes): follow frontend's lint/prettier config.
 - Small functions, no frameworks beyond the stack above. Config via env vars with defaults
@@ -86,7 +89,10 @@ and verify; you do not re-implement other workstreams' features.
   from all `docs/synthetic/*.md` plus a hand-written intro; re-run it after every merge.
   Never edit the generated table by hand — fix the source registry instead.
 - UI badge check: Playwright asserts the "demo data" badge on every screen showing synthetic data.
-- Complaint-risk scores are always labelled "complaint risk", never "quality" or "vibe".
+- Complaint-risk scores are always labelled "311 noise-complaint risk" (v2 §F), never "quality" or "vibe".
+- Evaluation-only tables (`syn_true_state`, `syn_scout_truth`) are read only by tests/evaluation code, never by app, API or model features.
+- Synthetic primary keys start with `syn-` (v2 §D).
+- The swap path is the `INCLUDE_SYNTHETIC` switch + un-prefixed real twin tables (v2 §E); document it, test it, don't invent another.
 
 ## 9. Testing requirements
 - `make test` runs, in order: existing smoke (`src` import + `simulate.py --n 100` into a temp DB),
@@ -104,7 +110,9 @@ and verify; you do not re-implement other workstreams' features.
 - [ ] All 8 branches merged (or a documented reason per skipped branch); merge log written.
 - [ ] `make test` green locally; `make test-deployed` green 3× in a row.
 - [ ] Backend live on Render, frontend live on Vercel, mock mode off, CORS locked to Vercel + localhost.
-- [ ] Demo night seeded reproducibly (`make seed-demo`, hashes recorded).
+- [ ] Demo seeded reproducibly (`make seed-demo`, seed 42 → `data/live_sim.db`, row counts + hashes recorded); `DEMO_NOW` 2026-11-14T23:30:00-05:00 shown in the UI clock and `/api/health`.
+- [ ] `data/launch_venues_full.csv` committed; Render image excludes `manhattan_bars.db`.
+- [ ] G1/G5 golden vectors pass through the API; truth-leak and `INCLUDE_SYNTHETIC=0` tests green.
 - [ ] `SYNTHETIC_DATA.md` complete; every `SYNTHETIC:` comment maps to a row; badge on every synthetic screen.
 - [ ] README updated (URLs, quickstart, folder map, env table, synthetic warning), original pipeline docs intact.
 - [ ] `DEMO.md` demo script rehearsed twice, with fallback (local + recording).
