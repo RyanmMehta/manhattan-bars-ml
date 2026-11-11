@@ -151,3 +151,109 @@ Query param `now=<ISO>` on read endpoints lets the demo replay a simulated night
 ## Branches
 Each workstream works on `nightlife/<name>` branched from `nightlife/contracts`,
 pushes it, and does not open PRs or push to `main`. Integration merges them.
+
+---
+
+# v2 amendments (Nov 11, master) — these override anything above
+
+Resolved from every workstream's "Contract change requests". Where two plans
+disagreed, the decision is stated here; follow it.
+
+## A. Canonical constants (owned by specs; all are placeholders until pilot data)
+| Constant | Value | Note |
+|---|---|---|
+| Half-life crowd/dancing/line | 30 min | ml-recs' 45 min placeholder is replaced |
+| Half-life scout cover/genre | 60 min | |
+| Half-life operator cover/genres/dj | 120 min; offers until `offer_expires_at` | |
+| Input cutoff | 180 min old, or ts > now+2 min | |
+| Reputation weight | `w_rep = 0.25 + 0.75·r`, new scouts r = 0.5 | |
+| Unverified presence weight | 0.6 | |
+| Confidence k | 1.5 | |
+| Display threshold | conf ≥ 0.40 show; 0.20–0.39 greyed "low confidence"; < 0.20 or vibe null → "No fresh reports" | ml-recs' 0.35 is replaced |
+| Unknown match component | scores 0.4 and adds a `missing` entry | |
+| Presence radius | 150 m (store distance_m only, never raw GPS) | backend's 100 m is replaced |
+| Rank | `rank_score = match_score · (0.75 + 0.25·confidence)` | |
+| Trend | `rising` / `steady` / `falling` / `null` (Δ ±0.4, 30 vs 30–90 min windows) | |
+Full formulas: `docs/prd/specs/PRD.md` §5–7 (built version moves to `docs/specs/SCORING.md`).
+Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit tests for ml-recs and backend.
+
+## B. Demo time and data window
+- Simulated history: Thu–Sat nights from **Thu Sep 3 → Sat Nov 14, 2026** (11 weeks,
+  33 nights), seed 42, 20:00–03:00 ET. Detailed reports for all nights. This gives
+  coursework ≥ 10 weeks for churn and ml-recs ≥ 8 nights for a temporal holdout
+  (hold out the last 2 nights: Nov 13–14).
+- Scouts follow an engagement process with drop-off (latent engagement decays; bounties/rewards bump it).
+- **DEMO_NOW = 2026-11-14T23:30:00-05:00** for every workstream (tableau's "tonight"
+  heatmap uses Sat Nov 14 20:00–03:00). The class demo replays this moment.
+- Frontend: env `VITE_DEMO_NOW` and URL `?now=` are forwarded as API `now=`.
+
+## C. Folder ownership additions
+- `docs/prd/<name>/` = plans (each workstream); `docs/workstreams/<name>.md` = as-built notes. Both kept.
+- specs: `docs/specs/` for built specs; drafts `docs/specs/team/` (PR template, CONTRIBUTING), integration copies to `.github/` and root.
+- integration owns: `tests/e2e/`, `tests/contract/`, `scripts/`, `Makefile`, `.github/`,
+  root `README.md`, `SYNTHETIC_DATA.md`, `DEMO.md`, `CONTRIBUTING.md`, root `render.yaml`.
+- backend writes `backend/render.yaml`; integration moves it to root if needed.
+- tableau may use `analytics/tableau/extracts/synthetic/`.
+
+## D. IDs and data files
+- `data/launch_venues.csv` keeps header `license_id`; loaders alias `license_id AS venue_id`.
+- Synthetic primary keys start with `syn-` (e.g. `syn-r-000123`, `syn-s-0042`).
+- Synthetic tables are loaded into a separate **`data/live_sim.db`** (not into
+  `manhattan_bars.db`); backend attaches both. Generated `.db` files are not committed;
+  the generator is deterministic (seed 42). integration produces `data/launch_venues_full.csv`
+  (launch venues + OSM name/hours) so deploys don't need the 39 MB DB.
+- Hand-labelled venue attributes: if the team fills `data/venue_attributes_manual.csv`
+  (same columns as `syn_venue_attributes`, `is_synthetic=0`), it overrides synthetic rows.
+- Launch venues are all Bar/Tavern (the two LES "Club" licences are not nightclubs). Dancing
+  signal comes from `syn_venue_attributes.has_dance_floor`; expect it to be sparse.
+
+## E. Schema additions (live-sim generates unless noted)
+- `syn_scout_reports` + `status` (pending|accepted|flagged|disputed|removed), `distance_m` (nullable int).
+- `syn_scouts` + `last_active_at` (nullable), `archetype` NOT here (see truth tables).
+- `syn_venue_attributes` + `is_claimed` (0/1), `opening_hours` (nullable, from OSM when present).
+- `syn_bounties` + `expires_at`, `claimed_at` (nullable). Claimed implicitly by the first qualifying report; no claim endpoint in MVP.
+- New `syn_venue_events`: event_id, venue_id, ts, event_type (view|tap|save|recommend_impression), user_id (nullable), is_synthetic. (Owner-dashboard demand is aggregated from this; `syn_venue_demand` is dropped.)
+- New `syn_disputes`: dispute_id, report_id, opened_by, reason, opened_at, status, resolved_at, is_synthetic.
+- New `syn_points_ledger`: entry_id, scout_id, report_id, bounty_id, points, reason, ts, is_synthetic.
+- **Evaluation-only** (never read by the app or API, never used as model features):
+  `syn_true_state` (venue_id, ts 15-min slots, crowd_true, dancing_true, line_minutes_true,
+  cover_usd_true, genre_true, occupancy, is_synthetic) — replaces specs' `syn_venue_truth`;
+  `syn_scout_truth` (scout_id, archetype honest|casual|sloppy|gamer|shill, home_venue_id, latent_churn_date, is_synthetic).
+- research (own folder, not in the DB): `syn_interviews`, `syn_interview_quotes`, `syn_survey_responses`.
+- Shared genre vocabulary (lowercase): `hip-hop, r&b, house, techno, pop, top-40, latin, reggaeton, afrobeats, rock, indie, jazz, soul, funk, disco, 90s-00s, edm, live-band, karaoke, mixed`. live-sim publishes it as `simulator/genres.py` (`GENRES`).
+- Real app tables mirror their `syn_` twins without the prefix (`scout_reports`, `venue_updates`, `venue_events`, …). Backend reads `UNION ALL`; `INCLUDE_SYNTHETIC=0` hides synthetic rows. That switch is the swap-to-real-data path.
+
+## F. recs interface additions
+- Report rows passed to `recs` carry `reputation` (backend joins from scouts; default 0.5).
+- `venues` arg: `venue_id, name, lat, lon` + optional `syn_venue_attributes` fields.
+- Inputs are lists of dicts (backend may pass DataFrames; recs accepts both).
+- Live State optional keys: `display` (show|low|none), `predicted_crowd`, `predicted_source`; `vibe_score`, `confidence`, `trend` may be null. Predictions never overwrite observed fields.
+- Recommendation adds: `rank_score`, `rank`, `excluded_reason` (str|null), `cluster_label`, `complaint_risk` (labelled "311 noise-complaint risk"), `is_synthetic`.
+- Preferences optional: `start_time`, `dwell_minutes` (60), `max_total_walk_minutes` (30), `exclude_venue_ids` (plan-night).
+- `plan_night` stop: `{order, venue_id, name, lat, lon, arrive_at, leave_at, walk_minutes_from_prev, distance_km, expected_vibe, match_score, confidence, reasons[]}`.
+
+## G. HTTP API additions
+- Every response object carries `is_synthetic`; list endpoints also return top-level header `X-Data: synthetic|real|mixed`.
+- Errors: `{"error": {"code", "message", "details"}}` (422s reshaped too).
+- `/api/health` → `{"ok": true, "recs": "real"|"stub", "data": "synthetic"|"real"|"mixed", "demo_now": ISO|null}`.
+- Auth (MVP): `POST /api/auth/demo-login {display_name, role: user|scout|owner, venue_id?}` → `{token, user_id|scout_id}`; writes need `Authorization: Bearer <token>`. Owners cannot report their own venue.
+- `/api/venues`: `limit` (50, max 200), `offset`; bare list + `X-Total-Count`.
+- `POST /api/reports`: client sends venue_id, crowd, dancing, line_minutes, cover_usd?, music_genre?, lat?, lon?; server sets report_id, scout_id, ts, verified_presence, distance_m, status. Returns `{report_id, ts, status, points_pending}`.
+- `POST /api/feedback` (syn_feedback fields minus id/recommended_at).
+- `/api/heatmap?now=&by=hour` items: `{venue_id, lat, lon, hour?, vibe_score, confidence, n_reports, is_synthetic}`.
+- Response shapes:
+  - venue card: `{venue_id, name, display_name, style, genres[], price_level, typical_cover_usd, lat, lon, distance_km?, opening_hours, is_claimed, state, complaint_risk, is_synthetic}`
+  - venue detail: `{venue, state, recent_reports[], offers[]}`
+  - leaderboard row: `{rank, scout_id, display_name, level, points, points_week, reputation, is_synthetic}`
+  - bounty row: syn_bounties fields + `venue_name`
+  - owner dashboard: `{venue_id, views, taps, saves, reports_tonight, rec_appearances, demand_by_hour:[{hour, value}], is_synthetic}`
+- Backend publishes these as Pydantic models; `GET /openapi.json` is the machine-readable contract.
+
+## H. Env names (reserved)
+`INCLUDE_SYNTHETIC`, `DEMO_NOW`, `CORS_ORIGINS`, `DATABASE_URL`, `LIVE_SIM_DB`, `FEATURE_ROUTING`, `FEATURE_HEATMAP`,
+`VITE_API_BASE`, `VITE_API_MODE` (mock|live), `VITE_DEMO_NOW`, `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP`.
+
+## I. Schedule (from integration)
+Upstream deliverables pushed by **Fri Nov 13 18:00 ET** (moved up a day from integration's Nov 14 so there is slack); integration merges from Nov 13 in the order
+specs → research → tableau → coursework → live-sim → ml-recs → backend → frontend; deploy dry-run Nov 15; freeze Nov 16 20:00; demo Nov 17.
+Frontend mockup PNGs (overdue Nov 10 deliverable) are the first frontend priority: target Thu Nov 12.
