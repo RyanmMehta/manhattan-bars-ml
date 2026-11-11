@@ -1,7 +1,7 @@
 # PRD: tableau workstream (Nightlife Autopilot)
 
 Status: planning (no code yet). Owner folder: `analytics/tableau/`. Branch: `nightlife/tableau`.
-Aligned with CONTRACTS.md v2 (commit 2129052). Push deadline Fri Nov 13 18:00 ET; integration merges tableau 3rd.
+Aligned with CONTRACTS.md v2.1 (commit 0a5ba55). Demo night confirmed: Sat 2026-11-14 20:00-03:00 ET, DEMO_NOW 23:30. Push deadline Fri Nov 13 18:00 ET; integration merges tableau 3rd.
 
 ## 1. Problem
 The course needs a Tableau dashboard deliverable (originally due **Oct 6**, now
@@ -107,7 +107,7 @@ stand-in PNG, build instructions, synthetic registry, workstream doc.
 - Swap SYN-T1 placeholder for live-sim reports (Nov 14-15, after live-sim/ml-recs merge),
   then for real scout reports from the backend (`GET /api/heatmap?by=hour`, `INCLUDE_SYNTHETIC=0`).
 - Owner demand sheet from `syn_venue_events` (views/taps/saves by hour).
-- "Typical week" heatmap over all 33 simulated nights (weekday × hour).
+- "Typical week" heatmap over all 36 simulated nights (Thu Aug 27 → Sat Nov 14) (weekday × hour).
 - Owner demand analytics sheet (views/taps per hour) once backend has events.
 - Trend over time (complaints by month 2023-10 → 2026-10).
 - Embedding the published viz in the frontend "About the data" page.
@@ -137,7 +137,7 @@ Non-functional
 | specs | v2 constants are set (half-life 30 min, k 1.5, display 0.40/0.20); needs `docs/specs/SCORING.md` vibe formula + golden vector G1 for the fallback; final colour/brand if any |
 | research | gives: market-story numbers it may quote; needs: confirm which charts support the "why LES" argument |
 | tableau | (this) |
-| live-sim | **needs** `syn_scout_reports` (+ `syn_scouts.reputation`, optional `syn_venue_updates`) for Sat Nov 14 in `data/live_sim.db`, seed 42; merged after tableau, so tableau ships with SYN-T1 and refreshes later |
+| live-sim | **needs** 30-min demo-night snapshots (preferred) or `syn_scout_reports` + `syn_scout_reputation_history` (optional `syn_venue_updates`) for Sat Nov 14 in `data/live_sim.db`, seed 42; merged after tableau, so tableau ships with SYN-T1 and refreshes later |
 | ml-recs | **needs** `recs.live_state.compute_all` to turn reports into hourly vibe_score; fallback is a simple local mean (marked) |
 | backend | later: `GET /api/heatmap?now=` as the live replacement for the tonight extract |
 | frontend | gives: colour scales for map/heatmap so the app matches; optional embed later |
@@ -168,6 +168,7 @@ Non-functional
 3. ~~Which simulated night?~~ Resolved (v2 §B): Sat Nov 14 2026 20:00-03:00 ET, DEMO_NOW 23:30, seed 42.
 3b. Should `pending` reports count in the heatmap, or only `accepted`? Assumed: accepted + pending (what the app shows live), flagged/disputed/removed excluded.
 4. Should the heatmap use `recs.live_state` vibe_score or a simpler report-count density? Assumed: vibe_score via recs, with a v2-constant fallback.
+7. live-sim snapshots: exact table/file name and columns, and is the hourly cell the HH:30 snapshot, the HH+1:00 snapshot, or their mean? Assumed: mean of the two snapshots inside the hour; the 23:30 snapshot is shown as "now".
 6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
 5. Do we include all-Manhattan `venues` (5,737) or only `v_bars` (1,727)? Assumed: `v_bars` for maps, `venues` counts in neighbourhood summary as context.
 
@@ -178,7 +179,7 @@ Non-functional
 - `matplotlib` is an acceptable new dependency (listed in `analytics/tableau/requirements.txt`, not the root file).
 
 ## 13. Contract change requests
-All accepted in CONTRACTS.md v2 (commit 2129052):
+All accepted in CONTRACTS.md v2 (commit 2129052), unchanged in v2.1 (0a5ba55):
 1. ✅ `analytics/tableau/extracts/synthetic/` allowed as a synthetic path (v2 §C).
 2. ✅ `GET /api/heatmap?now=&by=hour` items `{venue_id, lat, lon, hour?, vibe_score, confidence, n_reports, is_synthetic}` (v2 §G).
 3. ✅ `is_synthetic` on every API object (v2 §G).

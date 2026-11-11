@@ -21,7 +21,7 @@ Contracts in `docs/CONTRACTS.md` win if anything here conflicts.
   `license_id`, alias `AS venue_id`), `data/live_sim.db` (live-sim; path from env
   `LIVE_SIM_DB`; generated, never committed), `recs/` (ml-recs, import only).
 - Never read the evaluation-only tables `syn_true_state` and `syn_scout_truth`.
-- Contract: CONTRACTS.md v2 (commit 2129052). Use its constants (§A) and DEMO_NOW
+- Contract: CONTRACTS.md v2.1 (commit 0a5ba55). Join reputation as of the report date (`syn_scout_reputation_history`), never final reputation. Use its constants (§A) and DEMO_NOW
   `2026-11-14T23:30:00-05:00` (§B); never invent different ones.
 
 ## Must not touch

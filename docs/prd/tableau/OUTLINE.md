@@ -2,7 +2,7 @@
 
 Sizes: S ≈ < 1 h, M ≈ 1-3 h, L ≈ 3-6 h (placeholders).
 Order: public-data parts first (no dependencies), synthetic tonight sheet last.
-Aligned with CONTRACTS.md v2 (commit 2129052). Push deadline: **Fri Nov 13 18:00 ET**;
+Aligned with CONTRACTS.md v2.1 (commit 0a5ba55). Push deadline: **Fri Nov 13 18:00 ET**;
 integration merges tableau 3rd (after specs, research, before live-sim/ml-recs), so the
 branch must ship working with the SYN-T1 placeholder and refresh once live-sim lands.
 
@@ -89,7 +89,8 @@ Stand-in PNG mirrors S1-S5 with matplotlib (scatter on lat/lon with equal aspect
 Consumed (per CONTRACTS.md):
 - `data/manhattan_bars.db` tables `v_bars`, `venues`, `venue_features` (read-only).
 - `data/launch_venues.csv` (venue_id = license_id).
-- live-sim: `data/live_sim.db` (env `LIVE_SIM_DB`; generated, seed 42, not committed) tables `syn_scout_reports` (+ optional `syn_venue_updates`, `syn_scouts.reputation` joined as `reputation`, default 0.5) per v2 §E.
+- live-sim: `data/live_sim.db` (env `LIVE_SIM_DB`; generated, seed 42, not committed) tables `syn_scout_reports` (+ optional `syn_venue_updates`) per v2 §E. `reputation` is joined **as of the report date** from `syn_scout_reputation_history` (v2.1 §E; as_of_date ≤ 2026-11-14, latest row), default 0.5 — never the final `syn_scouts.reputation`, which leaks the future.
+- live-sim 30-minute demo-night snapshots (Sat Nov 14, 20:00-03:00; promised by master, file/table name TBD): preferred source for E6 when present — take the snapshot at each hour end (20:30/21:00 pairs → hourly cell = the :59-aligned snapshot, or the mean of the two half-hour snapshots, see open Q). Precedence: snapshots → `recs.live_state` over reports → v2 fallback → SYN-T1.
 - ml-recs: `recs.live_state.compute_all(reports, updates, now) -> list[dict]` (Live Venue State incl. optional `display`, nullable `vibe_score`/`confidence`/`trend`), called at each hour end on Sat Nov 14.
 - Later backend: `GET /api/heatmap?now=&by=hour` → `{venue_id, lat, lon, hour, vibe_score, confidence, n_reports, is_synthetic}` (v2 §G; accepted CCR). With `INCLUDE_SYNTHETIC=0` it serves only real `scout_reports`.
 
