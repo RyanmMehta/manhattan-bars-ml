@@ -26,7 +26,11 @@ You own and may write only:
 - `docs/synthetic/coursework.md`
 - `docs/prd/coursework/**` (update the plan if it changes)
 
-Read-only: `data/manhattan_bars.db`, `data/launch_venues.csv`, `data/synthetic_live/**` (live-sim output), `src/**`.
+Read-only: `data/manhattan_bars.db`, `data/live_sim.db` (live-sim output, CONTRACTS v2 §D; path via env `LIVE_SIM_DB`),
+`data/launch_venues.csv` (header `license_id`, alias it `AS venue_id`), `data/synthetic_live/**`, `src/**`.
+
+**Evaluation-only tables** (`syn_scout_truth`, `syn_true_state`): read them only in `churn/evaluate_truth.py`. Never use them as features.
+Also never use `syn_scouts` end-of-sim snapshot columns (`reputation`, `points`, `level`, `reports_count`, `last_active_at`) as features.
 
 **Must not touch:** `docs/CONTRACTS.md`, `src/`, root `requirements.txt`, `run_all.sh`, `data/manhattan_bars.db`
 (never write tables into it), `simulator/`, `recs/`, `backend/`, `frontend/`, `research/`, `analytics/`,
@@ -67,7 +71,8 @@ Read-only: `data/manhattan_bars.db`, `data/launch_venues.csv`, `data/synthetic_l
 ## 7. Synthetic-data marking (mandatory, from CONTRACTS.md)
 - Every synthetic CSV/table has an `is_synthetic` column = 1.
 - Synthetic files live under a path containing `synthetic` (e.g. `coursework/churn/outputs/synthetic/`).
-  Never create DB tables. If one ever becomes necessary, prefix it `syn_`.
+  Never create DB tables. If one ever becomes necessary, prefix it `syn_`. Synthetic IDs in the stand-in start with `syn-`
+  (`syn-s-0042`, `syn-r-000123`), per CONTRACTS v2 §D.
 - Every code line that reads or creates synthetic data has a comment
   `# SYNTHETIC: <real source that replaces this>`, e.g.
   `# SYNTHETIC: replace with real scout_reports table from backend DB once Scouts are live`.
@@ -95,4 +100,4 @@ Read-only: `data/manhattan_bars.db`, `data/launch_venues.csv`, `data/synthetic_l
 - [ ] `docs/synthetic/coursework.md` and `docs/workstreams/coursework.md` written (with how to run, results, open issues, contract change requests).
 - [ ] Every synthetic touchpoint has `is_synthetic`, a `synthetic` path, and a `# SYNTHETIC:` comment (`grep` check passes).
 - [ ] Nothing outside the owned folders changed (`git diff --name-only nightlife/contracts` shows only owned paths).
-- [ ] Branch pushed.
+- [ ] Branch pushed by **Fri Nov 13 18:00 ET** (CONTRACTS v2 §I).
