@@ -205,13 +205,13 @@ Ryan provides: a Render account connected to GitHub `ryanmmehta/manhattan-bars-m
 provides the Vercel URL. No paid APIs.
 1. Render → New → Blueprint → repo, branch `nightlife/backend` (integration later switches to the merged branch), Blueprint path `backend/render.yaml` (or root copy, v2 §C).
 2. `render.yaml` (to write): one `web` service, `runtime: docker`, `dockerfilePath: backend/Dockerfile`, `dockerContext: .`, `healthCheckPath: /api/health`, plan `free` (placeholder; Starter for a disk). Env: `DEMO_NOW=2026-11-14T23:30:00-05:00`, `INCLUDE_SYNTHETIC=1`, `ALLOW_FIXTURE_SIM=0`, `DEMO_AUTH=1`, `RECS_MODE=auto`, `FEATURE_ROUTING=1`, `FEATURE_HEATMAP=1`, `CORS_ORIGINS=<vercel url>,http://localhost:5173`, `ADMIN_TOKEN` (`generateValue: true`).
-3. `live_sim.db` is generated at build time (v2 §J): the Dockerfile runs live-sim's `make data` equivalent (< 60 s) after copying `simulator/`, so the image ships with it. If integration switches to a native Render build, the same command goes in `buildCommand`.
+3. `live_sim.db` is generated at build time (v2 §J): the Dockerfile runs `python -I -m simulator --seed 42 --out data/live_sim.db` (< 60 s; same as integration's `make data`) after copying `simulator/`, so the image ships with it. If integration switches to a native Render build, the same command goes in `buildCommand`.
 4. Deploy; wait for the health check; `python backend/scripts/smoke.py https://<service>.onrender.com`.
 5. Free-tier caveats (check Render's current limits at deploy time): sleeps when idle; ephemeral disk, so app-DB writes reset on restart.
 6. Postgres later: create Render Postgres, set `DATABASE_URL=postgresql+psycopg://...`; the build/release step runs migrations then `ensure_sim.py --copy-to-db` (v2 §J).
 
 ## 8. Assumptions recorded
-- live-sim's build command writes `data/live_sim.db` deterministically in < 60 s (v2 §J); exact command to confirm.
+- live-sim's build command is `python -I -m simulator --seed 42 --out data/live_sim.db` (contracts `b46d75f`); `--nights 2` for a quick dev DB.
 - Pending reports count in live state; flagged/removed don't.
 - Neighborhood for all launch venues is `LES/Chinatown` (`venues.neighborhood`).
 - Docker build context is the repo root so `data/` and `simulator/` are available.

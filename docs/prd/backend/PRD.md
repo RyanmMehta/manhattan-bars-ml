@@ -221,7 +221,7 @@ Upstream deadline for everyone: **Fri Nov 13 18:00 ET**; integration merges back
 
 1. Does Ryan have a Render account, and is it Free or Starter (persistent disk)?
 2. Vercel production origin for `CORS_ORIGINS`?
-3. live-sim: exact CLI / `make data` command and output path, so `render.yaml`'s build command and the Dockerfile can call it. (Build-time generation is decided, v2 §J.)
+3. ~~live-sim build command~~ Resolved (contracts `b46d75f`): `python -I -m simulator --seed 42 --out data/live_sim.db`; quick mode `--nights N` for tests/dev.
 4. specs: point values (base, verified bonus) and report rate limit; full G1/G5 input fixtures.
 5. Should pending reports count in live state immediately, or only after acceptance? (Plan: count `pending` and `accepted`.)
 6. Postgres for Nov 17, or SQLite only? (Plan: SQLite.)
