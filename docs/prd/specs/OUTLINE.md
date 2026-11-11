@@ -1,9 +1,10 @@
 # OUTLINE — specs build plan
 
-Planning draft, 2026-11-11. Read with `PRD.md` (what) and `RULES.md` (how).
+Planning draft, 2026-11-11, updated for Contracts v2 (commit 2129052). Read with `PRD.md` (what) and `RULES.md` (how).
 Sizes: **S** ≤ 1 h, **M** 1–3 h, **L** 3–6 h (one person / one Claude session).
-Target: specs done by **Nov 13** so ml-recs, backend and frontend can build to
-it before the **Nov 17** integration.
+Target: specs pushed by **Thu Nov 12 EOD** (hard deadline Fri Nov 13 18:00 ET,
+v2 §I). Integration merges specs **first**, then research → tableau →
+coursework → live-sim → ml-recs → backend → frontend.
 
 ## 1. Ordered tasks
 
@@ -28,7 +29,7 @@ it before the **Nov 17** integration.
 ### Phase D — checks and handoff (Nov 13)
 - [ ] D1 **M** `tools/check_docs.py` + unit tests (`tools/test_reference_scoring.py`).
 - [ ] D2 **S** Run all checks; paste output into `docs/workstreams/specs.md`.
-- [ ] D3 **S** Consolidate Contract change requests (PRD §13) into `docs/workstreams/specs.md`.
+- [ ] D3 **S** Record in `docs/workstreams/specs.md` that CCR-1–8 are resolved by Contracts v2; log any new requests.
 - [ ] D4 **S** Commit, `git push -u origin nightlife/specs`, notify master.
 
 Total ≈ 22–30 h of work, parallelisable B2‖B5‖B6.
@@ -76,7 +77,7 @@ docs/
 | Golden vectors | `golden_synthetic/G*.json` (format below) | ml-recs pytest, backend contract tests |
 | Display thresholds, copy for reasons/missing/badges | `SCORING.md` §display, `REQUIREMENTS.md` | frontend |
 | Write-time trust rules (rate limits, geofence, status, points, owner ban) | `TRUST.md` | backend |
-| Gaming-scout behaviours and truth table request | `TRUST.md`, `EVALUATION.md`, CCR-1 | live-sim |
+| Gamer/shill scout behaviours; eval use of `syn_true_state` / `syn_scout_truth` | `TRUST.md`, `EVALUATION.md` | live-sim |
 | Metric definitions | `EVALUATION.md` | ml-recs (harness), tableau |
 | Team workflow docs | `team/` | integration (copies to `.github/`, root) |
 
@@ -84,28 +85,38 @@ Golden vector format:
 ```json
 {
   "id": "G1", "description": "...", "is_synthetic": 1,
-  "now": "2026-11-14T23:00:00-05:00",
-  "scouts":  [{"scout_id": "syn_s1", "reputation": 0.8, "is_synthetic": 1}],
-  "reports": [{"report_id": "syn_r1", "venue_id": "0370-24-138636", "scout_id": "syn_s1",
-               "ts": "2026-11-14T22:55:00-05:00", "crowd": 4, "dancing": 2,
+  "now": "2026-11-14T23:30:00-05:00",
+  "scouts":  [{"scout_id": "syn-s-0001", "reputation": 0.8, "is_synthetic": 1}],
+  "reports": [{"report_id": "syn-r-000001", "venue_id": "0370-24-138636", "scout_id": "syn-s-0001",
+               "ts": "2026-11-14T23:25:00-05:00", "crowd": 4, "dancing": 2,
                "line_minutes": 10, "cover_usd": null, "music_genre": "hip-hop",
-               "verified_presence": 1, "status": "accepted", "is_synthetic": 1}],
+               "verified_presence": 1, "distance_m": 40, "status": "accepted",
+               "reputation": 0.8, "is_synthetic": 1}],
   "updates": [],
   "prefs": null, "venue": null,
   "expected": {"state": {"crowd": 3.8, "dancing": 1.5, "line_minutes": 10,
                "vibe_score": 65, "confidence": 0.67, "trend": null, "display": "show"},
                "recommendation": null}
+  // recommendation block (G5/G6): match_score, rank_score, rank, excluded, excluded_reason, reasons, missing
 }
 ```
 
 ### Consumed (all from `docs/CONTRACTS.md`)
-- Schemas: `syn_scout_reports`, `syn_venue_updates`, `syn_scouts`, `syn_users`,
-  `syn_venue_attributes`, `syn_feedback`, `syn_bounties`.
-- Preferences object, Live Venue State, Recommendation result.
+- Schemas (v2): `syn_scout_reports` (+status, distance_m), `syn_venue_updates`,
+  `syn_scouts` (+last_active_at), `syn_users`, `syn_venue_attributes`
+  (+is_claimed, opening_hours), `syn_feedback`, `syn_bounties` (+expires_at,
+  claimed_at), `syn_venue_events`, `syn_disputes`, `syn_points_ledger`;
+  eval-only `syn_true_state`, `syn_scout_truth`; genre vocabulary
+  (`simulator/genres.py`).
+- Preferences object (+v2 optional keys), Live Venue State (+`display`,
+  nullable vibe/confidence/trend), Recommendation result (+`rank_score`,
+  `rank`, `excluded_reason`, `complaint_risk`, `is_synthetic`).
+- `DEMO_NOW = 2026-11-14T23:30:00-05:00`; eval holdout nights Nov 13–14.
 - Python interface `live_state.compute[_all]`, `scoring.recommend`,
   `routing.plan_night` — SCORING.md maps each formula to one of these.
-- HTTP API table — REQUIREMENTS.md maps each story to an endpoint.
-- `data/launch_venues.csv` (venue ids, lat/lon for distance in fixtures).
+- HTTP API table + v2 §G (demo-login auth, error shape, `/api/feedback`,
+  response shapes, `openapi.json`) — REQUIREMENTS.md maps each story to an endpoint.
+- `data/launch_venues.csv` (header `license_id`, aliased to `venue_id`; lat/lon for distance in fixtures).
 - Read-only: `venues`, `osm_venues.opening_hours` in `manhattan_bars.db`.
 
 ## 4. Synthetic datasets specs needs
@@ -129,6 +140,8 @@ Each row goes into `docs/synthetic/specs.md` with the five CONTRACTS fields.
 | G5 | G1 + contract Preferences | match 83, rank 76, reasons and missing strings |
 | G6 | cover 25 known vs cover unknown, max 20 | first excluded with reason; second not excluded, `missing` has cover |
 | G7 | one disputed (0.5 weight), one flagged (0), one future-dated (ignored) | state equals hand-computed |
+
+All goldens use `now` = DEMO_NOW (2026-11-14T23:30-05:00) and the v2 `syn-` id prefix.
 | G8 | crowd 2→4 and 4→2 across windows; and thin prior window | rising / falling / null |
 
 ## 6. Team workflow drafts
@@ -156,7 +169,7 @@ synthetic rule summary; where to ask questions.
 | Review | each spec read by its main consumer | ask ml-recs (SCORING), backend (TRUST), frontend (REQUIREMENTS) sessions via master |
 
 ## 8. Good first PRs (one per member; assign when roster known)
-1. Copy `team/PULL_REQUEST_TEMPLATE.md` to `.github/pull_request_template.md` (integration).
+1. Copy `docs/specs/team/PULL_REQUEST_TEMPLATE.md` to `.github/pull_request_template.md` and `CONTRIBUTING.md` to root (integration, per v2 §C).
 2. Add a golden vector G9: "line troll" (one report says 60 min) to prove the weighted median (specs).
 3. Add `opening_hours` coverage stats for the 35 launch venues to `docs/workstreams/specs.md` (specs, reads DB).
 4. Frontend: "demo data" badge component + story (frontend).
@@ -178,11 +191,11 @@ Each is ≤ 1 h, touches one owned folder, has a test or visible output.
    reports" and posts a bounty — honesty over guessing (20 s).
 4. G6: unknown cover doesn't exclude, known $25 does; `missing` tells the user
    (20 s).
-5. Evaluation table: ours vs popularity baseline on synthetic nights 5–6,
+5. Evaluation table: ours vs popularity baseline on held-out synthetic nights Nov 13–14,
    clearly labelled synthetic; gaming-scout ablation (20 s).
 
 ## 10. Assumptions recorded
-- Planning docs live in `docs/prd/specs/` (brief); build output in
-  `docs/specs/` (CONTRACTS). See CCR-8.
+- Planning docs live in `docs/prd/specs/`; build output in `docs/specs/`
+  (confirmed by Contracts v2 §C).
 - Team roster unknown; good first PRs listed by area, assigned later.
 - Reference oracle is a test tool only; ml-recs owns production code.

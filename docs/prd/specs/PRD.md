@@ -2,11 +2,13 @@
 
 Status: planning draft, 2026-11-11. Owner: Ryan Mehta. Workstream: `specs`.
 Branch: `nightlife/specs` (from `nightlife/contracts`). Built against
-`docs/CONTRACTS.md`; nothing here overrides it. Proposed changes are in
-§13 "Contract change requests".
+`docs/CONTRACTS.md` **v2** (commit 2129052, "v2 amendments"); nothing here
+overrides it. All change requests are resolved in v2 (see §13). The constants
+in §5–7 are canonical per v2 §A.
 
 Numbers marked **(placeholder)** are first guesses chosen to be reasonable for
-the LES pilot. They are tuning knobs, not findings. The build phase puts every
+the LES pilot. They are tuning knobs, not findings. Contracts v2 §A makes the specs values canonical
+across workstreams. The build phase puts every
 one of them in a single table (`docs/specs/PARAMETERS.md`) so ml-recs and
 backend read them from one place.
 
@@ -120,8 +122,12 @@ flowchart LR
 
 ### 4.3 Data flow (one request)
 
-1. Public DB → backend seeds `venues` for the 35 launch venues (name, address,
-   lat/lon, OSM `opening_hours`, complaint count) plus `syn_venue_attributes`.
+1. Public DB → backend seeds `venues` for the 35 launch venues (from
+   `data/launch_venues_full.csv`, made by integration: name, address, lat/lon,
+   OSM hours, complaint count) plus `syn_venue_attributes` (with `is_claimed`,
+   `opening_hours`). Synthetic tables live in `data/live_sim.db` (seed 42, not
+   committed); backend attaches both DBs. Real twins without the `syn_` prefix
+   are read with `UNION ALL`; `INCLUDE_SYNTHETIC=0` hides synthetic rows.
 2. Scout reports and operator updates arrive (synthetic rows from live-sim, or
    live POSTs). Backend stores them with `status` (§7.4).
 3. On read, backend loads reports/updates with `ts ∈ [now − 180 min, now]`,
@@ -140,8 +146,13 @@ flowchart LR
 | preview | Render (free web service) per branch, optional | SQLite on disk (ephemeral) | Vercel preview per PR | seeded on boot |
 | demo/prod | Render web service | Postgres (Render) or SQLite-on-disk fallback (placeholder; backend decides) | Vercel production | seeded demo night; `DEMO_NOW` default |
 
-Env vars (names, backend/frontend own the details): `DATABASE_URL`,
-`CORS_ORIGINS`, `DEMO_NOW`, `VITE_API_BASE`, `VITE_MOCK_API`.
+Env vars (reserved in v2 §H): `INCLUDE_SYNTHETIC`, `DEMO_NOW`, `CORS_ORIGINS`,
+`DATABASE_URL`, `LIVE_SIM_DB`, `FEATURE_ROUTING`, `FEATURE_HEATMAP`,
+`VITE_API_BASE`, `VITE_API_MODE` (mock|live), `VITE_DEMO_NOW`,
+`VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP`.
+
+Demo time: **`DEMO_NOW = 2026-11-14T23:30:00-05:00`** (Sat). Frontend
+forwards `VITE_DEMO_NOW` / `?now=` as API `now=`.
 
 ### 4.5 Stack choice
 FastAPI + Pydantic v2 + SQLAlchemy 2 (SQLite now, Postgres-ready), Python 3.12;
@@ -158,8 +169,9 @@ field.
 
 ### 5.1 Eligibility of inputs
 - Scout reports with `status ∈ {accepted, pending}` count; `flagged`,
-  `removed` count 0; `disputed` counts at half weight (§7.4). If backend does
-  not yet store `status`, treat every report as `accepted`.
+  `removed` count 0; `disputed` counts at half weight (§7.4). `status` is a
+  v2 column on `syn_scout_reports`; if a row lacks it, treat it as `accepted`.
+- Report rows passed to `recs` carry `reputation` (backend joins it; default 0.5).
 - Ignore any input with `ts > now + 2 min` (clock skew) or `age > 180 min`
   (cutoff = 6 half-lives).
 - Operator updates (`syn_venue_updates`) may supply **cover, genres, dj,
@@ -265,8 +277,8 @@ A venue is `excluded = true` when a **known** value breaks a limit:
 
 Unknown values never exclude; they go in `missing` (e.g. `"cover not reported
 tonight"`). Excluded venues are returned after all non-excluded ones, with the
-reason as the first `reasons` entry (`"Excluded: cover $25 over your $20"`), so
-the frontend can show "N hidden by your limits".
+reason in `excluded_reason` (v2 §F, e.g. `"cover $25 over your $20"`;
+`null` when not excluded), so the frontend can show "N hidden by your limits".
 
 ### 5.10 Match score (0–100, fit to this group)
 Each component `s_k ∈ [0,1]`; unknown inputs score **0.4** (below neutral, so
@@ -286,7 +298,7 @@ confirmed info beats no info) and add a `missing` entry.
 
 **Ranking:** `rank_score = match_score · (0.75 + 0.25·confidence)` so a strong
 match backed by fresh reports outranks a strong match on thin data. Ties →
-smaller distance. (See CCR-3 to expose `rank_score`.)
+smaller distance. `rank_score` and `rank` (1-based) are returned fields (v2 §F).
 
 Worked example (G5): Preferences from CONTRACTS.md, venue = G1 state, live
 genre hip-hop, cover 15, distance 0.4 km, capacity 120 → components
@@ -299,8 +311,9 @@ genre hip-hop, cover 15, distance 0.4 km, capacity 120 → components
 - `missing`: one entry per null field the prefs care about: `"cover not
   reported tonight"`, `"no dancing reports"`, `"music unknown"`, `"no fresh
   reports — scores are low confidence"`.
-- Complaint risk may appear on the profile only as "311 noise complaints (3 yr):
-  N", never in reasons or scores.
+- Complaint risk is returned as the separate `complaint_risk` field, labelled
+  "311 noise-complaint risk" (v2 §F/§G). It never feeds vibe, match, rank or
+  reasons.
 
 ### 5.12 Run My Night (later)
 `routing.plan_night`: greedy, n_stops (default 3), 60 min per stop
@@ -355,8 +368,9 @@ acceptance criteria the frontend/backend tests check.
 - **US-SC-1** As a Scout I submit crowd (1–5 slider), dancing (none/some/lots),
   line (0/5/10/20/30+ chips), optional cover and genre, in ≤ 10 s / ≤ 4 taps
   for required fields.
-  - `POST /api/reports` returns 201 with `report_id`, `ts`, `status`,
-    `points_pending`.
+  - `POST /api/reports` (Bearer token from `POST /api/auth/demo-login`)
+    returns 201 with `{report_id, ts, status, points_pending}`; server sets
+    `scout_id`, `verified_presence`, `distance_m`.
 - **US-SC-2** Rate limits enforced server-side: 1 report per venue per scout
   per 20 min; 6 reports per scout per hour (placeholders) → 429 with a
   friendly message.
@@ -367,20 +381,22 @@ acceptance criteria the frontend/backend tests check.
 ### 6.6 Rewards, leaderboard, bounties
 - **US-RW-1** Leaderboard: top 20 by points this week and all-time; display
   name, level, reports, reputation band (not the raw number).
-- **US-RW-2** Bounties list open bounties with venue, points, expiry; claiming
-  = first accepted verified report at that venue before expiry.
+- **US-RW-2** Bounties list open bounties with `venue_name`, points,
+  `expires_at`; claimed implicitly by the first qualifying (verified, not
+  flagged) report before expiry — no claim endpoint in MVP (v2 §E).
 - **US-RW-3** Points become "earned" after a 30-min hold if the report is not
   flagged.
 
 ### 6.7 Owner dashboard
 - **US-OW-1** As an operator I see views, card taps, report count and a
-  demand-by-hour chart for my venue (synthetic for now, badged).
+  demand-by-hour chart for my venue, aggregated from `syn_venue_events`
+  (synthetic for now, badged).
 - **US-OW-2** I post an update (cover, DJ, genres, event, offer + expiry);
   it appears in live state within 1 min and on the profile as "posted by venue".
 - **US-OW-3** I can dispute a scout report (reason required); I cannot submit
   scout reports for my own venue (403).
-- **US-OW-4** Claiming: MVP = admin flag `claimed=1` in DB (no verification
-  flow). **Later:** phone/email-domain verification.
+- **US-OW-4** Claiming: MVP = `is_claimed=1` in `syn_venue_attributes`; owner
+  logs in via demo-login with `role=owner, venue_id` (no verification flow). **Later:** phone/email-domain verification.
 
 ### 6.8 Later features
 - **US-HM-1 (Later) Availability heatmap**: map of launch venues coloured by
@@ -433,8 +449,10 @@ Levels are cosmetic; reputation, not level, drives weight.
    cannot be bought with volume because weight is capped by `w_rep ≤ 1`.
 6. Bounty farming: a bounty pays only if the report is verified and not
    flagged after the 30-min hold.
-live-sim injects 10% "gaming" scouts (always crowd 5, or always one venue) so
-the evaluation (§10) measures how much these checks protect scores.
+live-sim assigns scout archetypes in `syn_scout_truth` (honest | casual |
+sloppy | gamer | shill); gamers (always crowd 5) and shills (always one
+`home_venue_id`) let the evaluation (§10) measure how much these checks
+protect scores. The app never reads `syn_scout_truth`.
 
 ### 7.4 Report status and disputes
 `pending → accepted` after the 30-min hold; `pending|accepted → flagged`
@@ -457,12 +475,12 @@ Max 8 open bounties at once (placeholder).
 | **specs** (self) | — | — |
 | **research** | personas + stories to validate | interview findings to confirm/adjust weights, display threshold, defaults (by Nov 14 if any) |
 | **tableau** | metric definitions (coverage, freshness) | none blocking |
-| **live-sim** | rules for gaming scouts, report cadence assumptions, `syn_venue_truth` request (CCR-1) | latent truth per venue × 15 min to evaluate accuracy |
+| **live-sim** | rules for gamer/shill scouts, report cadence assumptions | `syn_true_state` (15-min truth) and `syn_scout_truth` (archetypes), eval-only |
 | **ml-recs** | §5 formulas, PARAMETERS.md, golden vectors G1–G8, eval protocol | confirmation the formulas are implementable; feedback on parameters |
-| **backend** | status/rate-limit/geofence/points rules, API acceptance criteria | decision on auth and on `status` column (CCR-4) |
+| **backend** | status/rate-limit/geofence/points rules, API acceptance criteria | Pydantic models / `openapi.json` to check stories against |
 | **frontend** | display thresholds, copy for reasons/missing/badges, stories | screen list to map stories → screens |
 | **coursework** | churn label definition (scout inactive ≥ 14 days, placeholder) | none |
-| **integration** | PR template, CONTRIBUTING, good-first-PR list, demo-script beats, consolidated CCRs | file locations for `.github/` and root files (CCR-6) |
+| **integration** | PR template, CONTRIBUTING (drafted in `docs/specs/team/`), good-first-PR list, demo-script beats | copies team docs to `.github/` and root; merges specs first |
 
 ## 9. Scope: MVP vs later
 
@@ -482,7 +500,7 @@ Max 8 open bounties at once (placeholder).
 |---|---|---|
 | Coverage | share of 35 launch venues with conf ≥ 0.40, sampled every 15 min, Fri/Sat 22:00–01:00 | ≥ 60% |
 | Freshness | median `freshness_minutes` over covered venues, same window | ≤ 30 min |
-| State accuracy | MAE of `crowd` vs live-sim truth | ≤ 0.6 (1–5 scale) |
+| State accuracy | MAE of `crowd` vs `syn_true_state.crowd_true` | ≤ 0.6 (1–5 scale) |
 | Rec quality | Hit@3: truth-best venue (under the group's limits) in top 3 | ≥ 0.6, and ≥ +0.15 over popularity baseline |
 | Limit safety | share of top-3 recs that truly break a hard limit | ≤ 5% |
 | Visit rate | `syn_feedback.visited` / recommendations shown | ≥ 30% |
@@ -492,16 +510,18 @@ Max 8 open bounties at once (placeholder).
 | Operator adoption (real pilot) | claimed launch venues | ≥ 5 of 35 |
 
 ### 10.2 Offline evaluation protocol (runs on live-sim)
-1. live-sim generates 6 nights (Thu–Sat × 2) with latent truth (CCR-1), seed fixed.
-2. Temporal split: nights 1–4 tune parameters, nights 5–6 test. No tuning on test.
+1. live-sim generates 33 Thu–Sat nights, Sep 3 → Nov 14 2026, 20:00–03:00 ET,
+   seed 42, with `syn_true_state` and `syn_scout_truth` (v2 §B, §E).
+2. Temporal split: nights before Nov 13 tune parameters; **Nov 13–14** are the
+   held-out test nights. No tuning on test. DEMO_NOW (Nov 14 23:30) is in test.
 3. For each test night, every 15 min 21:00–02:00, 50 synthetic users from
    `syn_users` request recommendations.
 4. Baselines: random; distance-only; popularity (venue × hour average crowd
    from training nights); ours.
 5. Report Hit@3, NDCG@5, limit-safety, coverage, freshness, crowd MAE, with
    95% bootstrap CIs over (user, time) samples.
-6. Ablations: no decay; no reputation weighting; no outlier flagging; 10% and
-   25% gaming scouts. Expect reputation + flagging to keep crowd MAE within
+6. Ablations: no decay; no reputation weighting; no outlier flagging; gamer +
+   shill share at live-sim default and at 25%. Expect reputation + flagging to keep crowd MAE within
    +0.2 of the clean run at 10% gaming.
 7. Sensitivity: half-life 15/30/60; confidence k 1.0/1.5/2.5.
 All results labelled synthetic; they test the pipeline, not real-world value.
@@ -518,48 +538,41 @@ All results labelled synthetic; they test the pipeline, not real-world value.
 | Deadline (Nov 17, 6 days) | unfinished features | MVP list fixed; Later items explicitly cut |
 | Free-tier limits (Render sleep, Postgres expiry) | demo cold start | warm-up ping before demo; SQLite fallback |
 | Privacy (location) | trust/legal | store distance only, no raw GPS, display names only |
-| Launch list has no clubs | dancing signal sparse | accept; note in demo; widen to 10003/10009 later |
+| Launch list has no clubs (v2 §D: the two LES Club licences aren't nightclubs) | dancing signal sparse | dancing prior from `syn_venue_attributes.has_dance_floor`; note in demo; widen to 10003/10009 later |
 
 ## 12. Open questions
+(Resolved by v2: MVP auth = demo-login + Bearer token; Club licences; file locations.)
+
 1. Team roster and GitHub handles (needed for good-first-PR assignment).
 2. Do Render/Vercel accounts exist, and Postgres or SQLite-on-disk for demo?
-3. Auth for scouts/owners in MVP: name-only token vs magic link (backend).
-4. Are the display threshold (0.40) and half-life (30 min) right for
+3. Are the display threshold (0.40) and half-life (30 min) right for
    users? Research interviews may change them.
-5. Should complaint risk be shown at all on consumer screens, or owner only?
-6. Is a real (non-synthetic) mini pilot expected before the course ends?
-7. Opening hours: OSM `opening_hours` coverage for the 35 venues is unknown;
+4. v2 returns `complaint_risk` on cards/recs; should consumer screens show it,
+   or owner screens only?
+5. Is a real (non-synthetic) mini pilot expected before the course ends?
+6. Opening hours: OSM `opening_hours` coverage for the 35 venues is unknown;
    if poor, "closed now" exclusion is mostly inactive.
-8. Group compatibility: one planner's prefs (MVP) — confirm per-member prefs
+7. Group compatibility: one planner's prefs (MVP) — confirm per-member prefs
    are Later.
 
-## 13. Contract change requests (proposed; not edited in CONTRACTS.md)
-- **CCR-1 (live-sim)** add `syn_venue_truth`: venue_id, slot_start (15 min),
-  crowd_true, dancing_true, line_true, cover_true, genre_true, is_synthetic.
-  Needed for accuracy metrics; never read by the app.
-- **CCR-2 (state)** allow `vibe_score`, `confidence`-dependent fields and
-  `trend` to be `null`; `trend ∈ {"rising","steady","falling",null}`; add
-  `display ∈ {"show","low","none"}` computed by §5.6.
-- **CCR-3 (recommendation)** add `rank_score` (float) so frontend order is
-  explainable; exclusion reason stays as `reasons[0]`.
-- **CCR-4 (reports)** add `status` (pending|accepted|flagged|disputed|removed)
-  and `distance_m` (nullable int) to `syn_scout_reports`.
-- **CCR-5 (new tables)** `syn_disputes` (dispute_id, report_id, opened_by,
-  reason, opened_at, status, resolved_at, is_synthetic) and
-  `syn_points_ledger` (entry_id, scout_id, report_id nullable, bounty_id
-  nullable, points, reason, ts, is_synthetic).
-- **CCR-6 (ownership)** specs drafts `docs/specs/team/PULL_REQUEST_TEMPLATE.md`
-  and `docs/specs/team/CONTRIBUTING.md`; integration (or contract owner) copies
-  them to `.github/pull_request_template.md` and `CONTRIBUTING.md`, or grants
-  specs those two paths.
-- **CCR-7 (venue profile)** include `opening_hours` (OSM string, nullable)
-  and `claimed` (0/1) in venue cards/profile.
-- **CCR-8 (docs path)** the brief puts planning docs in `docs/prd/specs/`;
-  CONTRACTS assigns `docs/specs/` to specs. Proposal: planning stays in
-  `docs/prd/specs/`, built specs go to `docs/specs/`.
+## 13. Contract change requests — all resolved in Contracts v2
+
+| CCR | Request | Resolution in v2 |
+|---|---|---|
+| CCR-1 | `syn_venue_truth` for evaluation | ✅ as `syn_true_state` (+ `occupancy`), plus `syn_scout_truth`; eval-only (§E) |
+| CCR-2 | nullable vibe/confidence/trend; `display` field | ✅ §F (Live State optional keys) |
+| CCR-3 | `rank_score` in recommendation | ✅ §F, plus `rank`, `excluded_reason` (exclusion reason moves out of `reasons[0]`) |
+| CCR-4 | `status`, `distance_m` on reports | ✅ §E |
+| CCR-5 | `syn_disputes`, `syn_points_ledger` | ✅ §E |
+| CCR-6 | ownership of PR template / CONTRIBUTING | ✅ §C: specs drafts in `docs/specs/team/`, integration copies |
+| CCR-7 | `opening_hours`, claimed flag | ✅ §E as `syn_venue_attributes.opening_hours`, `is_claimed` |
+| CCR-8 | `docs/prd/specs/` vs `docs/specs/` | ✅ §C: plans in `docs/prd/<name>/`, built specs in `docs/specs/` |
+
+No new requests. Synthetic primary keys in specs fixtures use the v2 `syn-`
+prefix (`syn-r-…`, `syn-s-…`) and the shared genre vocabulary (v2 §E).
 
 ## 14. Assumptions
 A1 class demo users are team/classmates; pilot is synthetic. A2 one planner
-sets prefs for the group in MVP. A3 time zone America/New_York everywhere.
+sets prefs for the group in MVP. A3 time zone America/New_York everywhere; demo moment = DEMO_NOW 2026-11-14T23:30-05:00.
 A4 "tonight" = 18:00–04:00 local, attributed to the start date. A5 all
 parameters are placeholders until evaluation nights 1–4 tune them.

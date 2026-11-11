@@ -45,7 +45,7 @@ evaluation plan and team workflow.
   `data/synthetic_live/`, `recs/`, `backend/`, `frontend/`, `coursework/`,
   other `docs/workstreams/*.md` and `docs/synthetic/*.md` files.
 - `.github/` and root `CONTRIBUTING.md`: draft under `docs/specs/team/`;
-  integration copies them (CCR-6).
+  integration copies them (Contracts v2 §C).
 - `main` branch. No PRs. Push only `nightlife/specs`.
 
 ## 5. Conventions
@@ -62,6 +62,11 @@ evaluation plan and team workflow.
   `crowd`, `line_minutes`, …). Times are ISO 8601 with America/New_York offset.
 - User stories: `US-<AREA>-<n>`, Given/When/Then acceptance criteria, MVP or
   Later tag, linked screen (frontend) and endpoint (backend).
+- Synthetic ids use the v2 `syn-` prefix (`syn-r-000001`, `syn-s-0001`);
+  genres come from the shared v2 vocabulary; fixture `now` = `DEMO_NOW`
+  (`2026-11-14T23:30:00-05:00`).
+- Constants in Contracts v2 §A are canonical; change them only by updating
+  PARAMETERS.md and telling master (they override other teams' values).
 - `venue_id` in fixtures must be real launch venue ids from
   `data/launch_venues.csv` (e.g. `0370-24-138636`), so fixtures load against
   the real venue list.
