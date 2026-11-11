@@ -123,7 +123,7 @@ threshold (≥ 0.40 show, 0.20-0.39 low, else none). Null vibe/confidence if no 
   placeholder so ids never collide with live-sim's `syn-r-…`); `is_synthetic=1`.
 - Real replacement: live-sim `data/live_sim.db` `syn_scout_reports` (first), then real
   `scout_reports` (backend, `INCLUDE_SYNTHETIC=0`).
-- Swap: generate `data/live_sim.db` (live-sim CLI, seed 42) or set `LIVE_SIM_DB` → rerun exporter
+- Swap: generate `data/live_sim.db` with `python -I -m simulator --seed 42 --out data/live_sim.db` (v2.2 fixed data build command; `--nights 3` for a quick run) or set `LIVE_SIM_DB` → rerun exporter
   (`source` changes to `live-sim`) → Tableau Data → Refresh → republish → re-render PNG.
 
 **SYN-T2 `syn_tonight_heatmap.csv`** (derived)
