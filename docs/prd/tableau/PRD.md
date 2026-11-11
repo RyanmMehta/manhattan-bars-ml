@@ -171,7 +171,7 @@ Non-functional
 5. Do we include all-Manhattan `venues` (5,737) or only `v_bars` (1,727)? Assumed: `v_bars` for maps, `venues` counts in neighbourhood summary as context.
 6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
 7. ~~Snapshot file and hourly rule?~~ Resolved (v2.2 §J): `data/synthetic_live/demo_night_snapshots.csv`, cell HH = HH:30 snapshot.
-8. Should the heatmap colour use the v2.2 vibe bands (3 steps: Chill/Lively/Packed) or a continuous 0-100 scale with band labels in the tooltip? Assumed: continuous colour + band label in tooltip and legend ticks at 35/65.
+8. ~~Band vs continuous colour?~~ Resolved (master): continuous 0-100 scale, legend ticks at 35/65, band label in tooltip; reuse the frontend palette if published (else `style.py` default, and note it in `docs/workstreams/tableau.md`).
 
 ## 12. Assumptions
 - Deliverable paths follow CONTRACTS.md: code + extracts in `analytics/tableau/`,
