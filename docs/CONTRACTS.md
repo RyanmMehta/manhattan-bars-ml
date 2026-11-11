@@ -259,3 +259,9 @@ Golden vectors G1 (vibe 65 / conf 0.67) and G5 (match 83) are the shared unit te
 Upstream deliverables pushed by **Fri Nov 13 18:00 ET** (moved up a day from integration's Nov 14 so there is slack); integration merges from Nov 13 in the order
 specs → research → tableau → coursework → live-sim → ml-recs → backend → frontend; deploy dry-run Nov 15; freeze Nov 16 20:00; demo Nov 17.
 Frontend mockup PNGs (overdue Nov 10 deliverable) are the first frontend priority: target Thu Nov 12.
+
+## J. v2.2 additions (Nov 11)
+- **Vibe label bands** (frontend copy): 0–34 "Chill", 35–64 "Lively", 65–100 "Packed"; null → no label.
+- **Stale cutoff:** inputs older than 180 min are ignored (§A). In the UI, freshness > 60 min shows a "stale" tag even if confidence clears the threshold.
+- **Map tiles:** MapLibre GL with a free no-key style (OpenFreeMap or CARTO dark-matter); no paid tile keys.
+- **Demo-night snapshots** (live-sim): `data/synthetic_live/demo_night_snapshots.csv` — venue_id, snapshot_ts (every 30 min, 20:00–03:00 Sat Nov 14), crowd, dancing, line_minutes, vibe_score, confidence, n_reports, is_synthetic. Values are recs Live Venue State computed at snapshot_ts. Tableau's hourly cell for hour HH uses the **HH:30** snapshot.
