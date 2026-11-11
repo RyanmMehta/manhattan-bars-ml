@@ -102,9 +102,10 @@ IDs are referenced by OUTLINE.md tasks and tests.
 **US-03** As a Planner I browse and filter all launch venues.
 - AC1: `GET /api/venues?launch_only=true` with `q`, `style`, `genre` mapped
   from search box and filter chips; debounced 250 ms; `limit=50`, total from
-  `X-Total-Count` (35 launch venues fit in one page).
-- AC2: Sort options: Vibe (default), Distance, Name. Sorting is client-side on
-  returned fields.
+  `X-Total-Count` (35 launch venues fit in one page). Sends `lat`, `lon` from prefs
+  so the server returns `distance_km` (CONTRACTS §J, CR-11..14).
+- AC2: Sort options: Vibe (default), Distance, Name. Distance order comes from the
+  server when `lat/lon` are sent; Vibe and Name sort client-side on returned fields.
 - AC3: Each card: display name, style, genres, vibe badge, confidence, line,
   cover, freshness, demo badge if synthetic.
 - AC4: Empty state with "Clear filters".

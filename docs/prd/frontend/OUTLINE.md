@@ -121,7 +121,7 @@ docs/synthetic/frontend.md
 |---|---|---|
 | GET `/health` | app load (warm-up, mode fallback, `demo_now`, `data`) | > 5 s → offer mock mode |
 | POST `/auth/demo-login` | persona switcher | `{display_name, role, venue_id?}` → `{token, user_id\|scout_id}` |
-| GET `/venues?q&style&genre&launch_only=true&limit&offset&now` | Browse, Vibe-check picker | card shape §G; `X-Total-Count` |
+| GET `/venues?q&style&genre&launch_only=true&lat&lon&limit&offset&now` | Browse, Vibe-check picker | card shape §G; `X-Total-Count` |
 | GET `/venues/{id}?now` | Venue profile | `{venue, state, recent_reports, offers}` (§G) |
 | GET `/venues/{id}/state?now` | card refresh | Live Venue State exactly as in CONTRACTS |
 | POST `/reports` (bearer) | Vibe check | body: venue_id, crowd, dancing, line_minutes, cover_usd?, music_genre?, lat?, lon? → `{report_id, ts, status, points_pending}` |
