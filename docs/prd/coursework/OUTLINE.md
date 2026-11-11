@@ -111,7 +111,9 @@ docs/synthetic/coursework.md
   N10 limitations of synthetic data + 2-minute talk.
 
 ### Wrap-up
-- [ ] **T17 (S)** `run_coursework.sh`: install check → transformer train + sample → churn (stand-in if needed) build → train_eval → explain.
+- [ ] **T17 (S)** `run_coursework.sh`: install check → transformer train + sample → if `data/live_sim.db` is missing, build it with the
+  contract command `python -I -m simulator --seed 42 --out data/live_sim.db` (CONTRACTS v2.2 §J; < 60 s; the stand-in is used only if
+  `simulator/` doesn't exist yet) → churn build → train_eval → explain. Coursework never writes `live_sim.db` except via that command.
 - [ ] **T18 (S)** `test_notes_tags.py`. Full `pytest coursework/`. `grep -rn "SYNTHETIC:" coursework/` review.
 - [ ] **T19 (S)** `docs/synthetic/coursework.md`, `docs/workstreams/coursework.md` (with contract change requests CR1–CR3). Final push.
 

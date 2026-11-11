@@ -166,7 +166,7 @@ commented. Clever code is out of scope.
 - A1 The course accepts PyTorch for (a). (The brief allows PyTorch or numpy. PyTorch was picked because autograd keeps the code short.)
 - A2 The course accepts the churn exercise on a project-relevant synthetic dataset instead of a given dataset (e.g. Telco churn). If a given dataset is required, the same `train_eval.py` runs on it with a column map.
 - A3 Venue names are fine as a corpus (public data, no reviews needed).
-- A4 live-sim's tables live in `data/live_sim.db` (CONTRACTS v2 §D), built deterministically with seed 42 and not committed. The builder reads that DB read-only, and also accepts `data/synthetic_live/*.csv` if live-sim exports CSVs. Synthetic IDs start with `syn-` (e.g. `syn-s-0042`).
+- A4 live-sim's tables live in `data/live_sim.db` (CONTRACTS v2 §D), built deterministically with seed 42 and not committed. Build command (v2.2 §J): `python -I -m simulator --seed 42 --out data/live_sim.db`. The builder reads that DB read-only, and also accepts `data/synthetic_live/*.csv` if live-sim exports CSVs. Synthetic IDs start with `syn-` (e.g. `syn-s-0042`).
 - A5 Time zone America/New_York. "Night" = 6pm–4am, assigned to the start date.
 
 ## 12. Open questions
