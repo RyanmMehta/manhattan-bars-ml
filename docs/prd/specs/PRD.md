@@ -2,7 +2,7 @@
 
 Status: planning draft, 2026-11-11. Owner: Ryan Mehta. Workstream: `specs`.
 Branch: `nightlife/specs` (from `nightlife/contracts`). Built against
-`docs/CONTRACTS.md` **v2** (commit 2129052, "v2 amendments"); nothing here
+`docs/CONTRACTS.md` **v2 → v2.2 + §J** (through commit b46d75f); nothing here
 overrides it. All change requests are resolved in v2 (see §13). The constants
 in §5–7 are canonical per v2 §A.
 
@@ -192,7 +192,10 @@ field.
 weight to the state (rounded down). `null` if none.
 
 ### 5.3 Reputation and source weighting
-- Scout reputation `r ∈ [0, 1]` (from `syn_scouts.reputation`; new scouts 0.5).
+- Scout reputation `r ∈ [0, 1]`, new scouts 0.5. The live app uses current
+  `syn_scouts.reputation`. Models and evaluation replaying past nights must use
+  `syn_scout_reputation_history` **as of the report date** (joining final
+  reputation to past reports leaks the future; v2.1).
 - `w_rep = 0.25 + 0.75·r` (a 0-reputation scout still counts a little; a 1.0
   scout counts 4×).
 - `w_ver = 1.0` if `verified_presence = 1`, else `0.6`.
@@ -247,6 +250,11 @@ If only operator updates exist: `conf = min(0.25, 0.25 · Σ w_i)`, and
 | ≥ 0.40 | vibe number + "N reports, M min ago" |
 | 0.20 – 0.39 | vibe shown greyed with "low confidence" label |
 | < 0.20 or vibe null | "No fresh reports" + CTA "Be the Scout" (bounty) |
+
+- **Vibe label bands** (v2.2 §J): 0–34 "Chill", 35–64 "Lively", 65–100
+  "Packed"; vibe null → no label. G1 (vibe 65) is "Packed".
+- **Stale tag** (v2.2 §J): `freshness_minutes > 60` shows a "stale" tag even
+  when confidence ≥ 0.40. Inputs older than 180 min are ignored entirely (§5.1).
 
 ### 5.7 Trend
 Compute weighted crowd over two windows: recent `[now−30, now]` and prior
@@ -479,7 +487,7 @@ Max 8 open bounties at once (placeholder).
 | **ml-recs** | §5 formulas, PARAMETERS.md, golden vectors G1–G8, eval protocol | confirmation the formulas are implementable; feedback on parameters |
 | **backend** | status/rate-limit/geofence/points rules, API acceptance criteria | Pydantic models / `openapi.json` to check stories against |
 | **frontend** | display thresholds, copy for reasons/missing/badges, stories | screen list to map stories → screens |
-| **coursework** | churn label definition (scout inactive ≥ 14 days, placeholder) | none |
+| **coursework** | churn label as in v2.1: no report in 21 days (~150 scouts, weekly cohorts) | none |
 | **integration** | PR template, CONTRIBUTING (drafted in `docs/specs/team/`), good-first-PR list, demo-script beats | copies team docs to `.github/` and root; merges specs first |
 
 ## 9. Scope: MVP vs later
@@ -505,13 +513,15 @@ Max 8 open bounties at once (placeholder).
 | Limit safety | share of top-3 recs that truly break a hard limit | ≤ 5% |
 | Visit rate | `syn_feedback.visited` / recommendations shown | ≥ 30% |
 | Satisfaction | share of visits rated ≥ 4 | ≥ 70% |
-| Scout retention | scouts active in week 2 / week 1 | ≥ 40% |
+| Scout retention | 1 − churn rate, churn = no report in 21 days (v2.1), per weekly cohort | ≥ 40% at 4 weeks |
 | Time to decide | onboarding → pick tapped (real users only) | ≤ 3 min median |
 | Operator adoption (real pilot) | claimed launch venues | ≥ 5 of 35 |
 
 ### 10.2 Offline evaluation protocol (runs on live-sim)
-1. live-sim generates 33 Thu–Sat nights, Sep 3 → Nov 14 2026, 20:00–03:00 ET,
-   seed 42, with `syn_true_state` and `syn_scout_truth` (v2 §B, §E).
+1. live-sim generates 36 Thu–Sat nights, Thu Aug 27 → Sat Nov 14 2026,
+   20:00–03:00 ET, seed 42 (`python -I -m simulator --seed 42 --out
+   data/live_sim.db`), with `syn_true_state`, `syn_scout_truth` and
+   `syn_scout_reputation_history` (v2.1).
 2. Temporal split: nights before Nov 13 tune parameters; **Nov 13–14** are the
    held-out test nights. No tuning on test. DEMO_NOW (Nov 14 23:30) is in test.
 3. For each test night, every 15 min 21:00–02:00, 50 synthetic users from
@@ -524,6 +534,8 @@ Max 8 open bounties at once (placeholder).
    shill share at live-sim default and at 25%. Expect reputation + flagging to keep crowd MAE within
    +0.2 of the clean run at 10% gaming.
 7. Sensitivity: half-life 15/30/60; confidence k 1.0/1.5/2.5.
+8. Leakage guard: every replayed report is weighted with reputation from
+   `syn_scout_reputation_history` at its date, never final reputation.
 All results labelled synthetic; they test the pipeline, not real-world value.
 
 ## 11. Risks
@@ -569,7 +581,10 @@ All results labelled synthetic; they test the pipeline, not real-world value.
 | CCR-8 | `docs/prd/specs/` vs `docs/specs/` | ✅ §C: plans in `docs/prd/<name>/`, built specs in `docs/specs/` |
 
 No new requests. Synthetic primary keys in specs fixtures use the v2 `syn-`
-prefix (`syn-r-…`, `syn-s-…`) and the shared genre vocabulary (v2 §E).
+prefix (`syn-r-…`, `syn-s-…`) and the 17-slug genre vocabulary in
+`simulator/config/genres.json` (v2.1): hip-hop, r&b, afrobeats, latin,
+reggaeton, house, techno, edm, disco, pop, top-40, throwbacks, indie, rock,
+punk, jazz, soul-funk.
 
 ## 14. Assumptions
 A1 class demo users are team/classmates; pilot is synthetic. A2 one planner

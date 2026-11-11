@@ -1,6 +1,6 @@
 # OUTLINE — specs build plan
 
-Planning draft, 2026-11-11, updated for Contracts v2 (commit 2129052). Read with `PRD.md` (what) and `RULES.md` (how).
+Planning draft, 2026-11-11, updated for Contracts v2.2 + §J (commit b46d75f). Read with `PRD.md` (what) and `RULES.md` (how).
 Sizes: **S** ≤ 1 h, **M** 1–3 h, **L** 3–6 h (one person / one Claude session).
 Target: specs pushed by **Thu Nov 12 EOD** (hard deadline Fri Nov 13 18:00 ET,
 v2 §I). Integration merges specs **first**, then research → tableau →
@@ -75,7 +75,7 @@ docs/
 |---|---|---|
 | Scoring formulas + parameters | `SCORING.md`, `PARAMETERS.md` JSON block | ml-recs (`recs.live_state`, `recs.scoring`, `recs.routing`) |
 | Golden vectors | `golden_synthetic/G*.json` (format below) | ml-recs pytest, backend contract tests |
-| Display thresholds, copy for reasons/missing/badges | `SCORING.md` §display, `REQUIREMENTS.md` | frontend |
+| Display thresholds, vibe bands (Chill/Lively/Packed), stale tag (> 60 min), copy for reasons/missing/badges | `SCORING.md` §display, `REQUIREMENTS.md` | frontend |
 | Write-time trust rules (rate limits, geofence, status, points, owner ban) | `TRUST.md` | backend |
 | Gamer/shill scout behaviours; eval use of `syn_true_state` / `syn_scout_truth` | `TRUST.md`, `EVALUATION.md` | live-sim |
 | Metric definitions | `EVALUATION.md` | ml-recs (harness), tableau |
@@ -106,8 +106,9 @@ Golden vector format:
   `syn_scouts` (+last_active_at), `syn_users`, `syn_venue_attributes`
   (+is_claimed, opening_hours), `syn_feedback`, `syn_bounties` (+expires_at,
   claimed_at), `syn_venue_events`, `syn_disputes`, `syn_points_ledger`;
-  eval-only `syn_true_state`, `syn_scout_truth`; genre vocabulary
-  (`simulator/genres.py`).
+  eval-only `syn_true_state`, `syn_scout_truth`; `syn_scout_reputation_history`
+  (as-of-date reputation for replay/eval); 17-slug genre vocabulary
+  (`simulator/config/genres.json`).
 - Preferences object (+v2 optional keys), Live Venue State (+`display`,
   nullable vibe/confidence/trend), Recommendation result (+`rank_score`,
   `rank`, `excluded_reason`, `complaint_risk`, `is_synthetic`).
@@ -133,8 +134,8 @@ Each row goes into `docs/synthetic/specs.md` with the five CONTRACTS fields.
 ## 5. Golden vector coverage
 | ID | Case | Key expectations |
 |---|---|---|
-| G1 | 4 scouts, fresh, agree | vibe 65, conf 0.67, display show |
-| G2 | same as G1 but ages +120 min | lower support, conf < 0.2, display none, nothing past 180 min counts |
+| G1 | 4 scouts, fresh, agree | vibe 65 ("Packed"), conf 0.67, display show, not stale |
+| G2 | same as G1 but ages +120 min | lower support, conf < 0.2, display none, stale (> 60 min), nothing past 180 min counts |
 | G3 | 3 reports from 1 scout | diverse = 0.6 cap |
 | G4 | operator update only (cover 20, hip-hop) | vibe null, conf ≤ 0.25, cover 20, genres from update |
 | G5 | G1 + contract Preferences | match 83, rank 76, reasons and missing strings |
@@ -191,7 +192,7 @@ Each is ≤ 1 h, touches one owned folder, has a test or visible output.
    reports" and posts a bounty — honesty over guessing (20 s).
 4. G6: unknown cover doesn't exclude, known $25 does; `missing` tells the user
    (20 s).
-5. Evaluation table: ours vs popularity baseline on held-out synthetic nights Nov 13–14,
+5. Evaluation table: ours vs popularity baseline on held-out synthetic nights Nov 13–14 (of 36, from Aug 27),
    clearly labelled synthetic; gaming-scout ablation (20 s).
 
 ## 10. Assumptions recorded

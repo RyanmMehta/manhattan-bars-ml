@@ -65,6 +65,9 @@ evaluation plan and team workflow.
 - Synthetic ids use the v2 `syn-` prefix (`syn-r-000001`, `syn-s-0001`);
   genres come from the shared v2 vocabulary; fixture `now` = `DEMO_NOW`
   (`2026-11-14T23:30:00-05:00`).
+- Genres in fixtures come only from `simulator/config/genres.json` (17 slugs).
+- Fixtures that replay past dates use reputation as of the report date
+  (`syn_scout_reputation_history`), never final reputation.
 - Constants in Contracts v2 §A are canonical; change them only by updating
   PARAMETERS.md and telling master (they override other teams' values).
 - `venue_id` in fixtures must be real launch venue ids from
