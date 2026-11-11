@@ -17,11 +17,16 @@ Contracts in `docs/CONTRACTS.md` win if anything here conflicts.
 ## Folder ownership
 - You own `analytics/tableau/` (everything inside), `docs/synthetic/tableau.md`
   and `docs/workstreams/tableau.md`. Planning docs live in `docs/prd/tableau/`.
-- Read-only for you: `data/manhattan_bars.db`, `data/launch_venues.csv`,
-  `data/synthetic_live/` (live-sim), `recs/` (ml-recs, import only).
+- Read-only for you: `data/manhattan_bars.db`, `data/launch_venues.csv` (header
+  `license_id`, alias `AS venue_id`), `data/live_sim.db` (live-sim; path from env
+  `LIVE_SIM_DB`; generated, never committed), `recs/` (ml-recs, import only).
+- Never read the evaluation-only tables `syn_true_state` and `syn_scout_truth`.
+- Contract: CONTRACTS.md v2 (commit 2129052). Use its constants (§A) and DEMO_NOW
+  `2026-11-14T23:30:00-05:00` (§B); never invent different ones.
 
 ## Must not touch
-- `src/`, `data/manhattan_bars.db`, `data/raw/`, `data/synthetic/`, `reports/`, `run_all.sh`, root `requirements.txt`.
+- `src/`, `data/manhattan_bars.db`, `data/live_sim.db`, `data/raw/`, `data/synthetic/`, `reports/`, `run_all.sh`, root `requirements.txt`.
+- Integration-owned files (`tests/e2e/`, `tests/contract/`, `scripts/`, `Makefile`, `.github/`, root `README.md`, `SYNTHETIC_DATA.md`, `DEMO.md`).
 - Any other workstream's folder (`simulator/`, `recs/`, `backend/`, `frontend/`, `research/`, `coursework/`, `docs/specs/`).
 - `docs/CONTRACTS.md` — put proposals in "Contract change requests" in `docs/workstreams/tableau.md`.
 - `main` branch. Work on `nightlife/tableau`, push with `git push -u origin nightlife/tableau`, no PRs.
@@ -32,6 +37,7 @@ Contracts in `docs/CONTRACTS.md` win if anything here conflicts.
 - SQL lives in `analytics/tableau/queries.py` as named constants, one per extract.
 - Colours, bucket edges and labels live once in `analytics/tableau/style.py`;
   BUILD_TABLEAU.md copies the same hex codes.
+- Synthetic ids start with `syn-` (placeholder: `syn-r-T1-…`, `syn-s-T1-…`).
 - Deterministic output: `ORDER BY venue_id` (or the natural key), floats rounded
   to 5 dp for coordinates and 2 dp for scores, `lineterminator="\n"`, fixed RNG seed (42).
 - Column names: snake_case, `venue_id` (never `license_id`) in outputs.
@@ -72,4 +78,5 @@ Contracts in `docs/CONTRACTS.md` win if anything here conflicts.
 - [ ] `BUILD_TABLEAU.md` followed end-to-end once by someone other than the author (or a fresh session).
 - [ ] `docs/synthetic/tableau.md` lists every synthetic file; `grep -rn "SYNTHETIC:" analytics/tableau` matches each one.
 - [ ] `docs/workstreams/tableau.md` says what was built, how to run it, known issues, contract change requests.
-- [ ] Branch `nightlife/tableau` pushed; no files outside owned folders changed (`git diff --stat nightlife/contracts`).
+- [ ] Branch `nightlife/tableau` pushed by **Fri Nov 13 18:00 ET**; no files outside owned folders changed (`git diff --stat origin/nightlife/contracts`).
+- [ ] Heatmap shows the v2 display threshold and the DEMO_NOW 23:30 line; fallback scorer (if used) passes golden vector G1.

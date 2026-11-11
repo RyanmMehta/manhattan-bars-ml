@@ -1,11 +1,12 @@
 # PRD: tableau workstream (Nightlife Autopilot)
 
 Status: planning (no code yet). Owner folder: `analytics/tableau/`. Branch: `nightlife/tableau`.
+Aligned with CONTRACTS.md v2 (commit 2129052). Push deadline Fri Nov 13 18:00 ET; integration merges tableau 3rd.
 
 ## 1. Problem
 The course needs a Tableau dashboard deliverable (originally due **Oct 6**, now
-overdue, so it should land as early as possible and no later than the Nov 17
-integration). The project has a rich public-data venue database
+overdue, so it should land as early as possible and no later than the Fri Nov 13
+18:00 ET upstream push deadline). The project has a rich public-data venue database
 (`data/manhattan_bars.db`: 5,737 venues, `v_bars` 1,727 bars) but nothing that
 lets a grader, teammate or venue operator *see* it: where Manhattan's bars are,
 how dense each neighbourhood is, how health grades and 311 noise complaints are
@@ -75,12 +76,16 @@ by noise complaints (or, in the tonight sheet, by synthetic vibe).
   bars shown faded; a table of the 35 with type, grade, complaints.
 
 **US-6 Synthetic tonight heatmap.** As a demo viewer, I see how busy LES venues
-are by hour on a simulated night.
-- Heatmap: rows = 35 launch venues, columns = hours 20:00-03:00, colour = mean
-  synthetic `vibe_score` (0-100), with report count in tooltip.
+are by hour on the simulated demo night, Sat Nov 14 2026.
+- Heatmap: rows = 35 launch venues, columns = hours 20:00-03:00 ET, colour = hourly
+  synthetic `vibe_score` (0-100), with report count, confidence and trend in tooltip.
+- Cells follow the v2 display threshold: conf ≥ 0.40 coloured, 0.20-0.39 greyed
+  "low confidence", < 0.20 or null blank "No fresh reports".
+- A reference line marks DEMO_NOW = 23:30.
 - Title includes "DEMO DATA (synthetic)"; data comes only from files with
   `is_synthetic = 1`.
-- If live-sim output is missing, the export script writes a clearly-marked
+- Reads only `syn_scout_reports` (never the evaluation-only `syn_true_state`/`syn_scout_truth`).
+- If `data/live_sim.db` is missing, the export script writes a clearly-marked
   placeholder (OUTLINE §5, SYN-T1) so the sheet still renders.
 
 **US-7 Stand-in PNG.** As a grader without Tableau, I open one image.
@@ -94,21 +99,23 @@ are by hour on a simulated night.
 - A teammate who did not write it follows it and publishes (target ≤ 45 min).
 
 ## 6. Scope
-**MVP (this workstream, by Nov 17, aim earlier):**
+**MVP (this workstream, pushed by Fri Nov 13 18:00 ET):**
 extract script, 6 CSV extracts, 5 sheets + 1 dashboard on Tableau Public,
 stand-in PNG, build instructions, synthetic registry, workstream doc.
 
 **Later:**
-- Swap SYN-T1 placeholder for live-sim reports, then for real scout reports from
-  the backend (`GET /api/heatmap`, export endpoint).
+- Swap SYN-T1 placeholder for live-sim reports (Nov 14-15, after live-sim/ml-recs merge),
+  then for real scout reports from the backend (`GET /api/heatmap?by=hour`, `INCLUDE_SYNTHETIC=0`).
+- Owner demand sheet from `syn_venue_events` (views/taps/saves by hour).
+- "Typical week" heatmap over all 33 simulated nights (weekday × hour).
 - Owner demand analytics sheet (views/taps per hour) once backend has events.
 - Trend over time (complaints by month 2023-10 → 2026-10).
 - Embedding the published viz in the frontend "About the data" page.
 
 ## 7. Requirements
 Functional
-- F1 Extracts read only from `data/manhattan_bars.db` (read-only connection) and
-  `data/synthetic_live/` (live-sim output).
+- F1 Extracts read only from `data/manhattan_bars.db` and `data/live_sim.db`
+  (env `LIVE_SIM_DB`; live-sim output), both opened read-only.
 - F2 Every extract has a header row, UTF-8, comma-separated, ISO dates, `.` decimal.
 - F3 Every extract has `is_synthetic` (0 for public-data extracts, 1 for synthetic).
 - F4 Synthetic extract files live under `analytics/tableau/extracts/synthetic/`
@@ -127,15 +134,15 @@ Non-functional
 ## 8. Dependencies on other workstreams
 | Workstream | What tableau needs / gives |
 |---|---|
-| specs | vibe_score/confidence formulas and display threshold (to label the heatmap); final colour/brand if any |
+| specs | v2 constants are set (half-life 30 min, k 1.5, display 0.40/0.20); needs `docs/specs/SCORING.md` vibe formula + golden vector G1 for the fallback; final colour/brand if any |
 | research | gives: market-story numbers it may quote; needs: confirm which charts support the "why LES" argument |
 | tableau | (this) |
-| live-sim | **needs** `syn_scout_reports` (and optionally `syn_venue_updates`) for a Fri night in `data/synthetic_live/`; until then uses SYN-T1 placeholder |
+| live-sim | **needs** `syn_scout_reports` (+ `syn_scouts.reputation`, optional `syn_venue_updates`) for Sat Nov 14 in `data/live_sim.db`, seed 42; merged after tableau, so tableau ships with SYN-T1 and refreshes later |
 | ml-recs | **needs** `recs.live_state.compute_all` to turn reports into hourly vibe_score; fallback is a simple local mean (marked) |
 | backend | later: `GET /api/heatmap?now=` as the live replacement for the tonight extract |
 | frontend | gives: colour scales for map/heatmap so the app matches; optional embed later |
 | coursework | none |
-| integration | gives: PNG + public link for the Nov 17 demo; needs: merge order (tableau after live-sim/ml-recs if real heatmap wanted) |
+| integration | gives: PNG + public link for the Nov 17 demo; needs: a slot after live-sim/ml-recs merge (Nov 14-15) to rerun the exporter and republish (task T13) |
 
 ## 9. Success metrics
 - Dashboard published on Tableau Public with link in `docs/workstreams/tableau.md`: yes/no, by deadline.
@@ -148,7 +155,7 @@ Non-functional
 | Risk | Mitigation |
 |---|---|
 | Deadline already passed (Oct 6) | Ship public-data sheets first (no dependency), add tonight sheet after |
-| live-sim output late or schema drift | SYN-T1 placeholder generator with the exact contract schema; validation in tests |
+| live-sim merges after tableau / schema drift | SYN-T1 placeholder with the exact v2 schema; validation in tests; T13 refresh step |
 | Viewers read complaints as "best bars" | Caption on every complaint sheet; complaint scale in neutral grey/orange, not "hot" |
 | Tableau Public geocoding fails on lat/lon | Explicit Latitude/Longitude geographic roles in instructions; drop 18 null-coord rows from maps only |
 | Tableau Public makes data public | Only public data + synthetic; no user data ever exported |
@@ -158,8 +165,10 @@ Non-functional
 ## 11. Open questions
 1. Is the Oct 6 deliverable still accepted late, and in what format (Tableau Public link, `.twbx`, PDF, or PNG)? Assumed: public link + PNG.
 2. Who publishes on Tableau Public (whose account)? Assumed: Ryan.
-3. Which simulated night/time window for the heatmap? Assumed: Friday, 20:00-03:00, live-sim seed 42.
-4. Should the heatmap use `recs.live_state` vibe_score or a simpler report-count density? Assumed: vibe_score with local fallback.
+3. ~~Which simulated night?~~ Resolved (v2 §B): Sat Nov 14 2026 20:00-03:00 ET, DEMO_NOW 23:30, seed 42.
+3b. Should `pending` reports count in the heatmap, or only `accepted`? Assumed: accepted + pending (what the app shows live), flagged/disputed/removed excluded.
+4. Should the heatmap use `recs.live_state` vibe_score or a simpler report-count density? Assumed: vibe_score via recs, with a v2-constant fallback.
+6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
 5. Do we include all-Manhattan `venues` (5,737) or only `v_bars` (1,727)? Assumed: `v_bars` for maps, `venues` counts in neighbourhood summary as context.
 
 ## 12. Assumptions
@@ -169,10 +178,9 @@ Non-functional
 - `matplotlib` is an acceptable new dependency (listed in `analytics/tableau/requirements.txt`, not the root file).
 
 ## 13. Contract change requests
-1. **Allow `analytics/tableau/extracts/synthetic/` as a synthetic path.** Already
-   compliant with rule 2 (path contains `synthetic`); listed for visibility.
-2. **Add an export-friendly heatmap shape**: propose `GET /api/heatmap?now=&by=hour`
-   returning `[{venue_id, hour, vibe_score, confidence, n_reports, is_synthetic}]`
-   so the tonight extract can later come straight from the backend. The current
-   contract row has no `is_synthetic` or `hour` field.
-3. **`is_synthetic` in `/api/heatmap` items** for the "demo data" badge rule (rule 5).
+All accepted in CONTRACTS.md v2 (commit 2129052):
+1. ✅ `analytics/tableau/extracts/synthetic/` allowed as a synthetic path (v2 §C).
+2. ✅ `GET /api/heatmap?now=&by=hour` items `{venue_id, lat, lon, hour?, vibe_score, confidence, n_reports, is_synthetic}` (v2 §G).
+3. ✅ `is_synthetic` on every API object (v2 §G).
+
+No new requests.
