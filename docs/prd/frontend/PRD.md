@@ -93,7 +93,10 @@ IDs are referenced by OUTLINE.md tasks and tests.
   threshold (CONTRACTS §J). Inputs older than 180 min are ignored server-side.
 - AC6: Pull-to-refresh / Refresh button refetches; auto-refresh every
   **120 s** while visible.
-- AC7: "Share pick" copies a URL `/v/{venue_id}?from=pick` to clipboard.
+- AC7: "Share pick" copies `/tonight?now=<ISO>&prefs=<base64url JSON>` (or
+  `/venue/{venue_id}?now=…&prefs=…` from a profile). Shared links open read-only
+  with no login and show the same pick; any write (vibe check, feedback, owner update)
+  prompts demo-login first.
 
 ### Browse: cards, filter bar, search
 **US-03** As a Planner I browse and filter all launch venues.
@@ -217,7 +220,7 @@ IDs are referenced by OUTLINE.md tasks and tests.
 - F6 Venue display names: use `display_name` from the card (CONTRACTS §G). Fallback
   only if it's null: strip `LLC`, `INC`, `CORP` and title-case all-caps
   (`ATTABOY COCKTAILS LLC` → `Attaboy Cocktails`).
-- F7 Deep links: `/`, `/pick`, `/browse`, `/map`, `/v/:venueId`, `/scout`,
+- F7 Deep links: `/`, `/tonight`, `/browse`, `/map`, `/venue/:venueId`, `/scout`,
   `/scout/leaderboard`, `/plan`, `/owner/:venueId`, `/onboarding`.
 
 ### Non-functional
@@ -272,7 +275,7 @@ IDs are referenced by OUTLINE.md tasks and tests.
 ## 8. Success metrics
 
 Demo/class targets (synthetic-evaluated unless noted):
-- M1 Time to decision: median ≤ **45 s** from opening `/pick` (prefs saved) to
+- M1 Time to decision: median ≤ **45 s** from opening `/tonight` (prefs saved) to
   tapping Directions/Share, in ≥ 5 hallway usability tests.
 - M2 Vibe check time: median ≤ **10 s**, ≥ 90% completion without help.
 - M3 Comprehension: ≥ 80% of testers correctly explain what "confidence"
@@ -302,14 +305,11 @@ Demo/class targets (synthetic-evaluated unless noted):
 Resolved by CONTRACTS v2: card/detail/leaderboard/bounty/dashboard/plan-night shapes
 (§F, §G), `display_name` on cards, `excluded_reason`, display bands and presence radius
 (§A), identity via demo-login (§G). Resolved by v2.2 (§J): vibe bands, 60-min stale tag,
-key-free map tiles.
+key-free map tiles. Decided by master (Nov 11): shared links carry `now` + prefs and
+open read-only; demo-login tokens last 24 h in localStorage.
 
 Still open:
-1. Q4 Should a Planner's shared link open the same pick for group members, or re-run
-   with their location? (MVP: opens the venue profile.)
-2. Q5 Vercel account and final domain: pending with Ryan.
-3. Q6 Does demo-login return a token that lasts the whole demo, or does it expire?
-   (MVP: re-login on 401.)
+1. Q5 Vercel account and final domain: pending with Ryan.
 
 ## 11. Assumptions (made without asking)
 - A1 All 35 launch venues are Bar/Tavern (confirmed in CONTRACTS §D); "club" style comes

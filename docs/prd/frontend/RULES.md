@@ -70,8 +70,11 @@ Don't add a dependency outside this table without writing the reason in
 - Env vars: only the names reserved in CONTRACTS §H: `VITE_API_MODE` (`mock`|`live`),
   `VITE_API_BASE`, `VITE_DEMO_NOW`, `VITE_FEATURE_ROUTING`, and `VITE_FEATURE_HEATMAP`.
   They're documented in `frontend/.env.example`. No secrets in the frontend.
-- Auth: the demo-login bearer token lives in `sessionStorage` (`na.token.v1`). It's
-  attached only by `client.ts` and only to `/api` writes. On 401, re-login silently.
+- Auth: the demo-login bearer token lives in `localStorage` (`na.token.v1`, with its
+  issued-at time; valid 24 h). It's attached only by `client.ts` and only to `/api`
+  writes. On 401 or expiry, show a one-tap re-login. Reads never need a token.
+- Shared URLs (`/tonight`, `/venue/:id`) carry `now` and `prefs` (base64url JSON) as
+  query params. URL prefs override stored prefs for that view only and are never saved.
 - Errors: parse `{"error": {code, message, details}}`. Never show raw stack traces.
 - Genres: use only the shared vocabulary in CONTRACTS §E (`src/config/genres.ts`,
   copied from `simulator/genres.py` when it exists).

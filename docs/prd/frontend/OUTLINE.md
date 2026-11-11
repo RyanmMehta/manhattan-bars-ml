@@ -148,7 +148,7 @@ docs/synthetic/frontend.md
   POST `/reports` invalidates `venue`, `venues`, `recommend`, and `heatmap`.
 - Contexts: `PrefsContext` (persisted `na.prefs.v1`), `PersonaContext` (`planner|scout|owner`,
   demo-login token + `scout_id` / `venue_id`, persisted `na.persona.v1`; token in
-  `sessionStorage`), `DemoClockContext` (`now` ISO: URL `?now=` > demo panel >
+  `localStorage`, 24 h), `DemoClockContext` (`now` ISO: URL `?now=` > demo panel >
   `VITE_DEMO_NOW` > `health.demo_now`, in `sessionStorage`).
 - Mock mode: MSW starts before render when `VITE_API_MODE=mock` or `?mock=1`. Handlers
   filter fixtures by `now` (they return the report snapshot nearest to `now`). POST handlers update an in-memory copy (a new report raises that venue's n_reports and confidence by a fixed demo step), so the demo loop in §7 step 5 works offline.
