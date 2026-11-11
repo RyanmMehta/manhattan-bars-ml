@@ -1,24 +1,25 @@
 # OUTLINE: live-sim build plan
 
-Sizes: **S** < 1 h, **M** 1–3 h, **L** 3–6 h. Updated for CONTRACTS v2.
+Sizes: **S** < 1 h, **M** 1–3 h, **L** 3–6 h. Updated for CONTRACTS v2.2 (b46d75f).
 Deadline: pushed by **Fri 2026-11-13 18:00 ET** (v2 §I); integration merges live-sim
 after coursework, deploy dry-run Nov 15, freeze Nov 16 20:00, demo Nov 17.
 
 ## 1. Ordered tasks
 
 ### Phase A: skeleton (Thu Nov 12, morning)
-- [ ] A1 **S** `simulator/` package; `__main__.py` with subcommands `extract-inputs`,
-      `generate`, `validate`, `load`, `build` (= generate + validate + load), `replay`.
-- [ ] A2 **S** `genres.py`: `GENRES` = the 20 values of CONTRACTS v2 §E, `is_genre()`.
-      Push this first so research can use it.
-- [ ] A3 **S** `config.py` + `config/default.json`, `small.json` (2 weeks, 20 scouts,
-      for tests), `demo.json`; config hash; `DEMO_NOW`, `LIVE_SIM_DB` from env with defaults.
+- [ ] A1 **S** `simulator/` package; `__main__.py`. Default action (no subcommand) is the
+      fixed build: `python -I -m simulator --seed 42 --out data/live_sim.db [--nights N]` = generate → validate →
+      write CSVs + snapshots → load DB. Extra subcommands: `extract-inputs`, `validate`, `replay`.
+- [ ] A2 **S** `config/genres.json` (17 slugs, CONTRACTS v2.1 §E) + `genres.py` loader
+      (`GENRES`, `is_genre()`). Push this first so research can use it.
+- [ ] A3 **S** `config.py` + `config/default.json`, `small.json` (20 scouts, used with
+      `--nights 3` in tests), `demo.json`; config hash; `DEMO_NOW`, `LIVE_SIM_DB` from env with defaults.
 - [ ] A4 **S** `rng.py`: master seed → per-stage `Generator` via SeedSequence keyed by
       sha256(stage name).
-- [ ] A5 **M** `schema.py`: column lists, dtypes, enums, nullability for all 12 tables
-      from CONTRACTS v2 §E; `check(df, table)`.
-- [ ] A6 **S** `timeutil.py`: 33 nights (Thu–Sat, 2026-09-03 → 2026-11-14), 20:00–03:00
-      ET, 15-min UTC grid, `to_local_iso()`, DST-safe.
+- [ ] A5 **M** `schema.py`: column lists, dtypes, enums, nullability for all 13 tables
+      (CONTRACTS v2.1 §E) + `demo_night_snapshots` (v2.2 §J); `check(df, table)`.
+- [ ] A6 **S** `timeutil.py`: 36 nights (Thu–Sat, 2026-08-27 → 2026-11-14), 20:00–03:00
+      ET, 15-min UTC grid, `to_local_iso()`, DST-safe; `nights(n)` = last n nights.
 - [ ] A7 **S** `extract.py` + `simulator extract-inputs` → `simulator/data/venue_inputs.csv`
       (35 rows, real public data incl. OSM `opening_hours`). Commit it.
 
@@ -32,18 +33,21 @@ after coursework, deploy dry-run Nov 15, freeze Nov 16 20:00, demo Nov 17.
       boosts, mapping to contract scales. → `syn_true_state`.
 
 ### Phase C: people and nightly loop (Thu Nov 12 – Fri Nov 13 morning)
-- [ ] C1 **L** `scouts.py`: weekly cohorts, archetypes, home venues for shills, latent
-      engagement with weekly decay/bumps, churn date, returns. → `syn_scout_truth`.
+- [ ] C1 **L** `scouts.py`: ~150 scouts in weekly cohorts, archetypes, home venues for
+      shills, true accuracy, latent engagement with weekly decay/bumps, `churned_at`,
+      returns. → `syn_scout_truth`.
 - [ ] C2 **L** `nightloop.py`: per night, per 15-min slot: scouts choose venues
       (distance, taste, open bounties), observations from truth with archetype
       noise/bias, `distance_m`/`verified_presence`, rate-limit drops, null rates;
       every 15 min from 21:00 to 02:00 compute confidence/freshness and create/expire/
       claim bounties (specs §7.5). → raw reports + `syn_bounties`.
-- [ ] C3 **S** `_confidence.py`: minimal specs §5.2/5.3/5.6 copy (or `recs.live_state`
-      if importable); unit test against golden vector G1.
+- [ ] C3 **M** `_live_state.py`: minimal specs §5.1–5.7 fallback (vibe, confidence,
+      freshness, n_reports) or `recs.live_state` if importable; golden vector G1 test
+      (vibe 65, conf 0.67).
 - [ ] C4 **M** `trust.py`: time-ordered post-pass: velocity and outlier flags, disputes
       (→ `syn_disputes`, `disputed`/`removed`), reputation per specs §7.1, points per
-      §7.2 (→ `syn_points_ledger`), levels; weekly engagement feedback to C1.
+      §7.2 (→ `syn_points_ledger`), levels, nightly snapshot → `syn_scout_reputation_history`;
+      weekly engagement feedback to C1.
       → final `syn_scout_reports`, `syn_scouts` (incl. `last_active_at`).
 - [ ] C5 **M** `users.py`: home mixture, persona prefs → `prefs_json`. → `syn_users`.
 - [ ] C6 **M** `events.py`: user sessions → impressions/taps/saves/views by venue busyness.
@@ -59,15 +63,19 @@ after coursework, deploy dry-run Nov 15, freeze Nov 16 20:00, demo Nov 17.
       indexes; row-count check.
 - [ ] D4 **M** `replay.py`: `visible(tables, now)` (incl. derived `pending`), `snapshot(now)`,
       `shift(tables, to_date)`; CLI printing.
-- [ ] D5 **S** `extracts.py`: hourly by style × weekday; Sat Nov 14 20:00–03:00 15-min
-      per-venue snapshots (lat, lon, true crowd, n_reports_60m, open bounty).
+- [ ] D5 **S** `snapshots.py`: `demo_night_snapshots.csv` (v2.2 §J: venue_id, snapshot_ts
+      every 30 min Sat Nov 14 20:00–03:00, crowd, dancing, line_minutes, vibe_score,
+      confidence, n_reports, is_synthetic) via `replay.visible` + live state at each ts.
+- [ ] D6 **S** `extracts.py`: `extracts/hourly_by_style.csv` (style × weekday × hour).
+- [ ] D7 **S** Performance pass: full 36-night build < 60 s on a laptop CPU (timed in manifest).
 
 ### Phase E: tune, document, push (Fri Nov 13, by 18:00 ET)
 - [ ] E1 **M** Tune config until `validate` passes on seed 42.
-- [ ] E2 **S** `docs/synthetic/live-sim.md` registry (all 12 tables).
+- [ ] E2 **S** `docs/synthetic/live-sim.md` registry (all 13 tables).
 - [ ] E3 **S** `docs/workstreams/live-sim.md`: how to run, limits, open issues, CCRs.
 - [ ] E4 **S** `.gitignore` entries for `data/live_sim.db`, `data/synthetic_live/*.csv`,
-      `data/synthetic_live/shifted/`; commit manifest/validation; push; tell master.
+      `data/synthetic_live/shifted/`; commit manifest, validation and
+      `demo_night_snapshots.csv`; push; tell master.
 
 ### Later (after Nov 17)
 - [ ] L1 **M** `stream.py`: post reports to `POST /api/reports` at N× speed.
@@ -82,7 +90,7 @@ Total MVP estimate: ~30–38 h of build work; phases C2 and C4 are the critical 
 simulator/
   __init__.py            # generate(cfg) -> dict[str, DataFrame]; __version__
   __main__.py            # CLI
-  genres.py              # GENRES (shared vocabulary, CONTRACTS v2 §E)
+  genres.py              # loads config/genres.json → GENRES
   config.py
   rng.py
   schema.py
@@ -93,7 +101,7 @@ simulator/
   truth.py
   scouts.py
   nightloop.py
-  _confidence.py         # SYNTHETIC mirror of specs §5.6 (bounty trigger only)
+  _live_state.py         # SYNTHETIC fallback of specs §5 (bounties + snapshots)
   trust.py
   users.py
   events.py
@@ -102,8 +110,10 @@ simulator/
   validate.py
   load.py
   replay.py
+  snapshots.py
   extracts.py
   data/venue_inputs.csv  # real public inputs for the 35 venues (is_synthetic=0)
+  config/genres.json     # shared genre vocabulary (17 slugs, owned by live-sim)
   config/default.json
   config/small.json
   config/demo.json
@@ -117,7 +127,8 @@ simulator/
     test_scouts.py
     test_nightloop.py
     test_trust.py
-    test_confidence.py
+    test_live_state_fallback.py
+    test_snapshots.py
     test_load.py
     test_replay.py
     test_validate.py
@@ -125,10 +136,10 @@ simulator/
 data/synthetic_live/      # CSVs gitignored; manifest + validation committed
   syn_venue_attributes.csv  syn_scouts.csv  syn_users.csv  syn_scout_reports.csv
   syn_venue_updates.csv  syn_feedback.csv  syn_bounties.csv  syn_venue_events.csv
-  syn_disputes.csv  syn_points_ledger.csv
+  syn_disputes.csv  syn_points_ledger.csv  syn_scout_reputation_history.csv
   syn_true_state.csv  syn_scout_truth.csv        # evaluation only
-  manifest.json  validation.json
-  extracts/hourly_by_style.csv  extracts/tonight_2026-11-14.csv
+  manifest.json  validation.json  demo_night_snapshots.csv     # these 3 committed
+  extracts/hourly_by_style.csv
   shifted/                                       # replay --shift-to output
 data/live_sim.db          # built, never committed
 docs/synthetic/live-sim.md
@@ -143,25 +154,26 @@ docs/workstreams/live-sim.md
 | existing | `data/launch_venues.csv`, `venue_features`, `osm_venues` (read once by `extract-inputs`) | CONTRACTS "Launch venues", v2 §D |
 | team | `data/venue_attributes_manual.csv` (optional, read-only) | v2 §D |
 | contracts | table schemas, Preferences JSON, synthetic rule, IDs, `DEMO_NOW`, `LIVE_SIM_DB` | base + v2 §B, D, E, H |
-| specs | §5.2/5.3/5.6 freshness, weights, confidence; §7.1 reputation; §7.2 points/levels; §7.3 anti-gaming; §7.4 status/disputes; §7.5 bounties; churn label 14 days; golden vector G1 | `docs/prd/specs/PRD.md` |
-| ml-recs (optional) | `recs.live_state.compute(...)` for bounty confidence | CONTRACTS "Python interface" |
+| specs | §5.2/5.3/5.6 freshness, weights, confidence; §7.1 reputation; §7.2 points/levels; §7.3 anti-gaming; §7.4 status/disputes; §7.5 bounties; golden vector G1 (churn label 21 days per CONTRACTS v2.1 §B) | `docs/prd/specs/PRD.md` |
+| ml-recs (optional) | `recs.live_state.compute/compute_all(...)` for bounties and snapshots | CONTRACTS "Python interface" |
 
 ### Provided
 | To | What |
 |---|---|
-| backend | `python -I -m simulator build` → `data/live_sim.db` (all `syn_` tables, v2 §E); `simulator.replay.visible(tables, now)` defines `now=` visibility and derived `pending` status |
-| ml-recs | all tables + `syn_true_state`, `syn_scout_truth`; holdout = nights of 2026-11-13 and 2026-11-14, train = 31 nights before; `simulator.generate(cfg)` for in-memory runs |
-| coursework | `syn_scouts`, `syn_scout_reports`, `syn_points_ledger`, `syn_bounties` over 11 weeks; `syn_scout_truth.latent_churn_date` |
-| tableau | `data/synthetic_live/extracts/*.csv` (tableau copies into `analytics/tableau/extracts/synthetic/`) |
-| research | `from simulator.genres import GENRES` |
+| backend | `python -I -m simulator --seed 42 --out data/live_sim.db` → `data/live_sim.db` (all `syn_` tables, v2 §E); `simulator.replay.visible(tables, now)` defines `now=` visibility and derived `pending` status |
+| ml-recs | all tables + `syn_true_state`, `syn_scout_truth`, `syn_scout_reputation_history` (join as of report date); holdout = nights of 2026-11-13 and 2026-11-14, train = 34 nights before; `simulator.generate(cfg)` for in-memory runs |
+| coursework | `syn_scouts`, `syn_scout_reports`, `syn_points_ledger`, `syn_bounties`, `syn_scout_reputation_history` over 12 weeks (~150 scouts, churn label 21 days); `syn_scout_truth.churned_at` |
+| tableau | committed `data/synthetic_live/demo_night_snapshots.csv` (hour HH uses HH:30) + `extracts/hourly_by_style.csv` |
+| research | `simulator/config/genres.json` (or `from simulator.genres import GENRES`) |
 | frontend | demo content via backend; list of synthetic fields for badges (registry) |
-| integration | `simulator build` (seed 42, deterministic); `DEMO_NOW = 2026-11-14T23:30:00-05:00`; `--shift-to 2026-11-17` |
+| integration | exactly `python -I -m simulator --seed 42 --out data/live_sim.db` (deterministic, < 60 s; `--nights N` quick mode); `DEMO_NOW = 2026-11-14T23:30:00-05:00`; `--shift-to 2026-11-17` |
 
 CLI:
 ```
 python -I -m simulator extract-inputs                      # once; needs data/manhattan_bars.db
-python -I -m simulator build [--seed 42] [--preset default|small|demo] [--db data/live_sim.db]
-python -I -m simulator generate | validate | load          # the three steps of build
+python -I -m simulator --seed 42 --out data/live_sim.db                 # the fixed build (CONTRACTS v2.2 §J)
+python -I -m simulator --seed 42 --out data/live_sim.db --nights 3      # quick mode (tests)
+python -I -m simulator validate                                          # re-check existing CSVs
 python -I -m simulator replay --now 2026-11-14T23:30:00-05:00 [--venue <id>] [--shift-to 2026-11-17]
 ```
 
@@ -178,7 +190,7 @@ seen = replay.visible(tables, now="2026-11-14T23:30:00-05:00")
 
 Swap path for every app table (v2 §E): real rows go into the same-named table
 without `syn_` (e.g. `scout_reports`); backend reads `UNION ALL`;
-`INCLUDE_SYNTHETIC=0` hides synthetic rows; then stop running `simulator build`.
+`INCLUDE_SYNTHETIC=0` hides synthetic rows; then stop running `python -I -m simulator --seed 42 --out data/live_sim.db`.
 
 | Table | Imitates | How generated | Real source |
 |---|---|---|---|
@@ -197,39 +209,41 @@ without `syn_` (e.g. `scout_reports`); backend reads `UNION ALL`;
 | extracts | tableau inputs | `extracts.py` | same queries on real tables |
 
 Key placeholder numbers (all in `default.json`, each `# SYNTHETIC:`): style peaks,
-weekday 0.70/0.95/1.00, shocks σ 0.15/0.20, Halloween ×1.3, crowd bins
+weekday 0.70/0.95/1.00, shocks σ 0.15/0.20, Labor Day Sat ×1.15, Halloween ×1.3, crowd bins
 0.2/0.45/0.7/0.9, line above 85% occupancy, ~150 scouts (50 + 5–15/week),
 engagement decay 0.85 and churn threshold 0.25, archetype shares
 55/25/10/6/4, null rates 60%/40%, 300 users, funnel 25%/10%, dispute rate 3% and
 uphold 30%, events cap ~150k rows. Expected volume: ~300–700 reports/night,
-~15k reports total.
+~18k reports total.
 
 ## 5. Test plan
 
 | Test | What it checks | Data |
 |---|---|---|
-| `test_genres` | `GENRES` equals CONTRACTS v2 list (20 values, lowercase, unique) | unit |
+| `test_genres` | `genres.json` equals the CONTRACTS v2.1 list (17 slugs, lowercase, unique) | unit |
+| `test_cli` | `python -I -m simulator --seed 42 --out <tmp>/live_sim.db --nights 3` exits 0 and writes 13 `syn_` tables | `--nights 3` |
 | `test_schema` | exact columns/order per v2 §E, dtypes, enums (status, event_type, archetype), ranges, nulls, `is_synthetic=1`, `syn-` IDs, prefs_json | small preset |
-| `test_determinism` | same seed → same sha256 per CSV; different seed differs; stage isolation (users config change leaves reports unchanged) | small ×2 |
-| `test_timeutil` | 33 nights, Thu–Sat only, 20:00–03:00; Oct 31 night across DST: UTC monotonic, offsets −04:00 → −05:00 | unit |
-| `test_truth` | peaks per style; Sat ≥ Fri ≥ Thu; closed ⇒ occupancy 0 | small |
-| `test_scouts` | weekly cohorts; no reports after `latent_churn_date` (except returns); churn share in range on default config | small + default (marked slow) |
-| `test_nightloop` | rate limits never exceeded; `verified_presence` ⇔ distance ≤ 150; bounties ≤ 8 open, expire at 60 min, claim = first accepted verified report | small |
-| `test_trust` | velocity and outlier flags on hand-made cases; reputation update matches specs §7.1 examples; ledger sums to points; levels thresholds | unit + small |
-| `test_confidence` | golden vector G1 → conf 0.67 | unit |
+| `test_determinism` | same seed → same sha256 per CSV; different seed differs; stage isolation (users config change leaves reports unchanged) | `--nights 3` ×2 |
+| `test_timeutil` | 36 nights, Thu–Sat only, 20:00–03:00; Oct 31 night across DST: UTC monotonic, offsets −04:00 → −05:00 | unit |
+| `test_truth` | peaks per style; Sat ≥ Fri ≥ Thu; closed ⇒ occupancy 0 | `--nights 3` |
+| `test_scouts` | weekly cohorts; no reports after `churned_at` (except returns); churn share in range on default config | small + default (marked slow) |
+| `test_nightloop` | rate limits never exceeded; `verified_presence` ⇔ distance ≤ 150; bounties ≤ 8 open, expire at 60 min, claim = first accepted verified report | `--nights 3` |
+| `test_trust` | velocity and outlier flags on hand-made cases; reputation update matches specs §7.1 examples; ledger sums to points; levels thresholds | unit + `--nights 3` |
+| `test_live_state_fallback` | golden vector G1 → vibe 65, conf 0.67; equals `recs` output when importable | unit |
+| `test_snapshots` | 15 snapshot times × 35 venues; columns per v2.2 §J; nulls kept; uses only data visible at `snapshot_ts` | `--nights 3` |
 | `test_load` | only `syn_*` tables; refuses bad names and `manhattan_bars.db` target; row counts match | temp DB |
-| `test_replay` | nothing after `now + 2 min`; `pending` iff < 30 min and not flagged; expired offers/bounties hidden; shift keeps time of night | small |
-| `test_validate` | validator passes on small preset; a broken table fails | small |
+| `test_replay` | nothing after `now + 2 min`; `pending` iff < 30 min and not flagged; expired offers/bounties hidden; shift keeps time of night | `--nights 3` |
+| `test_validate` | validator passes on small preset; a broken table fails | `--nights 3` |
 
 `validate.py` on the full output also checks: report peaks 22:00–01:00; club/dive vs
 cocktail ordering at 01:00 and 20:30; honest MAE ≤ 0.6, gamer/shill ≥ 1.2; ≥ 20% empty
-venue-slots; churn 40–60% and week-4 retention 35–60%; 14-day label vs latent churn
+venue-slots; churn 40–60% and week-4 retention 35–60%; 21-day label vs latent churn
 agreement ≥ 80%; feedback Spearman ≥ 0.3; at `DEMO_NOW` ≥ 25 venues fresh and ≥ 3 open
-bounties; all genres in `GENRES`; CSV total ≤ 30 MB.
+bounties; all genres in `GENRES`; CSV total ≤ 30 MB; full build < 60 s.
 
 ## 6. Demo script (Nov 17, ~2 min of the integration demo)
 
-1. `python -I -m simulator build` → manifest row counts; "seed 42, every row `is_synthetic = 1`".
+1. `python -I -m simulator --seed 42 --out data/live_sim.db` → manifest row counts and build time; "seed 42, every row `is_synthetic = 1`".
 2. Show `validation.json` green: nightly peaks, weekday order, honest vs gamer error,
    Scout drop-off curve.
 3. `replay --now 2026-11-14T21:00:00-05:00` → cocktail bars filling, offers live, few reports.

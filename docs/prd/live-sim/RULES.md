@@ -1,6 +1,6 @@
 # RULES for the live-sim build session
 
-Read this file, `docs/CONTRACTS.md` (including the **v2 amendments**, which override
+Read this file, `docs/CONTRACTS.md` (including the **v2–v2.2 amendments**, which override
 the base text), `docs/prd/live-sim/PRD.md`, `docs/prd/live-sim/OUTLINE.md` and
 specs' `docs/prd/specs/PRD.md` §5 and §7 (on `nightlife/specs`; built version moves to
 `docs/specs/SCORING.md`) before writing any code. If they conflict: CONTRACTS v2 wins,
@@ -56,8 +56,10 @@ Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
 
 ## 5. Contract fidelity
 - Tables have exactly the columns in CONTRACTS.md plus v2 §E additions, in that
-  order, with those names (12 tables incl. `syn_venue_events`, `syn_disputes`,
-  `syn_points_ledger`, `syn_true_state`, `syn_scout_truth`). No extra columns;
+  order, with those names (13 tables incl. `syn_venue_events`, `syn_disputes`,
+  `syn_points_ledger`, `syn_scout_reputation_history`, `syn_true_state`,
+  `syn_scout_truth`) plus `demo_night_snapshots.csv` (v2.2 §J). Write only `syn_` tables;
+  backend creates the real twin tables. No extra columns;
   anything else goes in a CCR.
 - `syn_true_state` and `syn_scout_truth` are evaluation-only. Nothing in the
   simulator's app-facing tables may be derived from them in a way that leaks truth
@@ -67,12 +69,18 @@ Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
   (store only accepted/flagged/disputed/removed; `pending` is derived at replay);
   event_type `view|tap|save|recommend_impression`; archetype
   `honest|casual|sloppy|gamer|shill`.
-- Genres: pipe-separated, only values in `simulator/genres.py` `GENRES`, which must
-  equal the 20-value list in CONTRACTS v2 §E exactly. Other workstreams import it;
+- Genres: pipe-separated, only values in `simulator/config/genres.json` (loaded by
+  `simulator/genres.py` as `GENRES`), which must equal the 17-slug list in
+  CONTRACTS v2.1 §E exactly. Other workstreams import it;
   never change it without a contract change.
 - Specs rules (points, levels, reputation, status, bounties, presence radius 150 m,
   rate limits, half-lives) are read from config keys that cite the specs section.
   Do not invent different values; if specs changes, update config, not logic.
+- Models and evaluation join reputation from `syn_scout_reputation_history` as of the
+  report date, never the final `syn_scouts.reputation`.
+- Churn label is "no report in 21 days" (CONTRACTS v2.1 §B).
+- The build command is fixed: `python -I -m simulator --seed 42 --out data/live_sim.db` with optional
+  `--nights N`. Don't rename flags; integration and backend call exactly this.
 - Never generate or store raw GPS for scouts; only `distance_m`.
 - IDs: `syn-r-000123` reports, `syn-s-0042` scouts, `syn-u-` users, `syn-up-` updates,
   `syn-f-` feedback, `syn-b-` bounties, `syn-e-` events, `syn-d-` disputes,
@@ -136,23 +144,25 @@ Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
     claimed bounties;
   - specs rules: golden vector G1 for the confidence mirror; reputation, points,
     level, velocity/outlier flags and bounty rules on hand-made cases;
-  - scouts: no reports after `latent_churn_date` (except configured returns);
+  - scouts: no reports after `churned_at` (except configured returns);
   - realism checks in `validate` run on the small preset in CI-sized time.
 - Tests use a temp directory and a tiny config; they must not write into
   `data/synthetic_live/`.
 - Full test suite runs in under 60 s.
 
 ## 9. Definition of done
-- [ ] `python -I -m simulator build` (seed 42) produces all 12 tables in
+- [ ] `python -I -m simulator --seed 42 --out data/live_sim.db` (seed 42) produces all 13 tables in
       `data/synthetic_live/`, passes `validate`, and loads `data/live_sim.db`;
       row counts match; works without `data/manhattan_bars.db` present.
-- [ ] `simulator/genres.py` pushed early (research and others import it).
+- [ ] `simulator/config/genres.json` + `genres.py` pushed early (research and others use it).
+- [ ] `demo_night_snapshots.csv` (525 rows) committed; `snapshot_source` in manifest.
 - [ ] `python -I -m simulator replay --now 2026-11-14T23:30:00-05:00` prints the
       DEMO_NOW snapshot; `--shift-to 2026-11-17` works.
 - [ ] pytest suite green.
 - [ ] `docs/synthetic/live-sim.md` registry complete; `docs/workstreams/live-sim.md`
       says what was built, how to run it, known limits, open issues, contract change
       requests.
-- [ ] 33 nights (Thu 2026-09-03 → Sat 2026-11-14, 20:00–03:00 ET); CSVs ≤ 30 MB; build ≤ 90 s.
+- [ ] 36 nights (Thu 2026-08-27 → Sat 2026-11-14, 20:00–03:00 ET); CSVs ≤ 30 MB; full build < 60 s on a laptop CPU;
+      `--nights 3` works.
 - [ ] `grep -rn "SYNTHETIC:" simulator/` covers every module that invents data.
 - [ ] Branch pushed by Fri Nov 13 18:00 ET; master session told the manifest hashes.
