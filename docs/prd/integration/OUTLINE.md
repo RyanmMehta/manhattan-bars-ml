@@ -14,7 +14,7 @@ fallen back (stub / mock / flag off).
 | specs | `docs/specs/SCORING.md` with v2 §A constants + G1/G5 golden vectors; architecture mermaid; `docs/specs/team/` PR template + CONTRIBUTING | constants in `recs/` config == v2 §A (test) | use v2 §A values, note in README |
 | research | `research/` docs; synthetic interview data marked + registered | badge-free docs only; `docs/synthetic/research.md` | link omitted |
 | tableau | `analytics/tableau/` extracts (synthetic under `extracts/synthetic/`), PNG, build steps | PNG opens; synthetic CSVs have `is_synthetic` | link omitted |
-| live-sim | `simulator/` CLI, seed 42 → uncommitted `data/live_sim.db` with all v2 §E tables (app + eval-only), 33 nights Sep 3 → Nov 14; `simulator/genres.py`; `docs/synthetic/live-sim.md` | `tests/contract/test_syn_tables.py` | tiny fixture `tests/fixtures/synthetic/` (35 venues, Nov 14 only) |
+| live-sim | `simulator/` CLI, seed 42 → uncommitted `data/live_sim.db` with all v2 §E tables (app + eval-only), 36 nights Aug 27 → Nov 14; `simulator/config/genres.json` (17 genres); `docs/synthetic/live-sim.md` | `tests/contract/test_syn_tables.py` | tiny fixture `tests/fixtures/synthetic/` (35 venues, Nov 14 only) |
 | ml-recs | `recs/` importable; 4 contract functions + v2 §F keys; accepts dicts or DataFrames; G1/G5 green | `tests/contract/test_recs_interface.py` | backend stub; routing flag off |
 | backend | all routes in "HTTP API" + v2 §G (demo-login, error shape, `X-Data`, `/openapi.json`); attaches `live_sim.db` via `LIVE_SIM_DB`; `INCLUDE_SYNTHETIC`; `now=`; `CORS_ORIGINS`; `backend/Dockerfile`, `backend/render.yaml`; pytest green | `tests/contract/test_api.py` | integration fixes ≤ 20 lines, else route hidden in UI |
 | frontend | mockup PNGs (Nov 12); MVP screens; `VITE_API_BASE`, `VITE_API_MODE=mock|live`, `VITE_DEMO_NOW` + `?now=`; demo badge driven by `is_synthetic`; display states show/low/none; `vercel.json` | `tests/e2e/` | screens hidden from demo path |
@@ -40,7 +40,7 @@ fallen back (stub / mock / flag off).
 - [ ] B3 **S** Merge `research`.
 - [ ] B4 **S** Merge `tableau`.
 - [ ] B5 **S** Merge `coursework`.
-- [ ] B6 **M** Merge `live-sim`; if a `.db` was committed, remove it; `make seed-demo`; run syn table contract tests (columns, `syn-` keys, `is_synthetic=1`, venue_id ∈ launch 35, genres ∈ `GENRES`, Thu–Sat Sep 3 → Nov 14 coverage, DEMO_NOW has reports); record row counts + hashes.
+- [ ] B6 **M** Merge `live-sim`; if a `.db` was committed, remove it; `make data`; run syn table contract tests (columns, `syn-` keys, `is_synthetic=1`, venue_id ∈ launch 35, genres ∈ genres.json, Thu–Sat Aug 27 → Nov 14 coverage (36 nights), DEMO_NOW has reports); record row counts + hashes.
 - [ ] B7 **M** Merge `ml-recs`; run `pytest recs/` + interface tests against `live_sim.db`; G1/G5; v2 §A constants check; no reads of `syn_true_state`/`syn_scout_truth` outside evaluation code.
 - [ ] B8 **L** Merge `backend`; resolve `requirements.txt`; run `pytest backend/` + `tests/contract/test_api.py`; diff `/openapi.json` vs `schemas.py`; test `INCLUDE_SYNTHETIC=0`; move `backend/render.yaml` to root if needed.
 - [ ] B9 **L** Merge `frontend`; `npm ci && npm run build`; run against local backend with `VITE_API_MODE=live`.
@@ -48,7 +48,7 @@ fallen back (stub / mock / flag off).
 
 ### Phase C — wire and seed (Nov 14–15)
 - [ ] C1 **M** Confirm one data path: `simulator` (seed 42) → `data/live_sim.db` → backend attaches it alongside `launch_venues_full.csv` (`UNION ALL` with real twins) → recs → API → frontend.
-- [ ] C2 **M** Seed demo: `DEMO_NOW = 2026-11-14T23:30:00-05:00` (v2 §B); `make seed-demo` twice from clean; record per-table row counts + content hashes in `docs/workstreams/integration.md`; check the demo story beats exist at DEMO_NOW.
+- [ ] C2 **M** Seed demo: `DEMO_NOW = 2026-11-14T23:30:00-05:00` (v2 §B); `make data` twice from clean; record per-table row counts + content hashes in `docs/workstreams/integration.md`; check the demo story beats exist at DEMO_NOW.
 - [ ] C3 **M** If a story beat is missing (a `rising` hip-hop venue; one excluded for line > 15 min; one greyed "low confidence" 0.20–0.39; one "No fresh reports"), ask live-sim to adjust (preferred) or add `data/synthetic_demo/` overrides (SYNTHETIC) loaded after the generator.
 - [ ] C4 **S** Frontend: `VITE_DEMO_NOW` + `?now=` forwarded to all reads (v2 §B); clock chip visible; `/api/health.demo_now` matches.
 - [ ] C5 **S** Feature flags for routing/heatmap per R5.
@@ -111,7 +111,7 @@ docs/demo/*.png
 
 **Provided**
 - `nightlife/integration` branch = the deployable whole.
-- `make test` / `make test-deployed` / `make seed-demo` / `make demo` commands.
+- `make test` / `make test-deployed` / `make data` / `make demo` commands.
 - `tests/contract/schemas.py` — machine-readable copy of the contract other workstreams may run.
 - Ownership audit report + merge log + "fixes applied" list (for upstreaming).
 - `SYNTHETIC_DATA.md`, `DEMO.md`, README, live URLs.
@@ -143,7 +143,7 @@ syn_users → real sign-ups; syn_feedback → post-visit prompts).
 |---|---|---|---|
 | Pipeline smoke | `src` imports; `simulate.py --n 100` into temp copy | `make test` | each merge |
 | Workstream unit | `pytest recs/ backend/`, frontend `npm test` | their folders | each merge |
-| Data contract | all v2 §E tables: columns, types, ranges (crowd 1–5, dancing 0–2, reputation 0–1, price 1–4, status enum), `is_synthetic=1`, `syn-` keys, FK venue_id ∈ launch 35, scout_id ∈ syn_scouts, genres ∈ GENRES, ts tz-aware, 33 nights present | `tests/contract/test_syn_tables.py` | after live-sim merge |
+| Data contract | all v2 §E tables: columns, types, ranges (crowd 1–5, dancing 0–2, reputation 0–1, price 1–4, status enum), `is_synthetic=1`, `syn-` keys, FK venue_id ∈ launch 35, scout_id ∈ syn_scouts, genres ∈ genres.json, ts tz-aware, 36 nights present | `tests/contract/test_syn_tables.py` | after live-sim merge |
 | Truth leak | `syn_true_state`/`syn_scout_truth` not referenced in `backend/`, `recs/` runtime; API works with them dropped | `test_no_truth_leak.py` | after ml-recs + backend |
 | Swap switch | `INCLUDE_SYNTHETIC=0` → API 200s, `data: real`, empty states | `test_include_synthetic.py` | after backend merge |
 | Recs interface | signatures; Live Venue State keys incl. `display`; `confidence` ∈ [0,1], `vibe_score` ∈ [0,100] or null; missing fields `null`; decay monotonic; cutoff 180 min / future > 2 min ignored; display thresholds 0.40 / 0.20; `rank_score` formula; G1/G5 vectors; exclusion when line > max_line_minutes with `excluded_reason` | `test_recs_interface.py` | after ml-recs merge |

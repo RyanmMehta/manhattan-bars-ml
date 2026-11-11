@@ -110,7 +110,7 @@ and verify; you do not re-implement other workstreams' features.
 - [ ] All 8 branches merged (or a documented reason per skipped branch); merge log written.
 - [ ] `make test` green locally; `make test-deployed` green 3× in a row.
 - [ ] Backend live on Render, frontend live on Vercel, mock mode off, CORS locked to Vercel + localhost.
-- [ ] Demo seeded reproducibly (`make seed-demo`, seed 42 → `data/live_sim.db`, row counts + hashes recorded); `DEMO_NOW` 2026-11-14T23:30:00-05:00 shown in the UI clock and `/api/health`.
+- [ ] Demo seeded reproducibly (`make data`, seed 42 → `data/live_sim.db`, row counts + hashes recorded); `DEMO_NOW` 2026-11-14T23:30:00-05:00 shown in the UI clock and `/api/health`.
 - [ ] `data/launch_venues_full.csv` committed; Render image excludes `manhattan_bars.db`.
 - [ ] G1/G5 golden vectors pass through the API; truth-leak and `INCLUDE_SYNTHETIC=0` tests green.
 - [ ] `SYNTHETIC_DATA.md` complete; every `SYNTHETIC:` comment maps to a row; badge on every synthetic screen.

@@ -29,7 +29,7 @@ swap it for real data.
 3. **G3 Tested end to end.** A contract test suite (API shapes vs CONTRACTS.md) and a
    browser smoke test (Playwright) that run in one command and in CI.
 4. **G4 Seeded demo night.** The fixed, reproducible simulated history (Thu–Sat,
-   Sep 3 → Nov 14, seed 42, v2 §B); the demo replays `DEMO_NOW = 2026-11-14T23:30:00-05:00`.
+   Aug 27 → Nov 14, 36 nights, seed 42, v2 §B); the demo replays `DEMO_NOW = 2026-11-14T23:30:00-05:00`.
 5. **G5 Deployed.** Backend on Render, frontend on Vercel, both reachable from a
    phone, health check green, cold-start understood.
 6. **G6 Honest about synthetic data.** Root `SYNTHETIC_DATA.md` that consolidates
@@ -118,7 +118,7 @@ cover/DJ/offer and see demand analytics.
 **US-7 Replay the demo night** — As the presenter, I want the app pinned to a demo time.
 - AC: frontend env `VITE_DEMO_NOW` (or a URL param `?now=`) is passed to all read
   endpoints; a visible clock chip shows the simulated time.
-- AC: `make seed-demo` regenerates `data/live_sim.db` with seed 42; a per-table row
+- AC: `make data` regenerates `data/live_sim.db` with seed 42; a per-table row
   count + content hash (ordered `SELECT *`) matches the values recorded in
   `docs/workstreams/integration.md` on two machines (or two runs).
 
@@ -189,7 +189,7 @@ Non-functional
 | **specs** | `docs/specs/SCORING.md` matching v2 §A constants + golden vectors G1/G5; architecture diagram; `docs/specs/team/` PR template + CONTRIBUTING — **Nov 13 18:00** |
 | **research** | nothing blocking; one-line positioning + interview status for README/demo; `syn_interviews`/`syn_interview_quotes`/`syn_survey_responses` registered — Nov 13 18:00 (soft) |
 | **tableau** | extracts (synthetic ones under `analytics/tableau/extracts/synthetic/`) + PNG; link for README/demo slide — Nov 13 18:00 (soft) |
-| **live-sim** | deterministic generator (seed 42) → `data/live_sim.db` with all v2 §E tables, Sep 3 → Nov 14 nights, `simulator/genres.py`, `docs/synthetic/live-sim.md` — **Nov 13 18:00** |
+| **live-sim** | deterministic generator (seed 42) → `data/live_sim.db` with all v2 §E tables, 36 nights Aug 27 → Nov 14, `simulator/config/genres.json` (17 genres), `docs/synthetic/live-sim.md` — **Nov 13 18:00** |
 | **ml-recs** | `recs/` importable with the 4 contract functions + v2 §F keys, accepts lists of dicts or DataFrames, G1/G5 tests green; routing optional — **Nov 13 18:00** |
 | **backend** | all MVP endpoints incl. v2 §G (demo-login, error shape, `X-Data`, `/openapi.json`), attaches `live_sim.db`, `INCLUDE_SYNTHETIC`, Dockerfile + `backend/render.yaml`, pytest — **Nov 13 18:00** |
 | **frontend** | mockup PNGs (target Nov 12); MVP screens against the contract API, `VITE_API_MODE=mock|live`, `VITE_DEMO_NOW`/`?now=`, demo badge, `VITE_API_BASE`, vercel config — **Nov 13 18:00** |
