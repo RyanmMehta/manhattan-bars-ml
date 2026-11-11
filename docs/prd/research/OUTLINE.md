@@ -1,7 +1,8 @@
 # OUTLINE — research build plan
 
-Sizes: S ≈ < 1 h, M ≈ 1-3 h, L ≈ 3-6 h. Target: MVP done by Nov 16 so
-integration has a day (Nov 17 deadline).
+Sizes: S ≈ < 1 h, M ≈ 1-3 h, L ≈ 3-6 h. Updated for CONTRACTS v2.
+Deadline: all MVP deliverables pushed by **Fri Nov 13 18:00 ET** (v2 §I);
+research is merged 2nd (after specs). Phase E continues after the deadline.
 
 ## 1. Ordered tasks
 
@@ -21,7 +22,7 @@ integration has a day (Nov 17 deadline).
 
 ### Phase C — synthetic data
 - [ ] C1 (M) `research/gen_synthetic.py` producing the three datasets (§5) from `PRIORS`, seeded.
-- [ ] C2 (S) DB load into `syn_interviews`, `syn_interview_quotes`, `syn_survey_responses` (replace-only those tables).
+- [ ] C2 (S) Confirm CSV-only output (v2 §E: research `syn_` tables are not loaded into any DB); `GENRES` constant matches v2 §E list.
 - [ ] C3 (M) `research/validate.py` (codebook, `is_synthetic`, venue_ids, PII scan, competitor sourcing).
 - [ ] C4 (M) `research/tests/` per RULES §7.
 - [ ] C5 (S) Fill `docs/synthetic/research.md` registry.
@@ -81,13 +82,14 @@ Provided (research → others; CSV columns = SQLite columns):
 - `research/summary.md` hand-off table.
 No HTTP API endpoints; backend need not expose research data.
 
-**Contract change requests** (to be copied to `docs/workstreams/research.md`):
-1. Add `syn_interviews`, `syn_interview_quotes`, `syn_survey_responses` to the
-   CONTRACTS schema list so tableau/coursework can rely on them.
-2. Clarify that planning docs live in `docs/prd/<name>/` (not listed in the
-   layout table).
-3. Add a shared genre vocabulary list (pipe-separated values) so survey,
-   `syn_venue_attributes` and reports agree.
+**Contract change requests:** all three earlier requests were resolved in
+CONTRACTS v2 (research tables listed in §E, `docs/prd/<name>/` in §C, shared
+genre vocabulary in §E). None open.
+
+Shared genre vocabulary (v2 §E), used for every genre option in survey and
+interview data: `hip-hop, r&b, house, techno, pop, top-40, latin, reggaeton,
+afrobeats, rock, indie, jazz, soul, funk, disco, 90s-00s, edm, live-band,
+karaoke, mixed`.
 
 ## 4. Schemas
 
@@ -99,22 +101,22 @@ venue_tools, nyc_coverage, reporter_incentives, consumer_price, revenue_model,
 why_failed_hypothesis (nullable), source_url, retrieved_at (YYYY-MM-DD), notes`
 
 ### 4.2 `syn_interviews`
-`interview_id (INT-S-### synthetic / INT-R-### real), segment (consumer|scout|operator),
+`interview_id (syn-int-### synthetic / int-r-### real), segment (consumer|scout|operator),
 date, age_band (18-20|21-24|25-29|30-34|35+|na), nights_out_per_month (int),
 typical_group_size (int), neighborhoods (pipe), current_tools (pipe: google_maps|instagram|
 group_chat|partiful|resy|dice|yelp|tiktok|none), bad_pick_last_month (0/1),
-top_factor_1..3 (genres|want_dancing|crowd_pref|max_cover_usd|max_line_minutes|
+favorite_genres (pipe, from shared vocabulary), top_factor_1..3 (genres|want_dancing|crowd_pref|max_cover_usd|max_line_minutes|
 max_distance_km|price|friends_there), freshness_tolerance_min (int),
 would_scout (0-3 Likert-ish: no|maybe|yes|already), scout_motivator (points|perks|status|helping|none),
 operator_role (nullable), operator_wtp_usd_month (nullable), operator_wants (pipe, nullable),
 venue_mentions (pipe of venue_id), concept_reaction (1-5), is_synthetic`
 
 ### 4.3 `syn_interview_quotes`
-`quote_id, interview_id, hypothesis_id (H1..H12), theme (pain|tools|trust|scouting|pricing|other),
+`quote_id (syn-q-#### / q-r-####), interview_id, hypothesis_id (H1..H12), theme (pain|tools|trust|scouting|pricing|other),
 sentiment (-1/0/1), text (starts "[SYNTHETIC] "), is_synthetic`
 
 ### 4.4 `syn_survey_responses`
-`response_id, submitted_at, age_band, student (0/1), nights_out_per_month,
+`response_id (syn-srv-#### / srv-r-####), submitted_at (ISO, ET; synthetic spread Oct 26–Nov 12 2026), age_band, student (0/1), nights_out_per_month,
 typical_group_size, who_picks (me|friend|rotates|group_vote), decision_minutes (int),
 current_tools (pipe), bad_pick_last_month (0/1), importance_genres … importance_price
 (1-5 each, one per factor above), freshness_tolerance_min, trust_cue_pref
@@ -126,7 +128,7 @@ would_scout (0-3), reports_per_night_if_scout (int), points_value_pref
 
 | Dataset | Imitates | How generated | Real source that replaces it | Swap steps |
 |---|---|---|---|---|
-| `syn_interviews` (n=15: 8 consumer, 3 scout, 4 operator) | Coded notes from 10-15 semi-structured interviews | `gen_synthetic.py`: sample segment counts, then fields from `PRIORS` (e.g. nights_out ~ Poisson(λ=[6]), bad_pick ~ Bernoulli([0.6])); venue_mentions drawn from launch venues weighted by OSM-match | `research/interviews/interviews.csv` from note template (E1) | 1. Fill real CSV with same columns, `is_synthetic=0`. 2. `analysis.py --source real`. 3. Drop `syn_interviews` from DB or keep for demos. 4. Re-tag findings. |
+| `syn_interviews` (n=15: 8 consumer, 3 scout, 4 operator) | Coded notes from 10-15 semi-structured interviews | `gen_synthetic.py`: sample segment counts, then fields from `PRIORS` (e.g. nights_out ~ Poisson(λ=[6]), bad_pick ~ Bernoulli([0.6])); venue_mentions drawn from launch venues weighted by OSM-match | `research/interviews/interviews.csv` from note template (E1) | 1. Fill real CSV with same columns, `is_synthetic=0`. 2. `analysis.py --source real`. 3. Keep synthetic CSV for demos or delete it; nothing to drop from any DB. 4. Re-tag findings. |
 | `syn_interview_quotes` (~4-6 per interview) | Tagged verbatim quotes | Template sentences per theme × sentiment, filled with sampled fields, prefixed `[SYNTHETIC] ` | Real quotes transcribed from notes (anonymized) | Same as above; quotes CSV in `research/interviews/quotes.csv`. |
 | `syn_survey_responses` (n=300 placeholder) | Online survey export | Latent "nightlife intensity" z ~ N(0,1) drives nights_out, would_scout, would_use_weekly (logistic, coefficients in PRIORS) so correlations are plausible; importance Likerts from a Dirichlet over factors | Google Forms/Qualtrics export mapped via codebook (E2) | 1. Export CSV. 2. Rename columns to codebook. 3. `validate.py --real`. 4. Point tableau extract at real file. |
 | `summary_tables.csv` | Aggregated findings | `analysis.py` over synthetic CSVs | Same script over real CSVs | Re-run with `--source real`. |
@@ -141,12 +143,12 @@ the survey/interview question whose real answer replaces it.
 - Referential: all `venue_mentions` ∈ launch `license_id`s; quotes' `interview_id` ∈ interviews.
 - Codebook: every survey column defined; allowed values respected.
 - PII scan: no email/phone regex hits in `research/**`.
-- DB isolation: snapshot `sqlite_master` + counts of `venues`, `v_bars`,
-  `venue_features` before/after load → unchanged except `syn_` research tables.
+- No DB writes: `data/*.db` mtimes/hashes unchanged after running the generator.
+- IDs: synthetic keys start `syn-`; genres ⊆ shared vocabulary (v2 §E).
 - Competitors: all rows have `source_url` (http/https) and `retrieved_at`.
 - Manual: a teammate pilots the consumer guide (≤ 30 min) and survey (≤ 5 min).
 
-## 7. Demo script (≈ 2 min in the Nov 17 presentation)
+## 7. Demo script (≈ 2 min in the Nov 17 presentation; scenario time DEMO_NOW = Sat Nov 14 23:30 ET)
 1. "Here's who tried this before": show matrix — legacy apps dead/unknown,
    substitutes are static or social, nobody shows confidence. (real)
 2. Positioning statement + 2×2: we're the fresh + personalized corner. (real)

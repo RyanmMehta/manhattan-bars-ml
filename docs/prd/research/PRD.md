@@ -1,6 +1,7 @@
 # PRD — research workstream (Nightlife Autopilot)
 
-Status: planning draft, 2026-11-11. Owner: research subtab (project owner Ryan Mehta).
+Status: planning draft, 2026-11-11 (updated for CONTRACTS v2).
+Deliverables due to integration: **Fri Nov 13 18:00 ET** (CONTRACTS v2 §I); demo Nov 17. Owner: research subtab (project owner Ryan Mehta).
 Branch: `nightlife/research`. Builds into `research/` (per `docs/CONTRACTS.md`).
 
 ## 1. Problem
@@ -110,8 +111,11 @@ statement.**
 
 **R5 — As tableau/coursework, I want data now.**
 - AC: `python -I research/gen_synthetic.py --seed 42` writes the three CSVs to
-  `research/synthetic/` and `syn_*` tables to `data/manhattan_bars.db`,
-  deterministically (same seed → identical bytes).
+  `research/synthetic/` deterministically (same seed → identical bytes). Per
+  CONTRACTS v2 §E these tables stay in `research/` and are **not** loaded into
+  any DB (`manhattan_bars.db` or `live_sim.db`).
+- AC: synthetic primary keys start with `syn-` (v2 §D): `syn-int-001`,
+  `syn-q-0001`, `syn-srv-0001`. Real rows use `int-r-001`, `srv-r-0001`.
 - AC: every row `is_synthetic = 1`; `docs/synthetic/research.md` lists each
   dataset with the 5 required fields.
 - AC: interview `venue_mentions` use real launch `venue_id`s only.
@@ -127,7 +131,7 @@ statement.**
 
 ## 6. Scope
 
-**MVP (by Nov 17)**
+**MVP (pushed by Fri Nov 13 18:00 ET; integration merges research 2nd, after specs)**
 - Competitor refresh + matrix + positioning (desk research, real).
 - Interview guides ×3, survey + codebook, screener/consent.
 - Synthetic dataset (n_interviews = 15, n_survey = 300 placeholder) + registry.
@@ -148,18 +152,19 @@ Functional
 - F2 Matrix + positioning markdown; 2×2 spec (tableau may render it).
 - F3 Interview guides, screener, consent, note template.
 - F4 Survey questions + codebook; export format = CSV matching codebook.
-- F5 Seeded synthetic generator (Python, stdlib + numpy/pandas only) and
-  loader into SQLite `syn_` tables.
+- F5 Seeded synthetic generator (Python, stdlib + numpy/pandas only) writing
+  CSVs only (no DB load, v2 §E). Genre options use the shared vocabulary
+  (v2 §E; `simulator/genres.py` `GENRES`) — copied as a constant, not imported.
 - F6 Validator: `research/validate.py` checks CSVs vs codebook/schema,
   `is_synthetic` present, venue_ids ∈ launch list.
 - F7 Business model doc; findings summary.
 
 Non-functional
 - NF1 Deterministic, runs in < 10 s, no network.
-- NF2 No PII: real interview IDs are `INT-R-###`, no names/emails/phones in repo.
+- NF2 No PII: real interview IDs are `int-r-###`, no names/emails/phones in repo.
 - NF3 Every synthetic artifact is discoverable by `grep -r is_synthetic` and
   `grep -r "SYNTHETIC:"`.
-- NF4 Does not modify `src/`, existing DB tables, or other folders.
+- NF4 Does not modify `src/`, any `.db` file, or other folders.
 
 ## 8. Dependencies on other workstreams
 
@@ -168,10 +173,10 @@ Non-functional
 | specs | Final preference field list, score definitions | Ranked decision factors, freshness tolerance (minutes), trust cues |
 | research | — | (self) |
 | tableau | Dashboard requirements, accepted CSV shape | `syn_survey_responses.csv`, `syn_interviews.csv`, competitor CSV |
-| live-sim | Scout behavior parameters it assumes | Survey-derived placeholders: report frequency, % willing to scout, points that motivate |
+| live-sim | Scout behavior parameters it assumes (engagement decay, archetypes in `syn_scout_truth`); `GENRES` list | Survey-derived placeholders: report frequency, % willing to scout, points that motivate |
 | ml-recs | Current default weights | Factor importance ranking for match weights (placeholder until real n) |
 | backend | Nothing required (research doesn't hit the API) | Owner-dashboard metrics operators said they'd pay for |
-| frontend | Mockups (Nov 10) for concept test in interviews | Filter priority, badge/confidence wording, onboarding copy |
+| frontend | Mockup PNGs (target Thu Nov 12, v2 §I) for concept test in interviews | Filter priority, badge/confidence wording, onboarding copy |
 | coursework | Target definition it wants | Labeled survey dataset (e.g. `would_use_weekly`) |
 | integration | Folder/branch rules, final demo flow | Research slide content, `summary.md`, registry |
 
@@ -192,7 +197,7 @@ Non-functional
 | Risk | Mitigation |
 |---|---|
 | Synthetic findings get quoted as real | Tag every finding; badge in UI; generator writes "SYNTHETIC" into quote text prefix |
-| Can't recruit operators before Nov 17 | Synthetic operator rows; walk-in script for 3-5 LES venues on an early weeknight |
+| Can't recruit operators before Nov 13 | Synthetic operator rows; walk-in script for 3-5 LES venues on an early weeknight |
 | Competitor status is stale or wrong | `retrieved_at` per row; `unknown` over guessing; re-check before demo |
 | Leading questions bias interviews | Past-behavior questions first; concept test last; peer review of guide |
 | PII leaks into repo | IDs only; raw notes stay off-repo; validator scans for emails/phones |
@@ -203,17 +208,19 @@ Non-functional
 
 1. Do we have budget for interview incentives (e.g. $[10] gift card) or survey
    distribution? Assumed: no budget.
-2. Who on the team can run in-person operator interviews in the LES before Nov 17?
+2. Who on the team can run in-person operator interviews in the LES before Nov 13?
 3. Does the course require IRB-style consent language? Assumed: simple verbal consent.
 4. Should survey distribution be NYU-only (fast, skewed) or broader? Assumed NYU + friends.
 5. Should synthetic survey sample size be 300 or match an expected real n (~100)?
-6. Will frontend mockups be ready for the interview concept test? (Nov 10 deadline passed — confirm location.)
+6. Frontend mockup PNGs target Thu Nov 12 (v2 §I) — real concept-test interviews can only start after that; until then use a verbal concept description.
 7. Is pricing pitched per venue/month or per redeemed offer? Both modeled as hypotheses.
 
 ## 12. Assumptions
 
-- Research outputs live in `research/` (contract) while planning docs live in
-  `docs/prd/research/` (brief). Workstream notes go in `docs/workstreams/research.md`.
+- Per CONTRACTS v2 §C: plans in `docs/prd/research/`, as-built notes in
+  `docs/workstreams/research.md`, outputs in `research/`.
+- Concept-test scenarios in guides use DEMO_NOW = Sat 2026-11-14 23:30 ET (v2 §B)
+  so screenshots and synthetic data line up with the class demo.
 - Competitor statuses in planning docs are from prior knowledge and are
   verified in the build phase; nothing is asserted as current until re-checked.
 - Python 3.13 + existing `requirements.txt`; no new dependencies.

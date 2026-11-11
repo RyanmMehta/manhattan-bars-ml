@@ -18,13 +18,13 @@ the build session (CLAUDE.md style). If a rule conflicts with
 - `docs/prd/research/` — these planning docs.
 - `docs/workstreams/research.md` — what was built, how to run, open issues.
 - `docs/synthetic/research.md` — synthetic registry.
-- In `data/manhattan_bars.db`: only create/replace tables named `syn_interviews`,
-  `syn_interview_quotes`, `syn_survey_responses`. The competitor list is real
-  desk research (see §5) and is stored as CSV only, not in the DB.
+- Research writes **no database**. Per CONTRACTS v2 §E, `syn_interviews`,
+  `syn_interview_quotes`, `syn_survey_responses` stay as CSVs in
+  `research/synthetic/`; they are not loaded into `manhattan_bars.db` or
+  `live_sim.db`. The competitor list is real desk research (see §5), CSV only.
 
 ## 3. Must not touch
-- `src/`, existing DB tables/views (`venues`, `v_bars`, `venue_features`,
-  `synthetic_*`, other workstreams' `syn_*` tables), `data/raw/`,
+- `src/`, every `data/*.db` file, `data/raw/`,
   `data/launch_venues.csv`, `run_all.sh`, `requirements.txt`.
 - Other workstreams' folders (`docs/specs/`, `analytics/`, `simulator/`,
   `data/synthetic_live/`, `recs/`, `backend/`, `frontend/`, `coursework/`).
@@ -42,7 +42,8 @@ the build session (CLAUDE.md style). If a rule conflicts with
 ## 5. Data rules
 - **Synthetic marking (mandatory, per contract):**
   1. Every synthetic CSV/table has `is_synthetic` (1 = synthetic, 0 = real).
-  2. Synthetic files only under `research/synthetic/`; DB tables prefixed `syn_`.
+  2. Synthetic files only under `research/synthetic/`, named `syn_*.csv`;
+     synthetic primary keys start with `syn-` (v2 §D).
   3. Code that creates/uses synthetic data carries
      `# SYNTHETIC: <real source that replaces this>` at the spot.
   4. Every synthetic dataset is listed in `docs/synthetic/research.md` with:
@@ -56,7 +57,7 @@ the build session (CLAUDE.md style). If a rule conflicts with
   no `is_synthetic` column but every row needs `source_url` and `retrieved_at`.
   Unknown → `unknown`. Never invent a funding amount, user count or date.
 - **No PII in the repo**: no names, emails, phone numbers, handles or photos of
-  interviewees. IDs only (`INT-R-001`, `SRV-R-0001`). Venue operator rows name
+  interviewees. IDs only (`int-r-001`, `srv-r-0001`). Venue operator rows name
   the venue (public) but not the person.
 - `venue_id` = SLA `license_id` from `data/launch_venues.csv`; validator rejects
   others.
@@ -85,8 +86,8 @@ the build session (CLAUDE.md style). If a rule conflicts with
   - every `venue_id` mentioned ∈ launch venues;
   - no PII: regex scan of all `research/**` CSV/MD for emails/phone numbers;
   - competitors.csv: required columns non-empty, `retrieved_at` parses as a date;
-  - DB load: `syn_*` tables row counts match CSVs and no non-research table changed
-    (compare table list + row counts of `venues`, `v_bars` before/after).
+  - no DB writes: `data/*.db` hashes unchanged after the generator runs;
+  - synthetic IDs start `syn-`; all genre values ∈ v2 §E shared vocabulary;
 - `python -I research/validate.py` must exit 0.
 
 ## 8. Definition of done
