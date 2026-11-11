@@ -30,7 +30,8 @@ Read-only: `data/manhattan_bars.db`, `data/live_sim.db` (live-sim output, CONTRA
 `data/launch_venues.csv` (header `license_id`, alias it `AS venue_id`), `data/synthetic_live/**`, `src/**`.
 
 **Evaluation-only tables** (`syn_scout_truth`, `syn_true_state`): read them only in `churn/evaluate_truth.py`. Never use them as features.
-Also never use `syn_scouts` end-of-sim snapshot columns (`reputation`, `points`, `level`, `reports_count`, `last_active_at`) as features.
+Also never use `syn_scouts` end-of-sim snapshot columns (`reputation`, `points`, `level`, `reports_count`, `last_active_at`) as features. Use
+`syn_scout_reputation_history` (latest row with `as_of_date < cutoff`) for reputation/points/level instead (CONTRACTS v2.1 §E).
 
 **Must not touch:** `docs/CONTRACTS.md`, `src/`, root `requirements.txt`, `run_all.sh`, `data/manhattan_bars.db`
 (never write tables into it), `simulator/`, `recs/`, `backend/`, `frontend/`, `research/`, `analytics/`,
