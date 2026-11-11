@@ -1,17 +1,22 @@
 # RULES for the live-sim build session
 
-Read this file, `docs/CONTRACTS.md`, `docs/prd/live-sim/PRD.md` and
-`docs/prd/live-sim/OUTLINE.md` before writing any code. If they conflict,
-CONTRACTS.md wins, then this file, then the PRD.
+Read this file, `docs/CONTRACTS.md` (including the **v2 amendments**, which override
+the base text), `docs/prd/live-sim/PRD.md`, `docs/prd/live-sim/OUTLINE.md` and
+specs' `docs/prd/specs/PRD.md` §5 and §7 (on `nightlife/specs`; built version moves to
+`docs/specs/SCORING.md`) before writing any code. If they conflict: CONTRACTS v2 wins,
+then specs for scoring/trust constants, then this file, then the PRD.
+
+Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
 
 ## 1. Branch and git
 - Work only on `nightlife/live-sim` (branched from `nightlife/contracts`).
 - Push with `git push -u origin nightlife/live-sim`. No PRs, no pushes to `main`,
   no rebasing other branches.
 - Small commits, one task from OUTLINE.md each, message `live-sim: <task>`.
-- Never commit `data/manhattan_bars.db` after loading `syn_` tables into it. Run
-  `git checkout data/manhattan_bars.db` (or load into a separate DB) before
-  committing.
+- Never load into or commit `data/manhattan_bars.db`. Synthetic tables go into
+  `data/live_sim.db` (or `$LIVE_SIM_DB`), which is never committed (v2 §D).
+- Generated CSVs in `data/synthetic_live/` are gitignored; commit only
+  `manifest.json`, `validation.json` and `simulator/data/venue_inputs.csv`.
 
 ## 2. Stack and versions
 - Python 3.13. Use only what `requirements.txt` already has: pandas ≥ 3.0,
@@ -24,7 +29,8 @@ CONTRACTS.md wins, then this file, then the PRD.
 
 ## 3. Folders you own (write only here)
 - `simulator/` (package, config, tests)
-- `data/synthetic_live/` (generated CSVs, manifest, validation report)
+- `data/synthetic_live/` (generated CSVs, manifest, validation report, extracts)
+- `data/live_sim.db` (generated output only)
 - `docs/synthetic/live-sim.md` (synthetic dataset registry)
 - `docs/workstreams/live-sim.md` (what was built, how to run, open issues,
   "Contract change requests")
@@ -35,21 +41,42 @@ CONTRACTS.md wins, then this file, then the PRD.
   section of `docs/workstreams/live-sim.md`.
 - `src/`, `run_all.sh`, `reports/`, `data/raw/`, `data/synthetic/` (the existing
   tabular simulators' output), `data/launch_venues.csv`.
-- Non-`syn_` tables in `data/manhattan_bars.db`. The loader must hard-fail on
-  any table name not matching `^syn_[a-z_]+$`.
+- `data/manhattan_bars.db`: read-only, and only by `extract-inputs`. The loader
+  must hard-fail on any table name not matching `^syn_[a-z_]+$` and on a target
+  path named `manhattan_bars.db`.
+- `data/venue_attributes_manual.csv`: read-only input (the team fills it). Generate
+  a blank template only inside `data/synthetic_live/`.
+- Integration-owned files (v2 §C): `tests/e2e/`, `tests/contract/`, `scripts/`,
+  `Makefile`, `.github/`, root `README.md`, `SYNTHETIC_DATA.md`, `DEMO.md`,
+  `CONTRIBUTING.md`, `render.yaml`. Root `.gitignore` additions are allowed for
+  live-sim outputs only.
 - Other workstreams' folders (`recs/`, `backend/`, `frontend/`, `analytics/`,
   `research/`, `coursework/`, `docs/specs/`).
 - You may *import* from `src/synth.py` (e.g. for ideas or helpers) but must not edit it.
 
 ## 5. Contract fidelity
-- Contract tables have exactly the columns in CONTRACTS.md, in that order, with
-  those names. Extra columns go in separate truth tables, never in contract tables.
+- Tables have exactly the columns in CONTRACTS.md plus v2 §E additions, in that
+  order, with those names (12 tables incl. `syn_venue_events`, `syn_disputes`,
+  `syn_points_ledger`, `syn_true_state`, `syn_scout_truth`). No extra columns;
+  anything else goes in a CCR.
+- `syn_true_state` and `syn_scout_truth` are evaluation-only. Nothing in the
+  simulator's app-facing tables may be derived from them in a way that leaks truth
+  beyond what an observer could see (reports are noisy observations; that is fine).
 - Enums exactly as written: style `dive|cocktail|club|lounge|pub|restaurant-bar`;
-  crowd 1–5; dancing 0/1/2; genres pipe-separated lowercase, and only values from
-  `simulator/config/genres.json` (shared vocabulary; other workstreams read it, so
-  never rename a genre without bumping its `version` and telling the master session).
-- Reputation joined to past reports must come from `syn_scout_reputation_history`
-  (as-of), never from the final `syn_scouts` snapshot.
+  crowd 1–5; dancing 0/1/2; report status `pending|accepted|flagged|disputed|removed`
+  (store only accepted/flagged/disputed/removed; `pending` is derived at replay);
+  event_type `view|tap|save|recommend_impression`; archetype
+  `honest|casual|sloppy|gamer|shill`.
+- Genres: pipe-separated, only values in `simulator/genres.py` `GENRES`, which must
+  equal the 20-value list in CONTRACTS v2 §E exactly. Other workstreams import it;
+  never change it without a contract change.
+- Specs rules (points, levels, reputation, status, bounties, presence radius 150 m,
+  rate limits, half-lives) are read from config keys that cite the specs section.
+  Do not invent different values; if specs changes, update config, not logic.
+- Never generate or store raw GPS for scouts; only `distance_m`.
+- IDs: `syn-r-000123` reports, `syn-s-0042` scouts, `syn-u-` users, `syn-up-` updates,
+  `syn-f-` feedback, `syn-b-` bounties, `syn-e-` events, `syn-d-` disputes,
+  `syn-p-` ledger, `syn-o-<venue_id>` owners. `venue_id` is the real `license_id`.
 - `ts` is ISO 8601 with offset, America/New_York, e.g. `2026-11-14T23:30:00-05:00`.
 - `venue_id` is the SLA `license_id` from `data/launch_venues.csv`.
 - Nullable fields are empty in CSV and `NULL` in SQLite. Never fill a missing
@@ -70,7 +97,8 @@ CONTRACTS.md wins, then this file, then the PRD.
 5. Synthetic IDs start with `syn-`.
 6. `validate` fails if any row has `is_synthetic != 1` or any file is written
    outside `data/synthetic_live/` (or the `--out` folder, which must contain
-   `synthetic` in its path).
+   `synthetic` in its path), except the DB file `data/live_sim.db` / `$LIVE_SIM_DB`
+   named by CONTRACTS v2 §D.
 
 ## 7. Coding conventions
 - Package layout as in OUTLINE.md. One stage per module, each a pure function
@@ -106,22 +134,25 @@ CONTRACTS.md wins, then this file, then the PRD.
     on a temp copy of the DB), and refuses bad table names;
   - replay: `visible(now)` never returns a row with `ts > now`, expired offers or
     claimed bounties;
-  - realism checks in `validate` run on a small config (2 nights) in CI-sized time.
+  - specs rules: golden vector G1 for the confidence mirror; reputation, points,
+    level, velocity/outlier flags and bounty rules on hand-made cases;
+  - scouts: no reports after `latent_churn_date` (except configured returns);
+  - realism checks in `validate` run on the small preset in CI-sized time.
 - Tests use a temp directory and a tiny config; they must not write into
   `data/synthetic_live/`.
 - Full test suite runs in under 60 s.
 
 ## 9. Definition of done
-- [ ] `python -I -m simulator generate --seed 42` produces all tables in
-      `data/synthetic_live/` with `manifest.json`.
-- [ ] `python -I -m simulator validate` passes every check and writes `validation.json`.
-- [ ] `python -I -m simulator load --db <path>` loads all `syn_` tables; row counts match.
-- [ ] `python -I -m simulator replay --preset demo` prints the demo-night snapshot;
-      `--shift-to` works.
+- [ ] `python -I -m simulator build` (seed 42) produces all 12 tables in
+      `data/synthetic_live/`, passes `validate`, and loads `data/live_sim.db`;
+      row counts match; works without `data/manhattan_bars.db` present.
+- [ ] `simulator/genres.py` pushed early (research and others import it).
+- [ ] `python -I -m simulator replay --now 2026-11-14T23:30:00-05:00` prints the
+      DEMO_NOW snapshot; `--shift-to 2026-11-17` works.
 - [ ] pytest suite green.
 - [ ] `docs/synthetic/live-sim.md` registry complete; `docs/workstreams/live-sim.md`
       says what was built, how to run it, known limits, open issues, contract change
       requests.
-- [ ] 36 nights generated; output ≤ 20 MB; generation ≤ 90 s.
+- [ ] 33 nights (Thu 2026-09-03 → Sat 2026-11-14, 20:00–03:00 ET); CSVs ≤ 30 MB; build ≤ 90 s.
 - [ ] `grep -rn "SYNTHETIC:" simulator/` covers every module that invents data.
-- [ ] Branch pushed; master session told the pinned seed and demo time.
+- [ ] Branch pushed by Fri Nov 13 18:00 ET; master session told the manifest hashes.
