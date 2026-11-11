@@ -1,7 +1,7 @@
 # PRD: tableau workstream (Nightlife Autopilot)
 
 Status: planning (no code yet). Owner folder: `analytics/tableau/`. Branch: `nightlife/tableau`.
-Aligned with CONTRACTS.md v2.1 (commit 0a5ba55). Demo night confirmed: Sat 2026-11-14 20:00-03:00 ET, DEMO_NOW 23:30. Push deadline Fri Nov 13 18:00 ET; integration merges tableau 3rd.
+Aligned with CONTRACTS.md v2.2 (commit 2cdf1f0). Demo night confirmed: Sat 2026-11-14 20:00-03:00 ET, DEMO_NOW 23:30. Push deadline Fri Nov 13 18:00 ET; integration merges tableau 3rd.
 
 ## 1. Problem
 The course needs a Tableau dashboard deliverable (originally due **Oct 6**, now
@@ -77,11 +77,11 @@ by noise complaints (or, in the tonight sheet, by synthetic vibe).
 
 **US-6 Synthetic tonight heatmap.** As a demo viewer, I see how busy LES venues
 are by hour on the simulated demo night, Sat Nov 14 2026.
-- Heatmap: rows = 35 launch venues, columns = hours 20:00-03:00 ET, colour = hourly
-  synthetic `vibe_score` (0-100), with report count, confidence and trend in tooltip.
+- Heatmap: rows = 35 launch venues, columns = hours 20-02 ET (cell HH = the HH:30 live-sim snapshot, v2.2 §J), colour = hourly
+  synthetic `vibe_score` (0-100), with vibe band (Chill/Lively/Packed), report count and confidence in tooltip.
 - Cells follow the v2 display threshold: conf ≥ 0.40 coloured, 0.20-0.39 greyed
   "low confidence", < 0.20 or null blank "No fresh reports".
-- A reference line marks DEMO_NOW = 23:30.
+- The 23 column (23:30 snapshot = DEMO_NOW) is outlined and labelled "now".
 - Title includes "DEMO DATA (synthetic)"; data comes only from files with
   `is_synthetic = 1`.
 - Reads only `syn_scout_reports` (never the evaluation-only `syn_true_state`/`syn_scout_truth`).
@@ -170,7 +170,8 @@ Non-functional
 4. Should the heatmap use `recs.live_state` vibe_score or a simpler report-count density? Assumed: vibe_score via recs, with a v2-constant fallback.
 5. Do we include all-Manhattan `venues` (5,737) or only `v_bars` (1,727)? Assumed: `v_bars` for maps, `venues` counts in neighbourhood summary as context.
 6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
-7. live-sim snapshots: exact table/file name and columns, and is the hourly cell the HH:30 snapshot, the HH+1:00 snapshot, or their mean? Assumed: mean of the two snapshots inside the hour; the 23:30 snapshot is shown as "now".
+7. ~~Snapshot file and hourly rule?~~ Resolved (v2.2 §J): `data/synthetic_live/demo_night_snapshots.csv`, cell HH = HH:30 snapshot.
+8. Should the heatmap colour use the v2.2 vibe bands (3 steps: Chill/Lively/Packed) or a continuous 0-100 scale with band labels in the tooltip? Assumed: continuous colour + band label in tooltip and legend ticks at 35/65.
 
 ## 12. Assumptions
 - Deliverable paths follow CONTRACTS.md: code + extracts in `analytics/tableau/`,

@@ -2,7 +2,7 @@
 
 Sizes: S ≈ < 1 h, M ≈ 1-3 h, L ≈ 3-6 h (placeholders).
 Order: public-data parts first (no dependencies), synthetic tonight sheet last.
-Aligned with CONTRACTS.md v2.1 (commit 0a5ba55). Push deadline: **Fri Nov 13 18:00 ET**;
+Aligned with CONTRACTS.md v2.2 (commit 2cdf1f0, §J). Push deadline: **Fri Nov 13 18:00 ET**;
 integration merges tableau 3rd (after specs, research, before live-sim/ml-recs), so the
 branch must ship working with the SYN-T1 placeholder and refresh once live-sim lands.
 
@@ -61,13 +61,17 @@ docs/workstreams/tableau.md
 | E3 | `launch_venues.csv` | `data/launch_venues.csv` (header `license_id`, aliased `AS venue_id`) + E1 fields | 35 | venue_id, name, address, lat, lon, venue_type, latest_grade, noise_complaints, osm_id, launch_rank, is_synthetic=0 |
 | E4 | `neighborhood_summary.csv` | `venues` + `v_bars` grouped | 15 | neighborhood, n_venues, n_bars, n_clubs, mean_density_100m, total_complaints, complaints_per_bar, pct_high_noise, pct_grade_a, centroid_lat, centroid_lon, is_synthetic=0 |
 | E5 | `grade_by_neighborhood.csv` | E1 grouped | ~90 | neighborhood, latest_grade, n, pct, is_synthetic=0 |
-| E6 | `synthetic/syn_tonight_heatmap.csv` | live-sim reports → hourly state (shape = `/api/heatmap?by=hour` item + extras) | 35 × 8 = 280 | venue_id, name, lat, lon, night_date (2026-11-14), hour (20-03), hour_order, hour_label, vibe_score (nullable), confidence (nullable), display (show/low/none), n_reports, crowd, line_minutes, trend, is_after_demo_now, source (`live-sim`/`placeholder`), is_synthetic=1 |
+| E6 | `synthetic/syn_tonight_heatmap.csv` | `data/synthetic_live/demo_night_snapshots.csv` HH:30 rows (fallbacks: §5) (shape = `/api/heatmap?by=hour` item + extras) | 35 × 7 = 245 | venue_id, name, lat, lon, night_date (2026-11-14), hour (20-02), snapshot_ts, hour_order, hour_label, vibe_score (nullable), confidence (nullable), display (show/low/none), vibe_band (Chill/Lively/Packed/null), n_reports, crowd, dancing, line_minutes, is_after_demo_now, source (`live-sim`/`placeholder`), is_synthetic=1 |
 | E7 | `synthetic/syn_tonight_reports.csv` | live-sim `syn_scout_reports` filtered to launch venues + Sat Nov 14 night | ~500 (placeholder) | v2 `syn_scout_reports` columns unchanged (incl. `status`, `distance_m`) |
 
 Notes: 18 `v_bars` rows have no coordinates/features; keep them in E1 with
 `has_coords=0`, exclude from map sheets with a filter. Hours after midnight
-belong to the previous `night_date` (hour order 20,21,22,23,0,1,2,3 via `hour_order`).
-Each hourly cell is the Live Venue State at `now = HH:00 + 59 min` (end of the hour).
+belong to the previous `night_date` (hour order 20,21,22,23,0,1,2 via `hour_order`; the window
+ends 03:00, so there is no 03:30 snapshot and no 03 column).
+Each hourly cell for hour HH = the **HH:30** snapshot (v2.2 §J), i.e. Live Venue State at
+`snapshot_ts = HH:30`. `display` is derived from `confidence` (≥ 0.40 show, 0.20-0.39 low,
+else none) and `vibe_band` from v2.2 bands (0-34 Chill, 35-64 Lively, 65-100 Packed, null → none)
+because the snapshot file has no such columns. The 23 column (23:30 snapshot) is exactly DEMO_NOW.
 DEMO_NOW = 2026-11-14T23:30-05:00: the full night is shown (it is replayed history),
 but cells after DEMO_NOW get `is_after_demo_now = 1` and a dashed reference line at 23:30
 so the demo can say "this is now". Never read `syn_true_state`/`syn_scout_truth`
@@ -80,7 +84,7 @@ so the demo can say "this is now". Never read `syn_true_state`/`syn_scout_truth`
 | S2 Density by neighbourhood | E4 | horizontal bar | n_bars desc; colour highlight LES/Chinatown; label complaints_per_bar |
 | S3 Health grades | E5 | 100% stacked bar | colour by grade (A green, B yellow, C orange, N/Z grey, Not matched light grey) |
 | S4 LES zoom | E1 + E3 | map + table | zip=10002; launch venues bold/labelled; others faded; table of 35 |
-| S5 Tonight heatmap (DEMO DATA) | E6 | highlight table | title "Sat Nov 14 — DEMO DATA (synthetic)"; rows venue (sorted by peak vibe), cols hour_order, colour vibe_score 0-100 sequential; v2 display rule: `display=low` (conf 0.20-0.39) cells hatched/greyed, `none` (< 0.20 or null) blank with "No fresh reports" tooltip; tooltip n_reports, confidence, trend; reference line at 23:30 (DEMO_NOW) |
+| S5 Tonight heatmap (DEMO DATA) | E6 | highlight table | title "Sat Nov 14 — DEMO DATA (synthetic)"; rows venue (sorted by peak vibe), cols hour_order, colour vibe_score 0-100 sequential; v2 display rule: `display=low` (conf 0.20-0.39) cells hatched/greyed, `none` (< 0.20 or null) blank with "No fresh reports" tooltip; tooltip vibe_band, n_reports, confidence, snapshot_ts; the 23 column (23:30 snapshot = DEMO_NOW) outlined and labelled "now" |
 | D1 Dashboard | all | 2×3 grid | S1, S2, S3, S4, S5 + text box (sources, date, synthetic note); fixed size 1600×1000 |
 
 Stand-in PNG mirrors S1-S5 with matplotlib (scatter on lat/lon with equal aspect ≈ cos(40.75°), barh, stacked barh, LES scatter + labels, imshow heatmap).
@@ -90,7 +94,7 @@ Consumed (per CONTRACTS.md):
 - `data/manhattan_bars.db` tables `v_bars`, `venues`, `venue_features` (read-only).
 - `data/launch_venues.csv` (venue_id = license_id).
 - live-sim: `data/live_sim.db` (env `LIVE_SIM_DB`; generated, seed 42, not committed) tables `syn_scout_reports` (+ optional `syn_venue_updates`) per v2 §E. `reputation` is joined **as of the report date** from `syn_scout_reputation_history` (v2.1 §E; as_of_date ≤ 2026-11-14, latest row), default 0.5 — never the final `syn_scouts.reputation`, which leaks the future.
-- live-sim 30-minute demo-night snapshots (Sat Nov 14, 20:00-03:00; promised by master, file/table name TBD): preferred source for E6 when present — take the snapshot at each hour end (20:30/21:00 pairs → hourly cell = the :59-aligned snapshot, or the mean of the two half-hour snapshots, see open Q). Precedence: snapshots → `recs.live_state` over reports → v2 fallback → SYN-T1.
+- live-sim `data/synthetic_live/demo_night_snapshots.csv` (v2.2 §J): venue_id, snapshot_ts (every 30 min, 20:00-03:00 Sat Nov 14), crowd, dancing, line_minutes, vibe_score, confidence, n_reports, is_synthetic (values = recs Live Venue State at snapshot_ts). Preferred E6 source; use HH:30 rows only. Precedence: snapshots → `recs.live_state` at HH:30 over `live_sim.db` reports → v2 fallback at HH:30 → SYN-T1. Tests assert the snapshot file has exactly those columns and `is_synthetic=1`.
 - ml-recs: `recs.live_state.compute_all(reports, updates, now) -> list[dict]` (Live Venue State incl. optional `display`, nullable `vibe_score`/`confidence`/`trend`), called at each hour end on Sat Nov 14.
 - Later backend: `GET /api/heatmap?now=&by=hour` → `{venue_id, lat, lon, hour, vibe_score, confidence, n_reports, is_synthetic}` (v2 §G; accepted CCR). With `INCLUDE_SYNTHETIC=0` it serves only real `scout_reports`.
 
