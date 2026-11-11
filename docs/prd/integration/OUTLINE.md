@@ -42,6 +42,7 @@ fallen back (stub / mock / flag off).
 - [ ] B5 **S** Merge `coursework`.
 - [ ] B6 **M** Merge `live-sim`; if a `.db` was committed, remove it; `make data`; run syn table contract tests (columns, `syn-` keys, `is_synthetic=1`, venue_id ∈ launch 35, genres ∈ genres.json, Thu–Sat Aug 27 → Nov 14 coverage (36 nights), DEMO_NOW has reports); record row counts + hashes.
 - [ ] B7 **M** Merge `ml-recs`; run `pytest recs/` + interface tests against `live_sim.db`; G1/G5; v2 §A constants check; no reads of `syn_true_state`/`syn_scout_truth` outside evaluation code.
+- [ ] B7b **S** Regenerate `data/synthetic_live/demo_night_snapshots.csv` with the real `recs.live_state` via ml-recs' `chain.snapshots` helper (live-sim merges first and may ship fallback-computed snapshots). Run the producers' own commands, don't hand-edit; commit as `integration: regenerate demo snapshots with recs (live-sim, ml-recs)` and log it under "Fixes applied to other workstreams". Then refresh tableau extracts with tableau's own build step (`analytics/tableau/`), check the HH:30-snapshot rule, and commit the same way.
 - [ ] B8 **L** Merge `backend`; resolve `requirements.txt`; run `pytest backend/` + `tests/contract/test_api.py`; diff `/openapi.json` vs `schemas.py`; test `INCLUDE_SYNTHETIC=0`; move `backend/render.yaml` to root if needed.
 - [ ] B9 **L** Merge `frontend`; `npm ci && npm run build`; run against local backend with `VITE_API_MODE=live`.
 - [ ] B10 **S** After each merge: `make test`, update merge log, push.
