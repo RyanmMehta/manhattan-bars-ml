@@ -1,7 +1,7 @@
 # PRD — frontend (Nightlife Autopilot web app + mockups)
 
 Workstream: `frontend` · Branch: `nightlife/frontend` · Owns: `frontend/`
-Status: planning (no code yet) · Last updated: 2026-11-11
+Status: planning (no code yet) · Last updated: 2026-11-11 · Built against **CONTRACTS v2** (`nightlife/contracts` @ 2129052)
 
 ## 1. Problem
 
@@ -27,18 +27,21 @@ The frontend is the only part of the system users touch. It must:
 1. G1 — A deployed (Vercel) mobile-first React app covering the MVP screens,
    running against the real backend API or a built-in mock API.
 2. G2 — Nov 10 mockup deliverable: exported PNGs of every screen (see §6).
-   *Nov 10 has passed as of this plan (Nov 11); see Risks R1.*
+   *Nov 10 has passed; master set the new target to **Thu Nov 12**. See R1.*
 3. G3 — Every displayed number traceable to a CONTRACTS.md field; no
    favourable defaults for missing data (`null` → "not reported").
 4. G4 — "Demo data" badge everywhere `is_synthetic` is true.
 5. G5 — Demo replay: a time control that sets `now=<ISO>` on read endpoints so
-   the class demo can play back a simulated Saturday night.
+   the class demo can play back a simulated Saturday night. Default
+   `DEMO_NOW = 2026-11-14T23:30:00-05:00` (CONTRACTS §B), from `VITE_DEMO_NOW` or
+   URL `?now=`.
 
 ### Non-goals
 - Native iOS/Android apps; push notifications; offline mode beyond a cached
   last result.
-- Real authentication / accounts (MVP uses a pick-a-demo-user / demo-scout /
-  demo-owner switcher; see backend's auth decision).
+- Real authentication / accounts. MVP uses `POST /api/auth/demo-login`
+  (CONTRACTS §G): the persona switcher logs in as a demo user/scout/owner and
+  keeps the bearer token for writes.
 - Payments, booking, reservations, cover purchase.
 - Any scoring logic in the browser. Ranking, vibe, confidence, match and
   routing come from the backend (`recs/`). The mock API returns precomputed
@@ -64,7 +67,7 @@ IDs are referenced by OUTLINE.md tasks and tests.
 ### Onboarding / preferences
 **US-01** As a Planner I set my group's preferences and limits once so picks fit us.
 - AC1: Form fields map 1:1 to the Preferences JSON in CONTRACTS.md: genres
-  (multi-select chips), want_dancing (toggle), crowd_pref (1–5 slider:
+  (multi-select chips from the shared genre vocabulary, CONTRACTS §E), want_dancing (toggle), crowd_pref (1–5 slider:
   "chill" → "packed"), max_cover_usd (0/10/20/30/any), max_line_minutes
   (0/10/15/30/any), max_distance_km (0.5/1/1.5/3), group_size (1–12).
 - AC2: Location from browser geolocation; if denied/unavailable, default to
@@ -80,10 +83,14 @@ IDs are referenced by OUTLINE.md tasks and tests.
   2–4 `reasons`, all `missing` items, freshness ("updated 12 min ago").
 - AC2: Below the hero, the next 4 results as compact cards ("Also good").
 - AC3: Excluded results are hidden by default; a "Show 3 excluded" link reveals
-  them with the exclusion reason greyed.
-- AC4: If confidence < display threshold (placeholder **0.35**, final value
-  from `docs/specs/`), vibe shows as "Low info" rather than a number.
-- AC5: Freshness > **90 min** (placeholder) shows "stale" styling.
+  them with `excluded_reason` greyed. Order follows the backend's `rank`
+  (`rank_score`), never re-ranked client-side.
+- AC4: Display bands (CONTRACTS §A). Use `state.display` when the backend sends it,
+  otherwise compute it: conf ≥ **0.40** → show vibe + "N reports, M min ago";
+  **0.20–0.39** → vibe greyed with "low confidence"; < 0.20 or vibe null →
+  "No fresh reports" + a "Be the Scout" button (→ vibe check for that venue).
+- AC5: Freshness > **90 min** shows "stale" styling (frontend placeholder; specs sets
+  no stale cutoff, and reports older than 180 min are already dropped server-side).
 - AC6: Pull-to-refresh / Refresh button refetches; auto-refresh every
   **120 s** while visible.
 - AC7: "Share pick" copies a URL `/v/{venue_id}?from=pick` to clipboard.
@@ -91,7 +98,8 @@ IDs are referenced by OUTLINE.md tasks and tests.
 ### Browse: cards, filter bar, search
 **US-03** As a Planner I browse and filter all launch venues.
 - AC1: `GET /api/venues?launch_only=true` with `q`, `style`, `genre` mapped
-  from search box and filter chips; debounced 250 ms.
+  from search box and filter chips; debounced 250 ms; `limit=50`, total from
+  `X-Total-Count` (35 launch venues fit in one page).
 - AC2: Sort options: Vibe (default), Distance, Name. Sorting is client-side on
   returned fields.
 - AC3: Each card: display name, style, genres, vibe badge, confidence, line,
@@ -104,13 +112,13 @@ IDs are referenced by OUTLINE.md tasks and tests.
   level), live state block (crowd, dancing, line, cover, music, trend arrow,
   n_reports, sources), recent reports timeline (time ago, scout level,
   fields), active offers with expiry, "Directions" link (Google/Apple maps URL).
-- AC2: Complaint-risk, if shown, is labelled exactly "311 noise complaint
-  history" with the count — never as a quality or vibe signal.
+- AC2: `complaint_risk`, if shown, is labelled exactly "311 noise-complaint risk"
+  (CONTRACTS §F) — never as a quality or vibe signal, never used for sorting.
 - AC3: "Send vibe check" button (Scout mode) pre-selects this venue.
 
 ### Map / heatmap
 **US-05** As a Planner I see where the energy is on a map.
-- AC1: `GET /api/heatmap`; MapLibre map with dark basemap; each venue a dot
+- AC1: `GET /api/heatmap?now=` (`by=hour` for the slider); MapLibre map with dark basemap; each venue a dot
   sized by confidence and coloured by vibe_score; low-confidence dots hollow.
 - AC2: Tap dot → bottom sheet mini-card → profile.
 - AC3: Toggle "Heat" renders a heat layer weighted by vibe × confidence.
@@ -118,53 +126,61 @@ IDs are referenced by OUTLINE.md tasks and tests.
 
 ### Scout: 10-second vibe check
 **US-06** As a Scout I report a venue's vibe in ≤ 10 s.
-- AC1: One screen, thumb-reachable: venue (auto-picked nearest within 75 m,
+- AC1: One screen, thumb-reachable: venue (auto-picked nearest within 150 m,
   else picker), crowd 1–5 (5 big buttons), dancing none/some/lots, line
   minutes (0/5/10/20/30+ chips), optional cover and music genre (collapsed).
-- AC2: Submit sends `POST /api/reports` with the CONTRACTS.md fields;
-  `verified_presence` = 1 only if geolocation within **75 m** (placeholder)
-  of venue, else 0.
+- AC2: Submit sends `POST /api/reports` with `venue_id, crowd, dancing,
+  line_minutes, cover_usd?, music_genre?, lat?, lon?` and the bearer token. The
+  server sets scout_id, ts, `verified_presence` (150 m radius) and status; the
+  client only shows a hint ("You look nearby" / "Not verified: you seem > 150 m
+  away"). Owners can't report their own venue: the button is hidden for them.
 - AC3: Median task time in usability test ≤ 10 s from screen open to submit
   (measured with a timer in the test build).
-- AC4: Success toast shows points earned (from response if provided; otherwise
-  "+10 pts (demo)" with badge).
+- AC4: Success toast shows `points_pending` from the response ("+10 pts pending"),
+  with status (`pending|accepted|flagged`).
 - AC5: Offline/failed submit is queued in `localStorage` and retried once.
 
 ### Scout leaderboard + bounties
 **US-07** As a Scout I see my rank and open bounties.
 - AC1: `GET /api/scouts/leaderboard` → ranked list (rank, display_name, level,
-  points, reputation as 1–5 stars).
-- AC2: `GET /api/bounties` → open bounties with venue, points, reason, age;
-  tap → vibe check for that venue.
+  points, `points_week`, reputation as 1–5 stars). Tabs: This week / All time.
+- AC2: `GET /api/bounties` → open bounties with venue_name, points, reason,
+  `expires_at` countdown; tap → vibe check for that venue (claimed implicitly
+  by the first qualifying report).
 - AC3: The current demo scout is highlighted and pinned if outside top 20.
 
 ### Run My Night (later, stretch for Nov 17)
 **US-08** As a Planner I get an ordered 2–4 stop plan.
-- AC1: `POST /api/plan-night` with prefs + `n_stops` (default 3).
-- AC2: Vertical timeline of stops with suggested arrival times, walk minutes
-  between stops, reasons per stop; mini map with route polyline.
-- AC3: "Swap stop" re-requests excluding that venue (requires contract change
-  CR-3; until then, hidden).
+- AC1: `POST /api/plan-night` with prefs + `n_stops` (default 3), optional
+  `start_time`, `dwell_minutes` (60), `max_total_walk_minutes` (30).
+- AC2: Vertical timeline of stops (`arrive_at`–`leave_at`, `walk_minutes_from_prev`,
+  `expected_vibe`, `match_score`, confidence, reasons); mini map with straight-line
+  route between stops.
+- AC3: "Swap stop" re-requests with that venue added to `exclude_venue_ids`.
+- AC4: Hidden unless `VITE_FEATURE_ROUTING=1`.
 
 ### Owner dashboard
 **US-09** As an Owner I post an update and see demand.
-- AC1: `GET /api/owner/{venue_id}/dashboard` → KPI tiles (views, taps,
-  reports tonight, recommendation appearances), hourly demand chart, recent
+- AC1: `GET /api/owner/{venue_id}/dashboard` → KPI tiles (views, taps, saves,
+  reports_tonight, rec_appearances), hourly demand chart, recent
   reports list. Whole dashboard carries the demo badge while synthetic.
 - AC2: Update form → `POST /api/owner/{venue_id}/updates` with cover_usd, dj,
   genres, event, offer, offer_expires_at; preview of how the card will look.
-- AC3: Owner persona picks venue from a dropdown (no real claim flow in MVP).
+- AC3: Owner persona picks venue from a dropdown, then demo-login with
+  `role: owner, venue_id` (no real claim flow in MVP).
 
 ### Cross-cutting
 **US-10** As a demo presenter I replay a simulated night and switch personas.
 - AC1: Hidden demo panel (`?demo=1` or 5 taps on logo): persona switcher
-  (Planner / Scout / Owner), time picker that sets global `now`, API mode
+  (Planner / Scout / Owner, each calls demo-login), time picker that sets global
+  `now` (defaults to `VITE_DEMO_NOW`, else `health.demo_now`), API mode
   (live / mock), and "Show synthetic outline" toggle.
 - AC2: Every read request includes `now` when set.
 
 **US-11** As any user I can tell demo data from real data.
 - AC1: `<DemoBadge/>` renders on any card/section whose data has
-  `is_synthetic: 1|true`, and globally in mock mode.
+  `is_synthetic: 1|true`; a global banner shows in mock mode or when
+  `health.data` / header `X-Data` is `synthetic|mixed`.
 
 ## 5. Scope
 
@@ -179,9 +195,9 @@ IDs are referenced by OUTLINE.md tasks and tests.
 | 10-second vibe check | ✅ | photo, dispute flow |
 | Leaderboard + bounties | ✅ | rewards redemption |
 | Owner dashboard + update form | ✅ | claim/verify flow, offer analytics |
-| Run My Night | stretch | swap stops, group voting |
-| Post-visit feedback prompt | stretch (writes `syn_feedback` shape; needs CR-2) | ✅ |
-| Auth | demo persona switcher | real login |
+| Run My Night | stretch (`VITE_FEATURE_ROUTING`) | group voting |
+| Post-visit feedback prompt | stretch (`POST /api/feedback`) | ✅ |
+| Auth | demo-login persona switcher | real login |
 
 ## 6. Requirements
 
@@ -190,13 +206,17 @@ IDs are referenced by OUTLINE.md tasks and tests.
   whose types mirror CONTRACTS.md; screens never call `fetch` directly.
 - F2 `VITE_API_MODE=mock|live`; mock mode serves fixtures from
   `src/mocks/` via MSW (Mock Service Worker) with the same routes.
-- F3 `VITE_API_BASE_URL` (default `/api` proxied in dev to
-  `http://localhost:8000`).
+- F3 `VITE_API_BASE` (default `/api` proxied in dev to
+  `http://localhost:8000`). Env names are reserved in CONTRACTS §H; feature
+  flags `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP`.
 - F4 Global `now` (demo replay) added as query param to every GET.
+- F4b Writes send `Authorization: Bearer <token>` from demo-login. Errors are
+  parsed from `{"error": {code, message, details}}` and shown as a toast or
+  inline field errors (422).
 - F5 Null fields render "not reported", never 0 or a default.
-- F6 Venue display names: cleaned client-side from SLA legal names
-  (strip `LLC`, `INC`, `CORP`; title-case all-caps) unless backend sends a
-  `display_name` (CR-1). Example: `ATTABOY COCKTAILS LLC` → `Attaboy Cocktails`.
+- F6 Venue display names: use `display_name` from the card (CONTRACTS §G). Fallback
+  only if it's null: strip `LLC`, `INC`, `CORP` and title-case all-caps
+  (`ATTABOY COCKTAILS LLC` → `Attaboy Cocktails`).
 - F7 Deep links: `/`, `/pick`, `/browse`, `/map`, `/v/:venueId`, `/scout`,
   `/scout/leaderboard`, `/plan`, `/owner/:venueId`, `/onboarding`.
 
@@ -225,27 +245,28 @@ IDs are referenced by OUTLINE.md tasks and tests.
 - Motion: 150 ms ease-out; respect `prefers-reduced-motion`.
 - A light theme is out of scope; the app forces dark (`color-scheme: dark`).
 
-### Mockup deliverable (Nov 10, late)
+### Mockup deliverable (Nov 10, late; new target Thu Nov 12)
 - Format: one PNG per screen at 390×844 @2x (780×1688), plus a desktop
   1440×900 PNG for Owner dashboard and Map; file names
   `frontend/mockups/NN-screen-name.png`; contact sheet
   `frontend/mockups/contact-sheet.png`; short `frontend/mockups/README.md`.
 - Produced from the running app in mock mode via a Playwright script
-  (`npm run mockups`), so mockups and app never diverge.
+  (`npm run mockups`) at `now=2026-11-14T23:30:00-05:00`, so mockups and app
+  never diverge.
 
 ## 7. Dependencies on other workstreams
 
 | Workstream | What frontend needs | When | Fallback if late |
 |---|---|---|---|
-| specs | confidence display threshold, freshness "stale" cutoff, vibe label bands, scout points per report, verified-presence radius | before task T6 | placeholders in `src/config/thresholds.ts` (values in §4) |
+| specs | ✅ display bands 0.40/0.20, presence radius 150 m (CONTRACTS §A). Still open: vibe label bands, stale cutoff | before T6 | placeholders in `src/config/thresholds.ts` |
 | research | interview findings on which reasons/filters matter; usability-test recruits | Nov 13 | ship current order |
 | tableau | none at runtime; may reuse owner-dashboard KPI definitions | — | — |
-| live-sim | `syn_*` CSVs (esp. a full Saturday night) to build mock fixtures and the replay demo | Nov 13 | frontend hand-writes small fixtures (see OUTLINE §5) |
+| live-sim | `syn_*` CSVs (esp. Sat Nov 14 20:00–03:00) and `GENRES` vocabulary to build mock fixtures and the replay demo | Nov 13 18:00 | frontend's seeded fixtures (OUTLINE §5); genres copied from CONTRACTS §E |
 | ml-recs | real `reasons` / `missing` strings, routing output shape for plan-night | Nov 14 | fixture strings |
-| backend | all endpoints in CONTRACTS.md live on Render with CORS for the Vercel domain; response shapes for venue card/profile/dashboard/leaderboard/plan-night (not fully specified in CONTRACTS) | shapes Nov 13, deploy Nov 15 | mock mode in production build with banner |
+| backend | all endpoints live on Render with `CORS_ORIGINS` incl. the Vercel domain; `/openapi.json` matching CONTRACTS §G | Nov 13 18:00, deploy dry-run Nov 15 | mock mode in production build with banner |
 | frontend | — | — | — |
 | coursework | none | — | — |
-| integration | Vercel project + env vars, final API URL, demo script slot | Nov 16 | deploy preview URL |
+| integration | Vercel project + env vars, final API URL, demo script slot; merges frontend last (CONTRACTS §I) | freeze Nov 16 20:00 | deploy preview URL |
 
 ## 8. Success metrics
 
@@ -266,55 +287,42 @@ Demo/class targets (synthetic-evaluated unless noted):
 
 | # | Risk | Mitigation |
 |---|---|---|
-| R1 | Nov 10 mockup deadline already passed | Build static screens in mock mode first (T1–T5), export PNGs by Nov 12; tell the master session |
-| R2 | Backend response shapes not specified for cards/profile/dashboard/leaderboard/plan | Define TS types now (OUTLINE §3), file CR-4; adapt in a single `adapters.ts` |
+| R1 | Nov 10 mockup deadline already passed | Mockup fast path (OUTLINE Phase A/B): screens in mock mode, export PNGs by **Thu Nov 12** |
+| R2 | Backend drifts from CONTRACTS §G shapes | Types from §G; adapt only in `adapters.ts`; `contract:live` checks `/openapi.json` shapes |
 | R3 | Synthetic data mistaken for real in a demo | DemoBadge + mock-mode banner + test M4 |
 | R4 | Complaint risk read as "this bar is bad/good" | Fixed label, only on profile, never in ranking UI |
 | R5 | Map tiles need an API key / cost | MapLibre + free dark style (CARTO dark-matter via OpenFreeMap or self-host); key-free fallback to an SVG dot plot |
 | R6 | Geolocation denied / desktop demo | LES centroid default; demo location presets |
 | R7 | CORS / mixed-content between Vercel and Render | `VITE_API_BASE_URL` https only; Vercel rewrite `/api/*` → Render as alternative |
-| R8 | SLA legal names look wrong (`Apt 5 LLC`) | name cleaner + CR-1 display_name |
+| R8 | SLA legal names look wrong (`Apt 5 LLC`) | `display_name` from backend + client fallback cleaner |
 | R9 | Render free-tier cold start (~30–60 s) during demo | warm-up ping on app load + skeletons; demo starts in mock mode if `/api/health` > 5 s |
 
 ## 10. Open questions
+Resolved by CONTRACTS v2: card/detail/leaderboard/bounty/dashboard/plan-night shapes
+(§F, §G), `display_name` on cards, `excluded_reason`, display bands and presence radius
+(§A), identity via demo-login (§G).
 
-1. Q1 Can backend add `display_name`, `style`, `genres`, `price_level`, and
-   `is_synthetic` to the venue card payload? (CR-1)
-2. Q2 What is the exact shape of `GET /api/venues` card, `GET /api/venues/{id}`,
-   leaderboard, bounties, owner dashboard, and plan-night stops? (CR-4)
-3. Q3 Final values from specs: confidence threshold, stale cutoff, vibe bands,
-   points per report, presence radius.
-4. Q4 How does the client identify the current scout/owner in MVP — a
-   `scout_id` in the POST body, or a header `X-Demo-User`?
-5. Q5 Does `/api/recommend` return excluded items (with a reason field) or omit
-   them? CONTRACTS shows `excluded: false` but no `excluded_reason`. (CR-5)
-6. Q6 Which map style/tiles are acceptable for the class deploy (key-free)?
-7. Q7 Is a Planner's shared link expected to open the same pick for group
-   members, or re-run with their location?
-8. Q8 Who owns the Vercel account (Ryan) and the final domain?
+Still open:
+1. Q1 Vibe label bands (Dead/Quiet/Warming/Lively/Packed cut points). Placeholder:
+   0–19 / 20–39 / 40–59 / 60–79 / 80–100.
+2. Q2 A "stale" cutoff for freshness styling. Placeholder 90 min.
+3. Q3 Which key-free map tiles are acceptable for the class deploy?
+4. Q4 Should a Planner's shared link open the same pick for group members, or re-run
+   with their location? (MVP: opens the venue profile.)
+5. Q5 Who owns the Vercel account (Ryan) and the final domain?
+6. Q6 Does demo-login return a token that lasts the whole demo, or does it expire?
+   (MVP: re-login on 401.)
 
 ## 11. Assumptions (made without asking)
-- A1 All 35 launch venues are `Bar/Tavern` in the CSV; "club" style comes only
-  from `syn_venue_attributes.style`.
-- A2 Backend sends the Live Venue State nested as `state` inside venue cards.
+- A1 All 35 launch venues are Bar/Tavern (confirmed in CONTRACTS §D); "club" style comes
+  only from `syn_venue_attributes.style`, and dancing data will be sparse.
+- A2 The Live Venue State is nested as `state` in venue cards (confirmed in §G).
 - A3 Points/levels are computed server-side; the frontend only displays them.
 - A4 The demo runs on a phone-sized browser window projected in class.
 - A5 Node 20 LTS is available locally and on Vercel.
 
 ## 12. Contract change requests
-(Proposed; not applied to CONTRACTS.md. Integration/master to decide.)
-
-- **CR-1** Venue card adds `display_name`, `style`, `genres[]`,
-  `price_level`, `typical_cover_usd`, `lat`, `lon`, `is_synthetic`.
-- **CR-2** `POST /api/feedback` (body = `syn_feedback` fields minus id/
-  recommended_at) for the post-visit prompt.
-- **CR-3** `POST /api/plan-night` accepts `exclude_venue_ids: string[]`.
-- **CR-4** Document response shapes for: venue card, venue detail
-  (`{venue, state, recent_reports[], offers[]}`), leaderboard item
-  (`{rank, scout_id, display_name, level, points, reputation}`), bounty item
-  (`syn_bounties` fields + `venue_name`), owner dashboard
-  (`{venue_id, views, taps, reports_tonight, rec_appearances, demand_by_hour:[{hour, value}], is_synthetic}`),
-  plan-night stop (`{order, venue_id, name, arrive_at, walk_minutes_from_prev, reasons[], lat, lon}`).
-- **CR-5** Recommendation result adds `excluded_reason: string|null`.
-- **CR-6** `POST /api/reports` response returns `{report_id, ts, points_awarded}`.
-- **CR-7** Every response object carries `is_synthetic` (not only Live Venue State).
+CR-1…CR-7 (display_name and card fields, `/api/feedback`, `exclude_venue_ids`,
+response shapes, `excluded_reason`, report response, `is_synthetic` everywhere) were
+**accepted in CONTRACTS v2** (commit 2129052). Note: the report response returns
+`points_pending`, not `points_awarded`. No new requests.
