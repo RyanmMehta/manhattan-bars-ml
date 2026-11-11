@@ -70,8 +70,8 @@ Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
   event_type `view|tap|save|recommend_impression`; archetype
   `honest|casual|sloppy|gamer|shill`.
 - Genres: pipe-separated, only values in `simulator/config/genres.json` (loaded by
-  `simulator/genres.py` as `GENRES`), which must equal the 17-slug list in
-  CONTRACTS v2.1 §E exactly. Other workstreams import it;
+  `simulator/config.py` as `GENRES`; there is no `simulator/genres.py`), which must equal the 17-slug list in
+  CONTRACTS v2.1 §E exactly. Other workstreams read the JSON;
   never change it without a contract change.
 - Specs rules (points, levels, reputation, status, bounties, presence radius 150 m,
   rate limits, half-lives) are read from config keys that cite the specs section.
@@ -154,7 +154,7 @@ Deadline: everything pushed by **Fri 2026-11-13 18:00 ET** (CONTRACTS v2 §I).
 - [ ] `python -I -m simulator --seed 42 --out data/live_sim.db` (seed 42) produces all 13 tables in
       `data/synthetic_live/`, passes `validate`, and loads `data/live_sim.db`;
       row counts match; works without `data/manhattan_bars.db` present.
-- [ ] `simulator/config/genres.json` + `genres.py` pushed early (research and others use it).
+- [ ] `simulator/config/genres.json` pushed early (research and others use it).
 - [ ] `demo_night_snapshots.csv` (525 rows) committed; `snapshot_source` in manifest.
 - [ ] `python -I -m simulator replay --now 2026-11-14T23:30:00-05:00` prints the
       DEMO_NOW snapshot; `--shift-to 2026-11-17` works.

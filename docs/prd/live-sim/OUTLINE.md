@@ -10,8 +10,8 @@ after coursework, deploy dry-run Nov 15, freeze Nov 16 20:00, demo Nov 17.
 - [ ] A1 **S** `simulator/` package; `__main__.py`. Default action (no subcommand) is the
       fixed build: `python -I -m simulator --seed 42 --out data/live_sim.db [--nights N]` = generate → validate →
       write CSVs + snapshots → load DB. Extra subcommands: `extract-inputs`, `validate`, `replay`.
-- [ ] A2 **S** `config/genres.json` (17 slugs, CONTRACTS v2.1 §E) + `genres.py` loader
-      (`GENRES`, `is_genre()`). Push this first so research can use it.
+- [ ] A2 **S** `config/genres.json` (17 slugs, CONTRACTS v2.1 §E); `config.py` loads it as
+      `GENRES`. Push this first so research can use it. No `simulator/genres.py`.
 - [ ] A3 **S** `config.py` + `config/default.json`, `small.json` (20 scouts, used with
       `--nights 3` in tests), `demo.json`; config hash; `DEMO_NOW`, `LIVE_SIM_DB` from env with defaults.
 - [ ] A4 **S** `rng.py`: master seed → per-stage `Generator` via SeedSequence keyed by
@@ -90,7 +90,6 @@ Total MVP estimate: ~30–38 h of build work; phases C2 and C4 are the critical 
 simulator/
   __init__.py            # generate(cfg) -> dict[str, DataFrame]; __version__
   __main__.py            # CLI
-  genres.py              # loads config/genres.json → GENRES
   config.py
   rng.py
   schema.py
@@ -164,7 +163,7 @@ docs/workstreams/live-sim.md
 | ml-recs | all tables + `syn_true_state`, `syn_scout_truth`, `syn_scout_reputation_history` (join as of report date); holdout = nights of 2026-11-13 and 2026-11-14, train = 34 nights before; `simulator.generate(cfg)` for in-memory runs |
 | coursework | `syn_scouts`, `syn_scout_reports`, `syn_points_ledger`, `syn_bounties`, `syn_scout_reputation_history` over 12 weeks (~150 scouts, churn label 21 days); `syn_scout_truth.churned_at` |
 | tableau | committed `data/synthetic_live/demo_night_snapshots.csv` (hour HH uses HH:30) + `extracts/hourly_by_style.csv` |
-| research | `simulator/config/genres.json` (or `from simulator.genres import GENRES`) |
+| research | `simulator/config/genres.json` (read the JSON directly) |
 | frontend | demo content via backend; list of synthetic fields for badges (registry) |
 | integration | exactly `python -I -m simulator --seed 42 --out data/live_sim.db` (deterministic, < 60 s; `--nights N` quick mode); `DEMO_NOW = 2026-11-14T23:30:00-05:00`; `--shift-to 2026-11-17` |
 
@@ -180,7 +179,7 @@ python -I -m simulator replay --now 2026-11-14T23:30:00-05:00 [--venue <id>] [--
 Python:
 ```python
 import simulator
-from simulator.genres import GENRES
+from simulator.config import GENRES          # loaded from config/genres.json
 tables = simulator.generate(simulator.config.load("default", seed=42))   # dict[str, DataFrame]
 from simulator import replay
 seen = replay.visible(tables, now="2026-11-14T23:30:00-05:00")

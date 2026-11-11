@@ -51,8 +51,8 @@ and be easy to switch off once real data arrives (`INCLUDE_SYNTHETIC=0`).
    same `data/live_sim.db` contents.
 7. Ship the fixed build command `python -I -m simulator --seed 42 --out data/live_sim.db` (v2.2 §J; `--nights N` quick mode), plus
    `validate` and `replay` helpers for any `now=`.
-8. Own the shared genre vocabulary at `simulator/config/genres.json` (17 slugs, v2.1 §E),
-   with `simulator/genres.py` as a thin loader exposing `GENRES` to Python users.
+8. Own the shared genre vocabulary at `simulator/config/genres.json` (17 slugs, v2.1 §E).
+   Other workstreams read the JSON directly; there is no `simulator/genres.py`.
 9. Follow the synthetic-data rule completely (`is_synthetic=1`, `syn_` tables, `syn-`
    IDs, `# SYNTHETIC:` comments, registry in `docs/synthetic/live-sim.md`).
 
@@ -174,7 +174,8 @@ and be easy to switch off once real data arrives (`INCLUDE_SYNTHETIC=0`).
 - `simulator/config/genres.json` = `{"version": 1, "genres": [...]}` with exactly the 17
   slugs in CONTRACTS v2.1 §E: hip-hop, r&b, afrobeats, latin, reggaeton, house, techno,
   edm, disco, pop, top-40, throwbacks, indie, rock, punk, jazz, soul-funk.
-- `simulator/genres.py` loads it and exports `GENRES` and `is_genre(s)`. Every genre the
+- The simulator reads it into a module-level constant (called `GENRES` in this plan) inside
+  `config.py`. Every genre the
   simulator writes is in it; validation fails otherwise. Changing it needs a contract change.
 
 **LS-9b Demo-night snapshots (tableau, v2.2 §J).**
