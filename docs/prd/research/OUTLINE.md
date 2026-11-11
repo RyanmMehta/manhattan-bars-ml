@@ -22,7 +22,7 @@ research is merged 2nd (after specs). Phase E continues after the deadline.
 
 ### Phase C — synthetic data
 - [ ] C1 (M) `research/gen_synthetic.py` producing the three datasets (§5) from `PRIORS`, seeded.
-- [ ] C2 (S) Confirm CSV-only output (v2 §E: research `syn_` tables are not loaded into any DB); `GENRES` constant matches v2 §E list.
+- [ ] C2 (S) Confirm CSV-only output (v2 §E: research `syn_` tables are not loaded into any DB); `GENRES` constant matches the 17 slugs in `simulator/config/genres.json` (v2.1 §E).
 - [ ] C3 (M) `research/validate.py` (codebook, `is_synthetic`, venue_ids, PII scan, competitor sourcing).
 - [ ] C4 (M) `research/tests/` per RULES §7.
 - [ ] C5 (S) Fill `docs/synthetic/research.md` registry.
@@ -86,10 +86,11 @@ No HTTP API endpoints; backend need not expose research data.
 CONTRACTS v2 (research tables listed in §E, `docs/prd/<name>/` in §C, shared
 genre vocabulary in §E). None open.
 
-Shared genre vocabulary (v2 §E), used for every genre option in survey and
-interview data: `hip-hop, r&b, house, techno, pop, top-40, latin, reggaeton,
-afrobeats, rock, indie, jazz, soul, funk, disco, 90s-00s, edm, live-band,
-karaoke, mixed`.
+Shared genre vocabulary (v2.1 §E, 17 slugs, owned by live-sim at
+`simulator/config/genres.json`), used for every genre option in survey and
+interview data: `hip-hop, r&b, afrobeats, latin, reggaeton, house, techno, edm,
+disco, pop, top-40, throwbacks, indie, rock, punk, jazz, soul-funk`. Survey
+adds a separate "no preference" checkbox rather than a genre slug.
 
 ## 4. Schemas
 
@@ -144,7 +145,7 @@ the survey/interview question whose real answer replaces it.
 - Codebook: every survey column defined; allowed values respected.
 - PII scan: no email/phone regex hits in `research/**`.
 - No DB writes: `data/*.db` mtimes/hashes unchanged after running the generator.
-- IDs: synthetic keys start `syn-`; genres ⊆ shared vocabulary (v2 §E).
+- IDs: synthetic keys start `syn-`; genres ⊆ the 17 shared slugs (v2.1 §E).
 - Competitors: all rows have `source_url` (http/https) and `retrieved_at`.
 - Manual: a teammate pilots the consumer guide (≤ 30 min) and survey (≤ 5 min).
 

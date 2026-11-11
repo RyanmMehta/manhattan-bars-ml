@@ -154,7 +154,7 @@ Functional
 - F4 Survey questions + codebook; export format = CSV matching codebook.
 - F5 Seeded synthetic generator (Python, stdlib + numpy/pandas only) writing
   CSVs only (no DB load, v2 §E). Genre options use the shared vocabulary
-  (v2 §E; `simulator/genres.py` `GENRES`) — copied as a constant, not imported.
+  (v2.1 §E: 17 slugs in `simulator/config/genres.json`) — read from that JSON when present, else a copied constant that a test checks against it.
 - F6 Validator: `research/validate.py` checks CSVs vs codebook/schema,
   `is_synthetic` present, venue_ids ∈ launch list.
 - F7 Business model doc; findings summary.
@@ -173,7 +173,7 @@ Non-functional
 | specs | Final preference field list, score definitions | Ranked decision factors, freshness tolerance (minutes), trust cues |
 | research | — | (self) |
 | tableau | Dashboard requirements, accepted CSV shape | `syn_survey_responses.csv`, `syn_interviews.csv`, competitor CSV |
-| live-sim | Scout behavior parameters it assumes (engagement decay, archetypes in `syn_scout_truth`); `GENRES` list | Survey-derived placeholders: report frequency, % willing to scout, points that motivate |
+| live-sim | Scout behavior parameters it assumes (engagement decay, archetypes in `syn_scout_truth`); genre list `simulator/config/genres.json` | Survey-derived placeholders: report frequency, % willing to scout, points that motivate |
 | ml-recs | Current default weights | Factor importance ranking for match weights (placeholder until real n) |
 | backend | Nothing required (research doesn't hit the API) | Owner-dashboard metrics operators said they'd pay for |
 | frontend | Mockup PNGs (target Thu Nov 12, v2 §I) for concept test in interviews | Filter priority, badge/confidence wording, onboarding copy |

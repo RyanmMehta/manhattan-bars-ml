@@ -87,7 +87,7 @@ the build session (CLAUDE.md style). If a rule conflicts with
   - no PII: regex scan of all `research/**` CSV/MD for emails/phone numbers;
   - competitors.csv: required columns non-empty, `retrieved_at` parses as a date;
   - no DB writes: `data/*.db` hashes unchanged after the generator runs;
-  - synthetic IDs start `syn-`; all genre values ∈ v2 §E shared vocabulary;
+  - synthetic IDs start `syn-`; all genre values ∈ the 17 slugs of v2.1 §E (`simulator/config/genres.json`);
 - `python -I research/validate.py` must exit 0.
 
 ## 8. Definition of done
