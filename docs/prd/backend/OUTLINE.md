@@ -1,7 +1,7 @@
 # OUTLINE: backend build plan
 
 Follow [`RULES.md`](RULES.md). Requirements and AC IDs (BE-n) are in [`PRD.md`](PRD.md).
-Revised for Contracts v2 (Nov 11). Sizes: **S** ≤ 1 h, **M** 1–3 h, **L** 3–6 h.
+Revised for Contracts v2.2 (Nov 11, contracts `acf7821`). Sizes: **S** ≤ 1 h, **M** 1–3 h, **L** 3–6 h.
 Total ≈ 28–36 h of build time (placeholder).
 
 Calendar (v2 §I): upstream deadline **Fri Nov 13 18:00 ET**; integration merges backend
@@ -21,27 +21,27 @@ sit behind `FEATURE_HEATMAP` / `FEATURE_ROUTING` so they can ship last without b
 
 ### Phase 1: data layer (Nov 12)
 - [ ] T1.1 **M** `app/db.py`: engine from `DATABASE_URL`; on SQLite, `ATTACH` `PUBLIC_DB_PATH` as `pub` and `LIVE_SIM_DB` as `sim` (read-only URIs) on every connection; WAL + foreign keys.
-- [ ] T1.2 **M** `app/models.py` (real tables only): `users`, `scouts`, `api_tokens`, `scout_reports` (+ `status`, `distance_m`), `venue_updates`, `venue_events`, `points_ledger`, `bounties`, `feedback`, `venue_attributes`. Columns mirror the `syn_` twins (v2 §E).
+- [ ] T1.2 **M** `app/models.py` (real tables only): `users`, `scouts`, `api_tokens`, `scout_reports` (+ `status`, `distance_m`), `venue_updates`, `venue_events`, `points_ledger`, `bounties`, `feedback`, `disputes`, `venue_attributes`. Columns mirror the `syn_` twins (v2 §E); all exist empty after `0001` (v2 §J).
 - [ ] T1.3 **S** Alembic `0001_initial`; migration test.
-- [ ] T1.4 **M** `repo/sources.py`: the only place that builds `real UNION ALL sim.syn_*` selects; honors `INCLUDE_SYNTHETIC` and `now`; never touches `syn_true_state`/`syn_scout_truth`.
+- [ ] T1.4 **M** `repo/sources.py`: the only place that builds `real UNION ALL sim.syn_*` selects; honors `INCLUDE_SYNTHETIC` and `now`; never touches `syn_true_state`, `syn_scout_truth` or `syn_scout_reputation_history`.
 - [ ] T1.5 **M** `repo/venues.py`: launch list from `launch_venues_full.csv` if present, else `pub.v_bars` ⋈ `pub.osm_venues`; display-name rule; attributes = manual CSV row else `syn_venue_attributes`; `complaint_risk` from `noise_complaints`.
-- [ ] T1.6 **M** `app/simdb.py` + `scripts/ensure_sim.py`: check `LIVE_SIM_DB` exists and its schema matches v2 §E (column diff on mismatch); if missing and `GENERATE_SIM_ON_START=1`, run the live-sim CLI; if still missing, build the fixture sim DB and log a warning.
+- [ ] T1.6 **M** `app/simdb.py` + `scripts/ensure_sim.py`: check `LIVE_SIM_DB` exists and its schema matches v2 §E (column diff on mismatch); `live_sim.db` is produced at build time (v2 §J), so at boot a missing or mismatched DB is a hard error in prod; in dev/tests (`ALLOW_FIXTURE_SIM=1`) fall back to the fixture sim DB with a warning.
 - [ ] T1.7 **M** `tests/fixtures/make_sim.py`: deterministic (seed 42) tiny sim DB: attributes for 35 venues, 20 scouts, ~200 reports Sat Nov 14 20:00–03:00, 15 updates, 5 bounties, events, points ledger. IDs `syn-…`. Output under `backend/tests/fixtures/synthetic/` (built at test time, gitignored).
-- [ ] T1.8 **S** Postgres copy-in path in `scripts/ensure_sim.py --copy-to-db` (CR-12); not run on SQLite.
+- [ ] T1.8 **S** Postgres copy-in path `scripts/ensure_sim.py --copy-to-db` (v2 §J), run as a build/release step; not run on SQLite.
 
 ### Phase 2: engine adapter (Nov 12)
-- [ ] T2.1 **M** `engine/base.py` Protocol (4 contract functions); `engine/recs_engine.py` (passes lists of dicts; joins `reputation`); `engine/stub.py`.
+- [ ] T2.1 **M** `engine/base.py` Protocol (4 contract functions); `engine/recs_engine.py` (passes lists of dicts; joins **current** `reputation` from `scouts ∪ syn_scouts`); `engine/stub.py`.
 - [ ] T2.2 **M** Stub with v2 §A constants: decayed reputation-weighted live state, confidence (k 1.5), display bands, trend windows, cutoff; recommend with hard-limit exclusions, unknown = 0.4 + missing entry, `rank_score`; plan_night greedy nearest-next of top 8.
 - [ ] T2.3 **S** `engine/__init__.py get_engine()` with per-call fallback; golden vector tests G1, G5.
 
 ### Phase 3: endpoints (Nov 12–13)
-- [ ] T3.1 **M** `routers/venues.py`: list (q, neighborhood, style, genre, launch_only, lat/lon, limit/offset, `X-Total-Count`, `X-Data`), detail `{venue, state, recent_reports, offers}`, state. BE-2/3/4.
-- [ ] T3.2 **M** `routers/auth.py` + `services/auth.py`: demo-login (user/scout/owner), bearer dependency, role checks. BE-13.
-- [ ] T3.3 **M** `routers/reports.py` + `services/reports.py`: validation (genre vocab from `simulator/genres.py`, fallback copy), `distance_m`, 150 m presence, owner-own-venue block, rate limit, `status=pending`, points ledger + implicit bounty claim → `{report_id, ts, status, points_pending}`. BE-5.
+- [ ] T3.1 **M** `routers/venues.py`: list (q, neighborhood, style, genre, launch_only, lat/lon, limit/offset, `X-Total-Count`, `X-Data`; distance sort when lat/lon given), detail `{venue, state, recent_reports, offers}`, state. BE-2/3/4.
+- [ ] T3.2 **M** `routers/auth.py` + `services/auth.py`: demo-login (user/scout/owner; one owner per venue, v2 §J), bearer dependency, role checks. BE-13.
+- [ ] T3.3 **M** `routers/reports.py` + `services/reports.py`: validation (17-slug genre vocab from `simulator/config/genres.json`, vendored fallback copy), `distance_m`, 150 m presence, owner-own-venue block, rate limit, `status=pending`, points ledger + implicit bounty claim → `{report_id, ts, status, points_pending}`. BE-5.
 - [ ] T3.4 **S** `routers/scouts.py` (leaderboard with `points_week`) + `routers/bounties.py` (open, not expired, `venue_name`). BE-6.
 - [ ] T3.5 **M** `routers/recommend.py`: `/api/recommend` (sorted by `rank_score`; impression events) and `/api/plan-night` (v2 §F stop shape; `FEATURE_ROUTING`). BE-7/8.
 - [ ] T3.6 **M** `routers/owner.py`: dashboard (v2 §G shape, `venue_events ∪ syn_venue_events`) + updates. BE-9/10.
-- [ ] T3.7 **M** `routers/heatmap.py`: per-venue at `now` and `by=hour` (20–03), `FEATURE_HEATMAP`. BE-11.
+- [ ] T3.7 **M** `routers/heatmap.py`: per-venue at `now` and `by=hour` (20–03, state at HH:30 to match live-sim's demo-night snapshots, v2 §J), `FEATURE_HEATMAP`. BE-11.
 - [ ] T3.8 **S** `routers/feedback.py`. BE-14.
 - [ ] T3.9 **S** view/tap logging in the venue routers (no PII).
 - [ ] T3.10 **S** push by **Fri Nov 13 18:00 ET**; tell master the branch is ready.
@@ -83,7 +83,7 @@ backend/
     schemas.py                # Pydantic: CONTRACTS + v2 §F/§G shapes
     errors.py                 # error envelope
     deps.py                   # get_db, get_now, auth deps
-    genres.py                 # imports simulator.genres.GENRES, fallback copy
+    genres.py                 # loads simulator/config/genres.json, vendored fallback copy
     repo/
       __init__.py
       sources.py              # real ∪ syn_ unions, INCLUDE_SYNTHETIC
@@ -130,7 +130,7 @@ docs/synthetic/backend.md
 | existing | `data/launch_venues.csv` (header `license_id`, aliased to `venue_id`) | v2 §D |
 | integration | `data/launch_venues_full.csv` (launch venues + OSM name/hours) | v2 §D |
 | team | `data/venue_attributes_manual.csv` (optional override, `is_synthetic=0`) | v2 §D |
-| live-sim | `data/live_sim.db`: `syn_venue_attributes`, `syn_scouts`, `syn_users`, `syn_scout_reports`, `syn_venue_updates`, `syn_feedback`, `syn_bounties`, `syn_venue_events`, `syn_disputes`, `syn_points_ledger`; CLI to generate it; `simulator/genres.py` | Data schemas, v2 §B/§E |
+| live-sim | `data/live_sim.db`: `syn_venue_attributes`, `syn_scouts`, `syn_users`, `syn_scout_reports`, `syn_venue_updates`, `syn_feedback`, `syn_bounties`, `syn_venue_events`, `syn_disputes`, `syn_points_ledger`; build-time CLI / `make data`; `simulator/config/genres.json` | Data schemas, v2 §B/§E |
 | ml-recs | `recs.live_state.compute / compute_all`, `recs.scoring.recommend`, `recs.routing.plan_night` (lists of dicts or DataFrames; reports carry `reputation`) | Python interface, v2 §F |
 | specs | v2 §A constants, golden vectors G1/G5, point values | v2 §A |
 
@@ -156,16 +156,16 @@ them in `docs/synthetic/backend.md`, pointing to live-sim's registry for generat
 | `syn_venue_attributes` | genres, style, dance floor, cover, capacity, price, claimed, hours | live-sim (seed 42) | `data/venue_attributes_manual.csv` now; owner-claimed profiles later | fill the manual CSV (overrides per venue automatically); later write owner profile edits to `venue_attributes` |
 | `syn_scouts` | scout profiles, reputation, activity | live-sim | real `scouts` (demo-login / sign-up) | `INCLUDE_SYNTHETIC=0` |
 | `syn_users` | group members and prefs | live-sim | real `users` | `INCLUDE_SYNTHETIC=0` |
-| `syn_scout_reports` | vibe checks, Thu–Sat Sep 3 → Nov 14 | live-sim | real `scout_reports` from `POST /api/reports` | `INCLUDE_SYNTHETIC=0`; same columns, nothing else changes |
+| `syn_scout_reports` | vibe checks, Thu–Sat Aug 27 → Nov 14 (36 nights) | live-sim | real `scout_reports` from `POST /api/reports` | `INCLUDE_SYNTHETIC=0`; same columns, nothing else changes |
 | `syn_venue_updates` | operator posts, offers | live-sim | real `venue_updates` from owner endpoint | same |
 | `syn_bounties` | open bounties | live-sim | real `bounties` (rule-based creation job or owners, later) | add creation job; flag off |
 | `syn_points_ledger` | points history | live-sim | real `points_ledger` written by `POST /api/reports` | flag off |
 | `syn_venue_events` | dashboard views/taps/saves/impressions | live-sim | real `venue_events` logged by the API | flag off; dashboard reads only real events |
 | `syn_feedback` | post-visit outcomes | live-sim | real `feedback` from `POST /api/feedback` | flag off |
 | `syn_disputes` | report disputes | live-sim | real disputes table (later) | not read by MVP endpoints; registered only |
-| test fixture sim DB | a tiny one-night `live_sim.db` | `backend/tests/fixtures/make_sim.py` (seed 42) | real `live_sim.db` (tests only), then real tables | test-only; also the boot fallback if `live_sim.db` can't be generated |
+| test fixture sim DB | a tiny one-night `live_sim.db` | `backend/tests/fixtures/make_sim.py` (seed 42) | real `live_sim.db` (tests only), then real tables | test/dev only (`ALLOW_FIXTURE_SIM=1`); never a silent prod fallback |
 
-Never read: `syn_true_state`, `syn_scout_truth` (evaluation-only). Every read site is marked
+Never read: `syn_true_state`, `syn_scout_truth` (evaluation-only), `syn_scout_reputation_history` (training/eval; the live app uses current reputation). `data/synthetic_live/demo_night_snapshots.csv` is Tableau's; the backend computes state live, but a test checks the HH:30 heatmap matches it within rounding when real recs is present. Every read site is marked
 `# SYNTHETIC: ...`; all rows `is_synthetic=1`, IDs `syn-…`.
 
 ## 5. Test plan
@@ -189,7 +189,7 @@ Commands: `cd backend && pytest -q --cov=app` · `ruff check . && ruff format --
 
 ## 6. Demo script (≈4 min, Nov 17)
 
-Setup: Render with `DEMO_NOW=2026-11-14T23:30:00-05:00`, real `live_sim.db`. Warm it 2 min before.
+Setup: Render with `DEMO_NOW=2026-11-14T23:30:00-05:00`, `live_sim.db` baked in at build. Warm it 2 min before.
 1. `GET /api/health` → `{ok: true, recs: "real", data: "synthetic", demo_now: "2026-11-14T23:30:00-05:00"}`. Show `/api/docs`.
 2. `GET /api/venues` → 35 LES cards at 23:30 Saturday; point out the `display` bands (show / low / none) and `is_synthetic`.
 3. `GET /api/heatmap?by=hour` → vibe building 20:00 → 23:00 along Ludlow/Orchard.
@@ -204,14 +204,14 @@ Setup: Render with `DEMO_NOW=2026-11-14T23:30:00-05:00`, real `live_sim.db`. War
 Ryan provides: a Render account connected to GitHub `ryanmmehta/manhattan-bars-ml`; integration
 provides the Vercel URL. No paid APIs.
 1. Render → New → Blueprint → repo, branch `nightlife/backend` (integration later switches to the merged branch), Blueprint path `backend/render.yaml` (or root copy, v2 §C).
-2. `render.yaml` (to write): one `web` service, `runtime: docker`, `dockerfilePath: backend/Dockerfile`, `dockerContext: .`, `healthCheckPath: /api/health`, plan `free` (placeholder; Starter for a disk). Env: `DEMO_NOW=2026-11-14T23:30:00-05:00`, `INCLUDE_SYNTHETIC=1`, `GENERATE_SIM_ON_START=1`, `DEMO_AUTH=1`, `RECS_MODE=auto`, `FEATURE_ROUTING=1`, `FEATURE_HEATMAP=1`, `CORS_ORIGINS=<vercel url>,http://localhost:5173`, `ADMIN_TOKEN` (`generateValue: true`).
-3. Generate `live_sim.db` in the Docker build if live-sim's CLI is fast enough; otherwise at boot (open question 3).
+2. `render.yaml` (to write): one `web` service, `runtime: docker`, `dockerfilePath: backend/Dockerfile`, `dockerContext: .`, `healthCheckPath: /api/health`, plan `free` (placeholder; Starter for a disk). Env: `DEMO_NOW=2026-11-14T23:30:00-05:00`, `INCLUDE_SYNTHETIC=1`, `ALLOW_FIXTURE_SIM=0`, `DEMO_AUTH=1`, `RECS_MODE=auto`, `FEATURE_ROUTING=1`, `FEATURE_HEATMAP=1`, `CORS_ORIGINS=<vercel url>,http://localhost:5173`, `ADMIN_TOKEN` (`generateValue: true`).
+3. `live_sim.db` is generated at build time (v2 §J): the Dockerfile runs live-sim's `make data` equivalent (< 60 s) after copying `simulator/`, so the image ships with it. If integration switches to a native Render build, the same command goes in `buildCommand`.
 4. Deploy; wait for the health check; `python backend/scripts/smoke.py https://<service>.onrender.com`.
 5. Free-tier caveats (check Render's current limits at deploy time): sleeps when idle; ephemeral disk, so app-DB writes reset on restart.
-6. Postgres later: create Render Postgres, set `DATABASE_URL=postgresql+psycopg://...`; `start.sh` runs migrations then `ensure_sim.py --copy-to-db` (CR-12).
+6. Postgres later: create Render Postgres, set `DATABASE_URL=postgresql+psycopg://...`; the build/release step runs migrations then `ensure_sim.py --copy-to-db` (v2 §J).
 
 ## 8. Assumptions recorded
-- live-sim ships a CLI that writes `data/live_sim.db` deterministically and fast enough for build/boot (to confirm).
+- live-sim's build command writes `data/live_sim.db` deterministically in < 60 s (v2 §J); exact command to confirm.
 - Pending reports count in live state; flagged/removed don't.
 - Neighborhood for all launch venues is `LES/Chinatown` (`venues.neighborhood`).
 - Docker build context is the repo root so `data/` and `simulator/` are available.

@@ -105,7 +105,8 @@ No ORMs besides SQLAlchemy, no Flask/Django, no Celery/Redis.
    `points_ledger`, `feedback`, `venue_attributes`) set `is_synthetic = 0` and have the same columns
    as their `syn_` twin so reads can `UNION ALL` (v2 §E). Real IDs are UUID4; synthetic IDs start `syn-`.
 2a. `data/live_sim.db` is attached read-only as `sim`. Never write to it. Never read
-   `syn_true_state` or `syn_scout_truth` (evaluation-only, v2 §E) — a test greps for them.
+   `syn_true_state`, `syn_scout_truth` (evaluation-only, v2 §E) or `syn_scout_reputation_history`
+   (training/eval only; the live app uses current reputation, v2.1) — a test greps for them.
 3. Every line that reads or generates synthetic data gets a comment:
    `# SYNTHETIC: <real source that replaces this>`, e.g.
    `# SYNTHETIC: replace with real scout reports from scout_reports once pilot runs`.
@@ -141,13 +142,13 @@ Reserved names (v2 §H) used exactly: `DATABASE_URL` (default `sqlite:///./backe
 `CORS_ORIGINS`, `FEATURE_ROUTING` (1), `FEATURE_HEATMAP` (1).
 Backend-only names: `PUBLIC_DB_PATH` (`data/manhattan_bars.db`), `LAUNCH_VENUES_CSV`
 (`data/launch_venues.csv`), `LAUNCH_VENUES_FULL_CSV` (`data/launch_venues_full.csv`),
-`MANUAL_ATTRIBUTES_CSV` (`data/venue_attributes_manual.csv`), `GENERATE_SIM_ON_START` (0 locally, 1 on
-Render), `DEMO_AUTH` (1), `ADMIN_TOKEN` (required in prod), `RECS_MODE` (`auto|recs|stub`),
+`MANUAL_ATTRIBUTES_CSV` (`data/venue_attributes_manual.csv`), `ALLOW_FIXTURE_SIM` (1 in dev/tests, 0 on
+Render; `live_sim.db` is built at build time, v2 §J), `DEMO_AUTH` (1), `ADMIN_TOKEN` (required in prod), `RECS_MODE` (`auto|recs|stub`),
 `LOG_LEVEL` (INFO), `ALLOW_WRITE_NOW` (0). Don't invent names that collide with `VITE_*`. Document each in `backend/README.md` and `.env.example`. Never commit `.env`.
 
 ## 10. Definition of done (for the build phase)
 - [ ] Every CONTRACTS.md endpoint + v2 §G additions (demo-login, feedback, heatmap `by=hour`) with contract field names.
-- [ ] `scripts/start.sh` does `alembic upgrade head`, ensures `live_sim.db` (generate or fixture), loads optional manual attributes, starts uvicorn — no manual steps.
+- [ ] `scripts/start.sh` does `alembic upgrade head`, checks `live_sim.db` (built at build time, v2 §J; fixture only if `ALLOW_FIXTURE_SIM=1`), loads optional manual attributes, starts uvicorn — no manual steps.
 - [ ] `pytest -q` green, < 30 s, coverage ≥ 85%; `ruff check` clean.
 - [ ] Works with `RECS_MODE=stub` and with real `recs` if present.
 - [ ] `INCLUDE_SYNTHETIC=0` doesn't crash any endpoint.

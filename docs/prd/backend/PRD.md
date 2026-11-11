@@ -1,9 +1,9 @@
 # PRD: backend (Nightlife Autopilot API)
 
 Workstream: `backend` · Branch: `nightlife/backend` · Folder: `backend/`
-Status: planning, revised for **Contracts v2** (Nov 11, 2026). No code yet.
+Status: planning, revised for **Contracts v2.2** (Nov 11, 2026; contracts commit `acf7821`). No code yet.
 Governing contract: [`docs/CONTRACTS.md`](../../CONTRACTS.md), including the v2 amendments
-(§A–§I), which override the original text. Where this PRD and the contract disagree, the
+(§A–§J), which override the original text. Where this PRD and the contract disagree, the
 contract wins. Section refs like "v2 §G" point at those amendments.
 
 ## 1. Problem
@@ -48,7 +48,7 @@ The backend has to:
 - Scoring logic beyond the stub. Scoring belongs to `ml-recs`; formulas to `specs` (v2 §A).
 - Generating synthetic live data. live-sim generates every `syn_` table, including
   `syn_venue_events` (v2 §E). Backend keeps only a tiny test fixture generator.
-- Reading evaluation-only tables (`syn_true_state`, `syn_scout_truth`). The API never touches them.
+- Reading evaluation-only tables (`syn_true_state`, `syn_scout_truth`) or `syn_scout_reputation_history`. The API never touches them.
 - Editing `src/`, `data/manhattan_bars.db`, `data/live_sim.db`, or any folder another workstream owns.
 - Dispute resolution UI/endpoints (specs defines the rules; `status` field exists, workflow later).
 - Production hardening (rate limiting beyond a basic per-token cap, audit logs, backups).
@@ -77,8 +77,8 @@ IDs are `BE-n`. Each AC maps to at least one pytest test.
 - AC: each item is a venue card `{venue_id, name, display_name, style, genres[], price_level, typical_cover_usd, lat, lon, distance_km?, opening_hours, is_claimed, state, complaint_risk, is_synthetic}` (v2 §G). `state` is a Live Venue State.
 - AC: `q` matches display name or address, case-insensitive substring. `style`, `genre` (shared vocabulary, v2 §E), `neighborhood` filter; unknown values → `[]`, not 400.
 - AC: `limit` (default 50, max 200), `offset`; bare list + `X-Total-Count` header; `X-Data` header (`synthetic|real|mixed`).
-- AC: venues without fresh reports have `state.vibe_score: null`, `state.display: "none"`; never a default number.
-- AC: optional `lat`,`lon` query params fill `distance_km`; otherwise `distance_km` is omitted/null. *(CR-11)*
+- AC: venues without fresh reports have `state.vibe_score: null`, `state.display: "none"`; never a default number. Vibe labels (Chill/Lively/Packed) and the >60 min "stale" tag are frontend copy (v2 §J); the API only supplies `vibe_score` and `freshness_minutes`.
+- AC: optional `lat`,`lon` query params fill `distance_km` and sort the list by distance (v2 §J); otherwise `distance_km` is null and order is by `display_name`.
 - AC: attributes come from `data/venue_attributes_manual.csv` when present (`is_synthetic=0`), else `syn_venue_attributes` (v2 §D).
 - AC: `launch_only=false` returns all 1,727 `v_bars` (most with null state and null attributes).
 - AC: p95 < 300 ms locally for the 35-venue list (placeholder).
@@ -89,7 +89,7 @@ IDs are `BE-n`. Each AC maps to at least one pytest test.
 - AC: logs a `view` event to `venue_events`. Unknown id → 404 error envelope.
 
 **BE-4 Live state.** `GET /api/venues/{id}/state` returns the Live Venue State (contract shape + optional `display`, `predicted_crowd`, `predicted_source`; v2 §F) computed at `now`.
-- AC: report rows passed to recs include `reputation` (joined from scouts; default 0.5) (v2 §F).
+- AC: report rows passed to recs include the scout's **current** `reputation` (from `scouts ∪ syn_scouts`; default 0.5) (v2 §F). The API never reads `syn_scout_reputation_history`; that table is for model training/evaluation (v2.1 §E).
 - AC: inputs older than 180 min or with `ts > now + 2 min` are ignored (v2 §A) — recs does this; stub does too.
 - AC: before any report that night: `n_reports = 0`, `vibe_score = null`, `freshness_minutes = null`, `display = "none"`.
 - AC: stub reproduces golden vector **G1** (vibe 65 / conf 0.67).
@@ -124,14 +124,14 @@ IDs are `BE-n`. Each AC maps to at least one pytest test.
 **BE-10 Owner update.** `POST /api/owner/{venue_id}/updates` with owner token, `{cover_usd?, dj?, genres?, event?, offer?, offer_expires_at?}` → `201` with the stored update; it shows in detail `offers` and the next state computation.
 
 **BE-11 Heatmap.** `GET /api/heatmap?now=&by=hour` → `[{venue_id, lat, lon, hour?, vibe_score, confidence, n_reports, is_synthetic}]` for launch venues.
-- AC: without `by`, one row per venue at `now`. With `by=hour`, one row per venue per hour 20–03 of the night containing `now`, state computed at the end of each hour (capped at `now`).
+- AC: without `by`, one row per venue at `now`. With `by=hour`, one row per venue per hour 20–03 of the night containing `now`, state computed at **HH:30** of each hour (capped at `now`), matching live-sim's demo-night snapshots and Tableau's hourly cell (v2 §J).
 - AC: disabled when `FEATURE_HEATMAP=0`. Null vibe stays null.
 
 **BE-12 Replay.** Any read endpoint accepts `now`; default is `DEMO_NOW` env, else server clock.
 - AC: rows with `ts > now` are ignored; offers/bounties active relative to `now`.
 
 **BE-13 Demo login.** `POST /api/auth/demo-login {display_name, role: user|scout|owner, venue_id?}` → `{token, user_id|scout_id}` (v2 §G).
-- AC: scout login creates a row in `scouts` (reputation 0.5, points 0); owner login requires `venue_id` of a launch venue; user login creates a row in `users`.
+- AC: scout login creates a row in `scouts` (reputation 0.5, points 0); user login creates a row in `users`; owner login requires `venue_id` of a launch venue, one owner per venue (v2 §J): a second owner login for the same venue returns the existing owner's identity with a fresh token in demo mode (no 409, so the demo can't lock itself out).
 - AC: disabled (404) when `DEMO_AUTH=0`.
 
 **BE-14 Feedback.** `POST /api/feedback {user_id, venue_id, visited, rating?}` with a user token → `201`; stored in `feedback` (twin of `syn_feedback`, server sets `feedback_id`, `recommended_at` = latest impression for that user+venue or null) (v2 §G).
@@ -172,11 +172,12 @@ real claim flow; per-user saved prefs; SSE; CSV export for Tableau; real auth (m
 | `data/manhattan_bars.db` (`v_bars`, `osm_venues`) or `data/launch_venues_full.csv` | real public | read-only, attached as `pub` (SQLite) |
 | `data/live_sim.db` (`LIVE_SIM_DB`) — all `syn_` tables | synthetic | read-only, attached as `sim`; generated by live-sim (seed 42), not committed |
 | `data/venue_attributes_manual.csv` | real (hand-labelled), optional | loaded into app DB `venue_attributes` (`is_synthetic=0`) |
-| App DB (`DATABASE_URL`) | real app writes | read-write: `users`, `scouts`, `api_tokens`, `scout_reports`, `venue_updates`, `venue_events`, `points_ledger`, `bounties`, `feedback`, `venue_attributes` |
+| App DB (`DATABASE_URL`) | real app writes | read-write: `users`, `scouts`, `api_tokens`, `scout_reports`, `venue_updates`, `venue_events`, `points_ledger`, `bounties`, `feedback`, `disputes`, `venue_attributes` — all created empty by migration `0001` (v2 §J) |
 
 Every app table that has a `syn_` twin uses the twin's exact columns plus nothing required.
-On Postgres there is no `ATTACH`; the start script copies `sim.*` tables into `syn_*` tables in the
-same DB (one-time load) and copies the needed public rows into `pub_venues`. *(CR-12)*
+`data/live_sim.db` is generated at **build time** (Render build command / `make data`, live-sim target < 60 s for 36 nights; v2 §J), never at boot.
+On Postgres there is no `ATTACH`; a build/release step copies `sim.*` tables into `syn_*` tables in the
+same DB and the needed public rows into `pub_venues` (v2 §J).
 
 ## 9. Dependencies on other workstreams
 
@@ -187,7 +188,7 @@ Upstream deadline for everyone: **Fri Nov 13 18:00 ET**; integration merges back
 | **specs** | v2 §A constants (done), golden vectors G1/G5 with full inputs, point values, rate limits | point values stay placeholders in `config.py` |
 | **research** | nothing at runtime | — |
 | **tableau** | nothing | — |
-| **live-sim** | `data/live_sim.db` with every v2 §E table; a CLI the start script can call to generate it (deterministic, seed 42); `simulator/genres.py` | backend test fixture DB (~200 reports, 1 night) so tests and deploy don't block |
+| **live-sim** | `data/live_sim.db` with every v2 §E table (36 nights, Aug 27 → Nov 14); the build-time CLI / `make data` target (< 60 s, seed 42); genre list at `simulator/config/genres.json` (17 slugs) | backend test fixture DB (~200 reports, 1 night) so tests and deploy don't block |
 | **ml-recs** | importable `recs` matching CONTRACTS + v2 §F | stub engine |
 | **backend** | (self) | |
 | **frontend** | consumes API; needs deployed URL and `openapi.json` | frontend mock-API mode (`VITE_API_MODE=mock`) |
@@ -207,11 +208,11 @@ Upstream deadline for everyone: **Fri Nov 13 18:00 ET**; integration merges back
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Render free tier sleeps / ephemeral disk | high | demo writes lost on restart; regen `live_sim.db` each boot | regenerate deterministically at start (or at Docker build); warm 2 min before class; Starter + disk if Ryan prefers |
-| `live_sim.db` not committed → deploy must generate it | high | slow or failing boot | generate at Docker build time if the CLI is fast (< 2 min, placeholder); else fixture DB fallback |
+| Render free tier sleeps / ephemeral disk | high | demo writes lost on restart | `live_sim.db` is baked into the image at build, so restarts only lose app-DB writes; warm 2 min before class; Starter + disk if Ryan prefers |
+| `live_sim.db` build step fails or is slow | med | failed deploy | build fails loudly with live-sim's error; local fallback = fixture sim DB (tests/dev only, never silently in prod) |
 | `recs` drifts from contract | med | 500s | Pydantic-validate outputs; per-call stub fallback |
 | live-sim columns differ from v2 §E | med | wrong data | startup schema check prints exact column diff and falls back to fixture DB |
-| SQLite ATTACH vs Postgres | med | Postgres path breaks | `repo/sources.py` hides table qualifiers; Postgres copy-in path (CR-12); one Postgres test run |
+| SQLite ATTACH vs Postgres | med | Postgres path breaks | `repo/sources.py` hides table qualifiers; Postgres copy-in path (v2 §J); one Postgres test run |
 | Timezone bugs in replay (night spans midnight) | high | wrong state | single `parse_now()`; UTC internally; tests at 23:59 / 00:10 / 03:00 |
 | Demo tokens abused on public URL | low | junk reports | `DEMO_AUTH=0` switch, per-token rate limit, `ADMIN_TOKEN` reset endpoint |
 | Very short timeline (Nov 13 18:00) | high | incomplete | deploy first, stub second, endpoints third; heatmap/plan-night behind feature flags |
@@ -220,7 +221,7 @@ Upstream deadline for everyone: **Fri Nov 13 18:00 ET**; integration merges back
 
 1. Does Ryan have a Render account, and is it Free or Starter (persistent disk)?
 2. Vercel production origin for `CORS_ORIGINS`?
-3. live-sim: how long does generating `live_sim.db` for 33 nights take, and what's the CLI? Decides build-time vs boot-time generation.
+3. live-sim: exact CLI / `make data` command and output path, so `render.yaml`'s build command and the Dockerfile can call it. (Build-time generation is decided, v2 §J.)
 4. specs: point values (base, verified bonus) and report rate limit; full G1/G5 input fixtures.
 5. Should pending reports count in live state immediately, or only after acceptance? (Plan: count `pending` and `accepted`.)
 6. Postgres for Nov 17, or SQLite only? (Plan: SQLite.)
@@ -229,7 +230,6 @@ Upstream deadline for everyone: **Fri Nov 13 18:00 ET**; integration merges back
 
 CR-1 … CR-10 from v1 were all accepted in Contracts v2 (§C, §D, §E, §G). New ones:
 
-- **CR-11 `lat`/`lon` query params on `GET /api/venues`** so cards can fill `distance_km` (v2 §G lists `distance_km?` but not how it's computed).
-- **CR-12 Postgres path for synthetic tables.** v2 §D says the backend attaches `live_sim.db`; Postgres has no ATTACH, so on Postgres the start script copies `sim` tables into `syn_*` tables in the same DB. Confirm this is acceptable.
-- **CR-13 Real twins not named in v2 §E.** Backend adds real tables `users`, `points_ledger`, `bounties`, `feedback`, `venue_attributes` (from the manual CSV), mirroring their `syn_` twins. Also needs `scouts.last_active_at`. No change to `syn_` schemas.
-- **CR-14 Owner identity.** Owner demo-login binds a token to one `venue_id`; no `syn_owner_claims` table needed. `is_claimed` in cards comes from `syn_venue_attributes.is_claimed` OR any owner login for that venue. Confirm.
+CR-11 … CR-14 were accepted in Contracts v2.2 (§J, commit `acf7821`): `lat`/`lon` on `/api/venues` with distance sort; Postgres copy-in instead of ATTACH; real twin tables exist empty from day one; owner identity = demo-login `role=owner` + `venue_id`, one owner per venue.
+
+Open, not yet filed: none. (Backend also keeps `users` and `venue_attributes` real tables, which v2.2 §J's list omits; they are backend-internal and need no contract change. Integration please confirm.)
