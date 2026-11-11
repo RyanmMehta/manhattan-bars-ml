@@ -168,9 +168,9 @@ Non-functional
 3. ~~Which simulated night?~~ Resolved (v2 §B): Sat Nov 14 2026 20:00-03:00 ET, DEMO_NOW 23:30, seed 42.
 3b. Should `pending` reports count in the heatmap, or only `accepted`? Assumed: accepted + pending (what the app shows live), flagged/disputed/removed excluded.
 4. Should the heatmap use `recs.live_state` vibe_score or a simpler report-count density? Assumed: vibe_score via recs, with a v2-constant fallback.
-7. live-sim snapshots: exact table/file name and columns, and is the hourly cell the HH:30 snapshot, the HH+1:00 snapshot, or their mean? Assumed: mean of the two snapshots inside the hour; the 23:30 snapshot is shown as "now".
-6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
 5. Do we include all-Manhattan `venues` (5,737) or only `v_bars` (1,727)? Assumed: `v_bars` for maps, `venues` counts in neighbourhood summary as context.
+6. Who reruns the exporter after live-sim/ml-recs merge (T13): tableau session or integration? Assumed: tableau session on request.
+7. live-sim snapshots: exact table/file name and columns, and is the hourly cell the HH:30 snapshot, the HH+1:00 snapshot, or their mean? Assumed: mean of the two snapshots inside the hour; the 23:30 snapshot is shown as "now".
 
 ## 12. Assumptions
 - Deliverable paths follow CONTRACTS.md: code + extracts in `analytics/tableau/`,
