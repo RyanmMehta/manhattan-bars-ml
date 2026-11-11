@@ -28,7 +28,7 @@ The source of truth for data shapes and the API is `docs/CONTRACTS.md`. Requirem
 | Server state | TanStack Query 5.x: all API reads go through it |
 | Client state | React context + `useReducer` for prefs/persona/`now`. No Redux. |
 | Styling | Tailwind CSS 3.4.x with design tokens in `tailwind.config.ts` + CSS vars in `src/styles/tokens.css` |
-| Map | `maplibre-gl` 4.x, lazy-loaded; key-free dark style |
+| Map | `maplibre-gl` 4.x, lazy-loaded; OpenFreeMap dark style, CARTO dark-matter fallback; no tile keys (CONTRACTS §J) |
 | Charts | Recharts 2.x (owner dashboard only, lazy-loaded) |
 | Mock API | MSW 2.x |
 | Unit/component tests | Vitest 2.x + @testing-library/react + jsdom |
@@ -49,8 +49,9 @@ Don't add a dependency outside this table without writing the reason in
   appends `now` when the demo clock is set.
 - Thresholds and magic numbers live only in `src/config/thresholds.ts`. Values from
   CONTRACTS §A (`CONF_SHOW = 0.40`, `CONF_LOW = 0.20`, `PRESENCE_RADIUS_M = 150`) cite
-  §A in a comment. Frontend-only placeholders (vibe label bands, `STALE_MIN = 90`,
-  refresh interval) carry `// TODO(specs):`. Prefer `state.display` over computing
+  §A in a comment, and from §J (`VIBE_BANDS = [[0,34,'Chill'],[35,64,'Lively'],[65,100,'Packed']]`,
+  `STALE_MIN = 60`) cite §J. Only the refresh interval is a frontend placeholder and
+  carries `// TODO(specs):`. Prefer `state.display` over computing
   the band when the backend sends it.
 - **Null means unknown.** Render `null` as "not reported" via `<Unknown/>`. Never `?? 0` or
   `|| default` on a Live Venue State field. ESLint rule or test enforces this for

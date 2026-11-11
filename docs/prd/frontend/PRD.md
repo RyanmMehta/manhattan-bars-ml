@@ -1,7 +1,7 @@
 # PRD — frontend (Nightlife Autopilot web app + mockups)
 
 Workstream: `frontend` · Branch: `nightlife/frontend` · Owns: `frontend/`
-Status: planning (no code yet) · Last updated: 2026-11-11 · Built against **CONTRACTS v2** (`nightlife/contracts` @ 2129052)
+Status: planning (no code yet) · Last updated: 2026-11-11 · Built against **CONTRACTS v2.2** (`nightlife/contracts` @ 2cdf1f0)
 
 ## 1. Problem
 
@@ -89,8 +89,8 @@ IDs are referenced by OUTLINE.md tasks and tests.
   otherwise compute it: conf ≥ **0.40** → show vibe + "N reports, M min ago";
   **0.20–0.39** → vibe greyed with "low confidence"; < 0.20 or vibe null →
   "No fresh reports" + a "Be the Scout" button (→ vibe check for that venue).
-- AC5: Freshness > **90 min** shows "stale" styling (frontend placeholder; specs sets
-  no stale cutoff, and reports older than 180 min are already dropped server-side).
+- AC5: Freshness > **60 min** shows a "stale" tag, even when confidence clears the
+  threshold (CONTRACTS §J). Inputs older than 180 min are ignored server-side.
 - AC6: Pull-to-refresh / Refresh button refetches; auto-refresh every
   **120 s** while visible.
 - AC7: "Share pick" copies a URL `/v/{venue_id}?from=pick` to clipboard.
@@ -237,8 +237,9 @@ IDs are referenced by OUTLINE.md tasks and tests.
 - Background `#0B0B12`, surface `#16161F`, raised `#20202C`, text `#F3F3F7`,
   muted `#9A9AB0`, accent (neon magenta) `#FF3D8B`, secondary (electric cyan)
   `#2EE6D6`, warn `#FFB020`, danger `#FF5A5A`.
-- Vibe scale (0–100) 5-step ramp: `#3A3A55` (dead) → `#5B4BDB` → `#A63DFF`
-  → `#FF3D8B` → `#FFB020` (on fire); labels Dead/Quiet/Warming/Lively/Packed.
+- Vibe bands (CONTRACTS §J): 0–34 **Chill** `#5B4BDB`, 35–64 **Lively** `#FF3D8B`,
+  65–100 **Packed** `#FFB020`; null → no label (and no colour, `#3A3A55` outline).
+  The colour is a continuous ramp across the bands; the label follows the band.
 - Confidence: 4-bar meter (0–.25–.5–.75–1) + text "Low/Some/Good/High".
 - Type: Inter (UI), Space Grotesk (numbers/headings); scale 12/14/16/20/28/40.
 - Radius 12/20; spacing 4-pt grid; elevation via border `#2A2A3A`, no shadows.
@@ -291,7 +292,7 @@ Demo/class targets (synthetic-evaluated unless noted):
 | R2 | Backend drifts from CONTRACTS §G shapes | Types from §G; adapt only in `adapters.ts`; `contract:live` checks `/openapi.json` shapes |
 | R3 | Synthetic data mistaken for real in a demo | DemoBadge + mock-mode banner + test M4 |
 | R4 | Complaint risk read as "this bar is bad/good" | Fixed label, only on profile, never in ranking UI |
-| R5 | Map tiles need an API key / cost | MapLibre + free dark style (CARTO dark-matter via OpenFreeMap or self-host); key-free fallback to an SVG dot plot |
+| R5 | Free tile host down or rate-limited | MapLibre with OpenFreeMap dark style, CARTO dark-matter as second style (CONTRACTS §J, no keys); SVG dot-plot fallback |
 | R6 | Geolocation denied / desktop demo | LES centroid default; demo location presets |
 | R7 | CORS / mixed-content between Vercel and Render | `VITE_API_BASE_URL` https only; Vercel rewrite `/api/*` → Render as alternative |
 | R8 | SLA legal names look wrong (`Apt 5 LLC`) | `display_name` from backend + client fallback cleaner |
@@ -300,17 +301,14 @@ Demo/class targets (synthetic-evaluated unless noted):
 ## 10. Open questions
 Resolved by CONTRACTS v2: card/detail/leaderboard/bounty/dashboard/plan-night shapes
 (§F, §G), `display_name` on cards, `excluded_reason`, display bands and presence radius
-(§A), identity via demo-login (§G).
+(§A), identity via demo-login (§G). Resolved by v2.2 (§J): vibe bands, 60-min stale tag,
+key-free map tiles.
 
 Still open:
-1. Q1 Vibe label bands (Dead/Quiet/Warming/Lively/Packed cut points). Placeholder:
-   0–19 / 20–39 / 40–59 / 60–79 / 80–100.
-2. Q2 A "stale" cutoff for freshness styling. Placeholder 90 min.
-3. Q3 Which key-free map tiles are acceptable for the class deploy?
-4. Q4 Should a Planner's shared link open the same pick for group members, or re-run
+1. Q4 Should a Planner's shared link open the same pick for group members, or re-run
    with their location? (MVP: opens the venue profile.)
-5. Q5 Who owns the Vercel account (Ryan) and the final domain?
-6. Q6 Does demo-login return a token that lasts the whole demo, or does it expire?
+2. Q5 Vercel account and final domain: pending with Ryan.
+3. Q6 Does demo-login return a token that lasts the whole demo, or does it expire?
    (MVP: re-login on 401.)
 
 ## 11. Assumptions (made without asking)

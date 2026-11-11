@@ -160,14 +160,14 @@ registered in `docs/synthetic/frontend.md`.
 | Fixture | Imitates | How generated | Real source that replaces it | Swap steps |
 |---|---|---|---|---|
 | `syn_venues.json` | venue cards (35) | `build-fixtures.mjs`: real name/address/lat/lon from `data/launch_venues.csv`, joined to live-sim `syn_venue_attributes.csv` if present, else seeded random style/genres/price (seed 42) | GET `/api/venues` (backend from `venues` + claimed owner profiles) | set `VITE_API_MODE=live`, delete fixture, remove handler |
-| `syn_states.json` | Live Venue State (incl. `display`) per venue at 4 time points on Sat Nov 14 (21:00, 22:30, 23:30 = DEMO_NOW, 01:00) | from live-sim `syn_scout_reports.csv` aggregated by a *display-only* mean (labelled synthetic). If missing, seeded values with ~20% `null` fields | `recs.live_state.compute_all` via `/api/venues/{id}/state` | as above |
+| `syn_states.json` | Live Venue State (incl. `display`) per venue every 30 min, Sat Nov 14 20:00–03:00 (23:30 = DEMO_NOW) | copied from live-sim `data/synthetic_live/demo_night_snapshots.csv` (CONTRACTS §J; already recs-computed). If missing, seeded values with ~20% `null` fields | `recs.live_state.compute_all` via `/api/venues/{id}/state` | as above |
 | `syn_recommendations.json` | `/recommend` results for 3 preset prefs (hip-hop dancers, cocktail chill, cheap & close) | hand-authored ranking over syn_states with plausible reasons/missing; 3 excluded with reasons | `recs.scoring.recommend` via `/api/recommend` | as above; delete preset matching in handler |
 | `syn_reports.json` | recent scout reports per venue | sampled from live-sim reports, else seeded (crowd 1–5, dancing 0–2, line 0–40) | `syn_scout_reports` → real `scout_reports` table | as above |
 | `syn_leaderboard.json` | top 25 scouts | from live-sim `syn_scouts.csv`, else 25 seeded names "Scout ####" | `/api/scouts/leaderboard` over real scouts | as above |
 | `syn_bounties.json` | 6 open bounties | from live-sim `syn_bounties.csv`, else seeded on low-confidence venues | `/api/bounties` | as above |
 | `syn_owner_dashboard.json` | owner KPIs + demand by hour 18:00–03:00 | seeded curve peaking 23:00–00:00, scaled per venue | backend analytics on real views/taps/reports | as above |
 | `syn_plan_night.json` | 3-stop plans for the 3 presets | hand-picked nearby venues, walk minutes from haversine at 5 km/h | `recs.routing.plan_night` via `/api/plan-night` | as above |
-| `syn_heatmap.json` | heatmap points at 4 time points | derived from syn_states + venue lat/lon | `/api/heatmap` | as above |
+| `syn_heatmap.json` | heatmap points per 30-min snapshot; `by=hour` uses the HH:30 snapshot (§J) | derived from syn_states + venue lat/lon | `/api/heatmap` | as above |
 | placeholder copy | demo persona names for demo-login | hard-coded, `// SYNTHETIC:` marked | real accounts | delete constants once real login exists |
 
 Real public fields (name, address, lat, lon, noise_complaints) are not synthetic, but a
