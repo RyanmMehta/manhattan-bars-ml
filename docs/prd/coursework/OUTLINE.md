@@ -1,6 +1,6 @@
 # OUTLINE — coursework build plan
 
-Read `PRD.md` and `RULES.md` first. Updated for CONTRACTS v2 (commit 2129052). Push deadline **Fri Nov 13 18:00 ET**. Sizes: S ≤ 1 h, M 1–3 h, L 3–6 h (placeholders).
+Read `PRD.md` and `RULES.md` first. Updated for CONTRACTS v2.1 (commit 0a5ba55). Push deadline **Fri Nov 13 18:00 ET**. Sizes: S ≤ 1 h, M 1–3 h, L 3–6 h (placeholders).
 Total ≈ 2 working days for the build session. Ryan also needs time to read the NOTES.
 
 ## 1. File tree to create
@@ -24,7 +24,7 @@ coursework/
     NOTES.md                     # [N1]..[N10]
     load.py                      # read syn_* tables from data/live_sim.db (read-only) or CSV
     make_standin_data.py         # SYNTHETIC fallback with same schema (build ONLY if live-sim slips)
-    evaluate_truth.py            # eval-only: compare predictions with syn_scout_truth
+    evaluate_truth.py            # eval-only: compare predictions with syn_scout_truth (churned_at, archetype, cohort_week)
     build_dataset.py             # cutoff windows -> features + label, one row per scout
     train_eval.py                # 5 models, CV, out-of-time test, threshold, report.md
     explain.py                   # odds ratios, text tree, permutation importance, plots
@@ -79,26 +79,31 @@ docs/synthetic/coursework.md
   Never load `syn_scout_truth` here.
   `# SYNTHETIC: replace with backend scouts/scout_reports tables`.
 - [ ] **T11 (M, CONDITIONAL)** `make_standin_data.py`: build only if `data/live_sim.db` is not available by Thu Nov 12 12:00 ET. Same dates as v2
-  (Thu–Sat, Sep 3 → Nov 14 2026, 20:00–03:00 ET), IDs `syn-s-####` / `syn-r-######`, 400 Scouts (placeholder).
-  Each Scout gets a latent engagement λ₀ ~ Gamma(2, 1) reports/week that decays by `exp(-t/τ)`, τ ~ LogNormal. Weekend nights
-  ×2.5, and a bounty claim bumps λ by +30% for 2 weeks. Report fields drawn per the CONTRACTS schema across the 35 launch venues.
-  Writes `coursework/churn/outputs/synthetic/standin_scouts.csv` and `standin_scout_reports.csv` with `is_synthetic=1`, seed 0.
-- [ ] **T12 (M)** `build_dataset.py`: `build(reports, scouts, ledger, bounties, cutoff, lookback=28, horizon=21)`. Eligible = ≥ 1 report in
-  [cutoff−28d, cutoff) and `joined_at < cutoff`. Features per PRD F4 from rows with `ts < cutoff` only. Points come from `syn_points_ledger`,
-  **not** `syn_scouts.points`. Label = 0 reports in [cutoff, cutoff+21d).
+  (Thu–Sat, Aug 27 → Nov 14 2026, 20:00–03:00 ET), IDs `syn-s-####` / `syn-r-######`, ~150 Scouts in 12 weekly cohorts (as in v2.1).
+  Each Scout gets a latent engagement λ₀ ~ Gamma(2, 1) reports/week that decays by `exp(-t/τ)`, τ ~ LogNormal. Saturday
+  ×1.5 vs Thu/Fri, and a bounty claim bumps λ by +30% for 2 weeks. Report fields (incl. `status`, `distance_m`) drawn per the v2.1 schema
+  across the 35 launch venues. Writes `standin_scouts.csv`, `standin_scout_reports.csv`, `standin_points_ledger.csv`,
+  `standin_bounties.csv`, `standin_scout_reputation_history.csv`, `standin_scout_truth.csv` under
+  `coursework/churn/outputs/synthetic/` with `is_synthetic=1`, seed 0.
+- [ ] **T12 (M)** `build_dataset.py`: `build(reports, scouts, ledger, bounties, rep_history, cutoff, lookback=28, horizon=21)`. Eligible = ≥ 1 report in
+  [cutoff−28d, cutoff) and `joined_at < cutoff`. Features per PRD F4 from rows with `ts < cutoff` only. Points/reputation/level come from the latest
+  `syn_scout_reputation_history` row with `as_of_date < cutoff` (cross-checked with the `syn_points_ledger` sum), **not** `syn_scouts`. Label = 0 reports in [cutoff, cutoff+21d).
   Two snapshots (Thursdays 12:00 ET): **train cutoff 2026-10-01** (label window Oct 1–21) and **test cutoff 2026-10-22** (out-of-time,
-  label window Oct 22–Nov 11). Print the eligible count and churn base rate per snapshot. Warn if < 150 Scouts or a base rate outside 5–60%.
+  label window Oct 22–Nov 11). Print the eligible count and churn base rate per snapshot. Warn if < 60 eligible Scouts, < 15 churners, or a base rate outside 5–60%
+  (expected with ~150 Scouts: ~60–110 eligible per snapshot; placeholder).
   Tests: leakage (drop post-cutoff rows → same features), 3-Scout fixture labels, eligibility, end-of-sim snapshot columns absent from the feature list. [N2–N4]
 - [ ] **T13 (M)** `train_eval.py`: models = DummyClassifier(most_frequent), LogisticRegression (StandardScaler, C grid {0.1,1,10},
   class_weight balanced), DecisionTree (max_depth {2,3,4}), RandomForest (300 trees, min_samples_leaf {5,20}),
-  HistGradientBoosting (default + lr {0.05,0.1}). Model selection by stratified 5-fold CV ROC AUC on the train snapshot.
+  HistGradientBoosting (default + lr {0.05,0.1}). Model selection by **repeated** stratified 5-fold CV (3 repeats) ROC AUC on the train snapshot
+  (small sample: ~60–110 Scouts). Test metrics get bootstrap 95% CIs (1,000 resamples).
   Threshold = max F1 on out-of-fold predictions. Refit on the full train snapshot and score once on the test snapshot.
   Metrics: ROC AUC, PR AUC, base rate, Brier, P/R/F1 at the threshold, confusion matrix. Writes `report.md` + `metrics.json`. [N5–N8]
 - [ ] **T14 (S)** `explain.py`: LR odds ratios table, `export_text` of the depth-≤4 tree, permutation importance (test snapshot)
   for the best model, calibration curve PNG and ROC/PR PNGs, all titled "(synthetic data)". [N9]
 - [ ] **T15 (S)** `evaluate_truth.py` (eval-only, the **only** file that reads `syn_scout_truth`): for the test snapshot, compare predicted risk
-  with `latent_churn_date` (does a high-risk Scout's latent churn date fall before the cutoff+horizon?). Break down AUC by `archetype`
-  (honest/casual/sloppy/gamer/shill). Flag AUC > 0.95 as "suspiciously easy, check for leakage". Results go to a separate section of `report.md`.
+  with `churned_at` (does a high-risk Scout's true churn date fall inside [cutoff, cutoff+21d)? Does our report-based label agree with
+  `churned_at`?). Break down AUC by `archetype` (honest/casual/sloppy/gamer/shill) and `cohort_week`. Check whether risk correlates with
+  `true_accuracy` (it shouldn't need to). Flag AUC > 0.95 as "suspiciously easy, check for leakage". Results go to a separate section of `report.md`.
 - [ ] **T16 (M)** `churn/NOTES.md` [N1]–[N10]: N1 business question (why Scout churn hurts confidence), N2 churn definition and
   windows, N3 features and why each might matter, N4 leakage and the time-based split, N5 baselines and class imbalance,
   N6 logistic regression (log-odds, scaling, regularisation), N7 trees / forests / boosting (bias–variance), N8 metrics (ROC vs PR AUC,
@@ -121,7 +126,8 @@ docs/synthetic/coursework.md
 | `syn_scout_reports(…, verified_presence, status, distance_m, is_synthetic)` | live-sim | churn: all activity features + label (`status='removed'` dropped) |
 | `syn_points_ledger(entry_id, scout_id, report_id, bounty_id, points, reason, ts, is_synthetic)` | live-sim | points before the cutoff |
 | `syn_bounties(…, claimed_by, expires_at, claimed_at, is_synthetic)` | live-sim | feature `bounties_claimed_28d` |
-| `syn_scout_truth(scout_id, archetype, home_venue_id, latent_churn_date, is_synthetic)` | live-sim | **evaluation only** (`evaluate_truth.py`), never a feature |
+| `syn_scout_reputation_history(scout_id, as_of_date, reputation, points, level, is_synthetic)` | live-sim (v2.1) | as-of reputation/points/level features (latest row with `as_of_date < cutoff`) |
+| `syn_scout_truth(scout_id, archetype, home_venue_id, true_accuracy, cohort_week, churned_at, is_synthetic)` | live-sim | **evaluation only** (`evaluate_truth.py`), never a feature |
 | `data/launch_venues.csv` | contracts | venue_ids for the stand-in generator |
 
 **Provided**
@@ -137,8 +143,8 @@ No HTTP endpoints and no `recs/` functions are provided.
 
 | Dataset | Imitates | How generated | Real source that replaces it | Swap steps |
 |---|---|---|---|---|
-| live-sim `syn_scouts`, `syn_scout_reports`, `syn_points_ledger`, `syn_bounties`, `syn_scout_truth` in `data/live_sim.db` (owned and registered by live-sim; coursework only reads) | Scout accounts, reports, points, bounties; truth for eval | live-sim generator, seed 42 | real backend tables `scouts`, `scout_reports`, `points_ledger`, `bounties` (v2 §E: same names without `syn_`); no truth table exists in real life | point `LIVE_SIM_DB`/the loader at the real DB, read with `INCLUDE_SYNTHETIC=0`, skip `evaluate_truth.py` |
-| `coursework/churn/outputs/synthetic/standin_scouts.csv`, `standin_scout_reports.csv` (**fallback only**) | Scout accounts and their vibe-check reports over 11 weeks, with drop-off | `make_standin_data.py --seed 0` (decaying Poisson engagement, weekend boost, bounty bump) | first live-sim `syn_` tables, then the real backend `scouts` / `scout_reports` tables | 1) set `--source db` (or `--source live-sim`) in `run_coursework.sh`; 2) `load.py` validates the columns; 3) rerun; 4) delete the stand-in files; 5) update the registry |
+| live-sim `syn_scouts`, `syn_scout_reports`, `syn_points_ledger`, `syn_bounties`, `syn_scout_reputation_history`, `syn_scout_truth` in `data/live_sim.db` (owned and registered by live-sim; coursework only reads) | Scout accounts, reports, points, bounties; truth for eval | live-sim generator, seed 42 | real backend tables `scouts`, `scout_reports`, `points_ledger`, `bounties`, `scout_reputation_history` (v2 §E: same names without `syn_`); no truth table exists in real life | point `LIVE_SIM_DB`/the loader at the real DB, read with `INCLUDE_SYNTHETIC=0`, skip `evaluate_truth.py` |
+| `coursework/churn/outputs/synthetic/standin_scouts.csv`, `standin_scout_reports.csv` (**fallback only**) | Scout accounts and their vibe-check reports over 12 weeks (Aug 27 → Nov 14), with drop-off | `make_standin_data.py --seed 0` (decaying Poisson engagement, weekend boost, bounty bump) | first live-sim `syn_` tables, then the real backend `scouts` / `scout_reports` tables | 1) set `--source db` (or `--source live-sim`) in `run_coursework.sh`; 2) `load.py` validates the columns; 3) rerun; 4) delete the stand-in files; 5) update the registry |
 | `coursework/churn/outputs/synthetic/churn_dataset_<cutoff>.csv` | modelling table derived from the above | `build_dataset.py` | same table built from real reports | automatic once the inputs are swapped |
 | `coursework/churn/outputs/synthetic/scout_churn_risk.csv` | churn predictions | `train_eval.py` | predictions on real Scouts | automatic |
 | `coursework/tiny_transformer/outputs/synthetic/generated_names.csv` | venue names | `sample.py` from a model trained on **real** SLA names | n/a: by nature generated. Never shown as real venues | keep `is_synthetic=1`. Don't use as venue data |
@@ -157,6 +163,7 @@ The transformer corpus itself is **real** public data (SLA license names), not s
 | training | full run | val loss < bigram baseline; `metrics.json` valid |
 | sampling | n=50, T=0.8 | all end at `<e>` or max length; novelty reported |
 | churn features | leakage test | features identical with/without post-cutoff rows |
+| churn features | as-of test | reputation feature for a fixture Scout equals the history row just before the cutoff, not the final value |
 | churn features | snapshot-column test | no `syn_scouts` end-of-sim column in the feature list; `syn_scout_truth` not referenced outside `evaluate_truth.py` (grep) |
 | churn labels | fixture | expected labels [0,1,excluded] |
 | churn pipeline | stand-in end to end | report.md has 5 models × both splits; AUC in [0,1]; best > dummy |
@@ -169,7 +176,7 @@ Run: `pytest coursework/ -q` (< 60 s), then `bash coursework/run_coursework.sh` 
 
 1. (30 s) "Two individual exercises tied to Nightlife Autopilot: a tiny transformer that learned what Manhattan bar names look like, and a model that flags Scouts likely to stop reporting."
 2. (90 s) Transformer: show `NOTES.md` [N6] attention by hand, then run `python -I coursework/tiny_transformer/sample.py --n 10 --temperature 0.8`. Show the loss curve vs the bigram baseline line and the novelty rate. Then try T=0.3 vs T=1.2 to show the temperature effect.
-3. (90 s) Churn: explain the cutoff timeline picture (Sep 3 … features … Oct 1 cutoff … label to Oct 21 | test cutoff Oct 22 … label to Nov 11). Show `report.md`: the dummy vs logistic vs trees table, with PR AUC against the base rate.
+3. (90 s) Churn: explain the cutoff timeline picture (Aug 27 … features … Oct 1 cutoff … label to Oct 21 | test cutoff Oct 22 … label to Nov 11). Show `report.md`: the dummy vs logistic vs trees table, with PR AUC against the base rate.
 4. (60 s) Interpretation: LR odds ratios (e.g. days_since_last_report ↑ → churn ↑), the depth-3 tree printed, and the action: "send bounties to the top-10% risk Scouts to keep confidence scores up."
 5. (30 s) Limitations: synthetic Scouts (marked, swappable), small corpus, CPU-only tiny model. What changes with real data.
 

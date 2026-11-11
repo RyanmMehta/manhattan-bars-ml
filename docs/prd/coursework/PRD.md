@@ -1,8 +1,8 @@
 # PRD — coursework workstream
 
 Owner: Ryan Mehta (individual assignments). Folder: `coursework/`. Branch: `nightlife/coursework`.
-Status: planning only. No code yet. Updated for CONTRACTS v2 (commit 2129052): data window, `data/live_sim.db`,
-`syn_scout_truth`, `last_active_at`, and the Nov 13 18:00 ET hand-off.
+Status: planning only. No code yet. Updated for CONTRACTS v2.1 (commit 0a5ba55): 12-week window (Aug 27 → Nov 14),
+~150 Scouts in weekly cohorts, `data/live_sim.db`, `syn_scout_truth`, `syn_scout_reputation_history`, Nov 13 18:00 ET hand-off.
 
 ## 1. Problem
 
@@ -76,7 +76,8 @@ commented. Clever code is out of scope.
 - AC4.1 `churn/build_dataset.py` reads `syn_scouts` + `syn_scout_reports` (+ `syn_points_ledger`, `syn_bounties`) from `data/live_sim.db` (read-only) and writes `coursework/churn/outputs/synthetic/churn_dataset.csv` with `is_synthetic=1`.
 - AC4.2 Features use only reports **before** the cutoff date. The label uses only the window **after** it. A unit test checks there is no leakage.
 - AC4.3 Churn label definition is written down: a Scout active before the cutoff (≥ 1 report in the 28 days before) who makes **0 reports in the 21 days after** (placeholder windows) is churned (1).
-- AC4.4 Snapshot fields in `syn_scouts` that reflect the **end** of the simulation (`reputation`, `points`, `level`, `reports_count`, `last_active_at`) are never used as features. Points are rebuilt from `syn_points_ledger` rows with `ts < cutoff`. A test checks this.
+- AC4.4 Snapshot fields in `syn_scouts` that reflect the **end** of the simulation (`reputation`, `points`, `level`, `reports_count`, `last_active_at`) are never used as features. Reputation, points and level come from `syn_scout_reputation_history`, taking the latest row with `as_of_date < cutoff` (CONTRACTS v2.1 §E). A test checks this.
+- AC4.5 The label matches the contract definition (v2.1 §B): churned = no report in the 21 days after the cutoff.
 
 **US5: compare models.** As Ryan, I compare logistic regression against trees fairly.
 - AC5.1 `churn/train_eval.py` trains: majority baseline, logistic regression (scaled, L2), decision tree (depth ≤ 4, for interpretability), random forest, gradient boosting.
@@ -105,9 +106,9 @@ commented. Clever code is out of scope.
 - F1 Corpus = distinct venue names from `venues.name` in `data/manhattan_bars.db` (5,351 distinct upper-cased names; mean length ~16 chars). Normalise: strip legal suffixes (`LLC`, `INC`, `CORP`, `#1234`), collapse spaces, title or upper case (decision: upper case, keeps the vocab small). Read-only access to the DB.
 - F2 Split names 90/10 train/val **by name** (not by character), seeded.
 - F3 Model: decoder-only transformer, defaults `n_layer=2, n_head=4, d_model=64, block_size=32, dropout=0.1` (~100k params, placeholder). Special tokens `<s>` (start) and `<e>` (end/pad).
-- F4 Churn features per Scout (all computed from rows with `ts < cutoff`): tenure_days (from `joined_at`), reports_28d, reports_7d, days_since_last_report, active_nights_28d (of 12 possible Thu–Sat nights), mean_gap_days, trend (reports_7d vs the prior 21d rate), share_verified_presence, share_flagged_or_removed (`status`), median_distance_m, distinct_venues_28d, share_saturday_reports, points_28d and points_total (summed from `syn_points_ledger`), bounties_claimed_28d (`syn_bounties.claimed_at`). Excluded as leaky end-of-sim snapshots: `syn_scouts.reputation/points/level/reports_count/last_active_at` (stretch: use `reputation` only if live-sim adds a reputation history).
-- F5 Configurable windows (`--cutoff`, `--lookback-days 28`, `--horizon-days 21`). Defaults fit the CONTRACTS v2 window (Thu Sep 3 → Sat Nov 14, 2026, 33 Thu–Sat nights, 20:00–03:00 ET). Cutoffs fall on Thursdays at 12:00 ET, so no night is split:
-  - train snapshot cutoff **2026-10-01**: features Sep 3–30 (12 nights), label window Oct 1–21 (9 nights)
+- F4 Churn features per Scout (all computed from rows with `ts < cutoff`): tenure_days (from `joined_at`), reports_28d, reports_7d, days_since_last_report, active_nights_28d (of 12 possible Thu–Sat nights), mean_gap_days, trend (reports_7d vs the prior 21d rate), share_verified_presence, share_flagged_or_removed (`status`), median_distance_m, distinct_venues_28d, share_saturday_reports, points_28d and points_total (summed from `syn_points_ledger`), bounties_claimed_28d (`syn_bounties.claimed_at`), and as-of `reputation`, `points`, `level` (latest `syn_scout_reputation_history` row with `as_of_date < cutoff`), plus `cohort_week` derived from `joined_at` (not from the truth table). Excluded as leaky end-of-sim snapshots: `syn_scouts.reputation/points/level/reports_count/last_active_at`.
+- F5 Configurable windows (`--cutoff`, `--lookback-days 28`, `--horizon-days 21`). Defaults fit the CONTRACTS v2.1 window (Thu Aug 27 → Sat Nov 14, 2026, 12 weeks, 36 Thu–Sat nights, 20:00–03:00 ET). Cutoffs fall on Thursdays at 12:00 ET, so no night is split. Cutoffs are unchanged from v2. The extra week (Aug 27–29) adds tenure history and gives the first cohorts 5 weeks before the train cutoff:
+  - train snapshot cutoff **2026-10-01**: lookback Sep 3–30 (12 nights; tenure/points use all history from Aug 27), label window Oct 1–21 (9 nights)
   - test snapshot cutoff **2026-10-22** (out-of-time): features Sep 24–Oct 21, label window Oct 22–Nov 11 (9 nights)
   - The train label window ends exactly at the test cutoff, so no test-period outcome leaks into training. Nov 12–14 is unused (too short for a 21-day horizon).
 - F6 Each script has `--help` and sensible defaults. No hidden state.
@@ -122,7 +123,7 @@ commented. Clever code is out of scope.
 
 | Workstream | Dependency | Needed by | Fallback |
 |---|---|---|---|
-| live-sim | **confirmed (CONTRACTS v2 §B, §E):** `data/live_sim.db` (seed 42, not committed) with `syn_scouts` (+ `last_active_at`), `syn_scout_reports` (+ `status`, `distance_m`), `syn_points_ledger`, `syn_bounties` (+ `claimed_at`), and eval-only `syn_scout_truth` (`archetype`, `latent_churn_date`). 11 weeks / 33 nights with an engagement + drop-off process | churn build | only if live-sim slips: stand-in generator `churn/make_standin_data.py` (marked SYNTHETIC, same schema). Kept in the plan, built only when needed |
+| live-sim | **confirmed (CONTRACTS v2.1 §B, §E):** `data/live_sim.db` (seed 42, not committed) with `syn_scouts` (+ `last_active_at`), `syn_scout_reports` (+ `status`, `distance_m`), `syn_points_ledger`, `syn_bounties` (+ `claimed_at`), `syn_scout_reputation_history`, and eval-only `syn_scout_truth` (`archetype`, `true_accuracy`, `cohort_week`, `churned_at`). 12 weeks / 36 nights, ~150 Scouts in weekly cohorts, target 40–60% churned by week 12 | churn build | only if live-sim slips: stand-in generator `churn/make_standin_data.py` (marked SYNTHETIC, same schema). Kept in the plan, built only when needed |
 | specs | definition of an "active Scout" if specs defines one; report freshness half-life (only for context) | churn notes | use the definition in AC4.3 |
 | research | interview findings on why Scouts would stop (motivation) to guide feature ideas | churn notes (nice-to-have) | list hypotheses as assumptions |
 | ml-recs | none required; churn findings may inform reputation weighting | — | — |
@@ -172,19 +173,20 @@ commented. Clever code is out of scope.
 
 - Q1 What exactly do the Sept 22 and Oct 27 assignment sheets require (rubric, required dataset, required deliverable format, e.g. notebook vs scripts, write-up length)? **Top blocker for grading fit.**
 - Q2 Is AI help allowed, and how must it be disclosed? Affects how much code the build session writes vs Ryan writes.
-- ~~Q3 Will live-sim simulate ≥ 10 weeks with Scout drop-off?~~ **Resolved:** yes, 11 weeks / 33 nights (CONTRACTS v2 §B).
-- Q3b How many Scouts will live-sim create, and what is the expected churn rate? Needed to know whether 5-fold CV is stable (want ≥ 150 eligible Scouts and ≥ 30 churners per snapshot; placeholder).
+- ~~Q3 Will live-sim simulate ≥ 10 weeks with Scout drop-off?~~ **Resolved:** yes, 12 weeks / 36 nights, Aug 27 → Nov 14 (CONTRACTS v2.1 §B).
+- ~~Q3b How many Scouts / what churn rate?~~ **Resolved (v2.1):** ~150 Scouts in weekly cohorts, 40–60% churned by week 12. So expect only ~60–110 eligible Scouts per snapshot (placeholder) and maybe 15–35 churners. Plan response: repeated stratified 5-fold CV (5 × 3 repeats), keep model grids small, report bootstrap 95% CIs for test ROC/PR AUC, and say plainly that differences between models inside the CI are not meaningful.
+- Q7 Should a third snapshot (cutoff Sep 24) be added to the training set by stacking snapshots (same Scout may appear twice, so it needs grouped CV by `scout_id`)? Default: no for MVP (keeps the explanation simple), stretch if CIs are too wide.
 - Q4 Late-submission deadline for each exercise?
 - Q5 Should churn include `syn_bounties` as a feature (bounties claimed) or treat bounties as an intervention (stretch, uplift)?
 - Q6 Notebook (`.ipynb`) or `.py` + `NOTES.md` for submission? Default: `.py` + `NOTES.md`, with an optional notebook export.
 
 ## 13. Contract change requests
 
-Status: **CR1–CR3 accepted in CONTRACTS v2** (commit 2129052, §B and §E). Kept here for the record.
+Status: **CR1–CR4 accepted** (CR1–CR3 in v2 commit 2129052; CR4 in v2.1 commit 0a5ba55 as `syn_scout_reputation_history`). Kept here for the record. No open requests.
 `docs/workstreams/coursework.md` will hold as-built notes and any new requests.
 
 - CR1 (live-sim): simulate Scouts over **≥ 10 weeks** (placeholder) with a realistic drop-off process. Each Scout has a latent engagement level that decays, and activity rises after rewards/bounties, so a churn label exists.
-- CR2 (live-sim, optional): publish a ground-truth table `syn_scout_truth(scout_id, latent_churn_date, is_synthetic)` used **only** to sanity-check the churn model, never as a feature.
+- CR2 (live-sim, optional): publish a ground-truth table `syn_scout_truth(scout_id, latent_churn_date, is_synthetic)` (adopted as `…archetype, home_venue_id, true_accuracy, cohort_week, churned_at…`) used **only** to sanity-check the churn model, never as a feature.
 - CR3 (contracts): add `syn_scouts.last_active_at` (nullable) or confirm it is derived from reports. Coursework will derive it if not added. (Accepted, but coursework still derives "last active before cutoff" from reports, because the column is an end-of-sim snapshot.)
-- CR4 (new, optional, live-sim): a `syn_scout_reputation_history(scout_id, ts, reputation, is_synthetic)` table so reputation can be used as a leak-free feature. If it isn't added, reputation stays out of the model.
+- CR4 (live-sim): a reputation history so reputation can be used as a leak-free feature. Adopted as `syn_scout_reputation_history(scout_id, as_of_date, reputation, points, level, is_synthetic)`.
 - No changes requested to the HTTP API or `recs/` interface.
