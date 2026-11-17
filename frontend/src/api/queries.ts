@@ -18,12 +18,13 @@ export interface VenueFilters {
   lon?: number;
 }
 
-export function useVenues(f: VenueFilters) {
+export function useVenues(f: VenueFilters, enabled = true) {
   const { now } = useDemoClock();
   return useQuery({
     queryKey: ['venues', f, now],
     queryFn: () => api.venues({ ...f, limit: 50 }),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 export function useVenue(id: string | undefined) {

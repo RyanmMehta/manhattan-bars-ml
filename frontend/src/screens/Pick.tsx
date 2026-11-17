@@ -21,16 +21,17 @@ export function Pick() {
   const { prefs, fromUrl } = usePrefs();
   const { now } = useDemoClock();
   const q = useRecommend(prefs);
-  // Recommendation rows carry only `name` and no freshness (CONTRACTS shape); join the venue card for
-  // display_name and live-state freshness. Display only: order still comes from the backend's `rank`.
-  const cards = useVenues({ lat: prefs.lat, lon: prefs.lon });
+  // Backend 0d02a83+ sends display_name / freshness_minutes / n_reports on each row. Older backends don't:
+  // only then join the venue cards (display only; order still comes from the backend's `rank`).
+  const needJoin = !!q.data && q.data.some((r) => r.display_name === undefined || r.freshness_minutes === undefined);
+  const cards = useVenues({ lat: prefs.lat, lon: prefs.lon }, needJoin);
   const byId = useMemo(() => new Map((cards.data?.rows ?? []).map((c) => [c.venue_id, c])), [cards.data]);
   const enrich = (r: Recommendation): Recommendation => {
     const c: VenueCard | undefined = byId.get(r.venue_id);
     const s = c?.state;
     return {
       ...r,
-      name: c ? venueName(c) : venueName({ name: r.name, display_name: null }),
+      name: r.display_name ? r.display_name : c ? venueName(c) : venueName({ name: r.name, display_name: null }),
       freshness_minutes: r.freshness_minutes !== undefined ? r.freshness_minutes : s ? s.freshness_minutes : undefined,
       n_reports: r.n_reports !== undefined ? r.n_reports : s ? s.n_reports : undefined,
       display: r.display ?? s?.display,
