@@ -1,7 +1,7 @@
 # PRD: backend (Nightlife Autopilot API)
 
 Workstream: `backend` · Branch: `nightlife/backend` · Folder: `backend/`
-Status: planning, revised for **Contracts v2.2** (Nov 11, 2026; contracts commit `acf7821`). No code yet.
+Status: **built Nov 17** (see `docs/workstreams/backend.md`); plan revised for **Contracts v2.2** (Nov 11, 2026; contracts commit `acf7821`). No code yet.
 Governing contract: [`docs/CONTRACTS.md`](../../CONTRACTS.md), including the v2 amendments
 (§A–§J), which override the original text. Where this PRD and the contract disagree, the
 contract wins. Section refs like "v2 §G" point at those amendments.
@@ -232,4 +232,4 @@ CR-1 … CR-10 from v1 were all accepted in Contracts v2 (§C, §D, §E, §G). N
 
 CR-11 … CR-14 were accepted in Contracts v2.2 (§J, commit `acf7821`): `lat`/`lon` on `/api/venues` with distance sort; Postgres copy-in instead of ATTACH; real twin tables exist empty from day one; owner identity = demo-login `role=owner` + `venue_id`, one owner per venue.
 
-Open, not yet filed: none. (Backend also keeps `users` and `venue_attributes` real tables, which v2.2 §J's list omits; they are backend-internal and need no contract change. Integration please confirm.)
+New at build (Nov 17), detailed in `docs/workstreams/backend.md`: CR-15 (`python -I -m simulator` can't import from the cwd), CR-16 (Stop `walk_minutes_from_prev` is a float), CR-17 (heatmap `by=hour` omits hours not yet started). (Backend also keeps `users` and `venue_attributes` real tables, which v2.2 §J's list omits; they are backend-internal and need no contract change. Integration please confirm.)
