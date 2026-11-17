@@ -37,3 +37,20 @@ def connect_read_only(path: Path) -> sqlite3.Connection:
     if not Path(path).exists():
         raise FileNotFoundError(f"database not found: {path}")
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+
+
+def write_section(md_path: Path, name: str, text: str) -> None:
+    """Put `text` into md_path between <!-- name --> markers (replacing an older copy).
+
+    train_eval.py, explain.py and evaluate_truth.py each own one section of the same report.md,
+    so any of them can be re-run without wiping the others' output.
+    """
+    start, end = f"<!-- {name} -->", f"<!-- /{name} -->"
+    old = md_path.read_text() if md_path.exists() else ""
+    block = f"{start}\n{text.strip()}\n{end}"
+    if start in old:
+        before, rest = old.split(start, 1)
+        new = before + block + rest.split(end, 1)[1]
+    else:
+        new = (old.rstrip() + "\n\n" + block + "\n").lstrip()
+    md_path.write_text(new)

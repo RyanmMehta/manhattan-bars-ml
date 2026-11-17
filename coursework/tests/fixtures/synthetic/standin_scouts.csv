@@ -1,0 +1,4 @@
+scout_id,display_name,joined_at,reputation,points,level,reports_count,last_active_at,is_synthetic
+syn-s-0001,Stays,2026-09-01T20:00:00-04:00,0.99,999,9,99,2026-10-03T22:00:00-04:00,1
+syn-s-0002,Churns,2026-09-01T20:00:00-04:00,0.99,999,9,99,2026-10-25T22:00:00-04:00,1
+syn-s-0003,JoinsLate,2026-10-05T20:00:00-04:00,0.5,0,1,1,2026-10-08T22:00:00-04:00,1

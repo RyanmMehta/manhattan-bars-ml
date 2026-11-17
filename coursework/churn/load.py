@@ -5,7 +5,7 @@ Inputs : data/live_sim.db (env LIVE_SIM_DB overrides the path), opened READ-ONLY
 Outputs: dict of pandas DataFrames: scouts, reports, ledger, bounties, rep_history
 Run    : python -I coursework/churn/load.py        (prints row counts and the source used)
 
-This file NEVER loads the evaluation-only truth table (only evaluate_truth.py may).
+This file NEVER loads the evaluation-only Scout table (RULES.md §3: only the evaluation script may).
 """
 import sys
 from pathlib import Path
@@ -40,8 +40,11 @@ def pick_source() -> str:
     return "db" if LIVE_SIM_DB.exists() else "standin"
 
 
-def load(source: str = "auto") -> dict:
-    """Return the five tables as DataFrames, with times parsed and columns validated."""
+def load(source: str = "auto", directory: Path = STANDIN_DIR) -> dict:
+    """Return the five tables as DataFrames, with times parsed and columns validated.
+
+    directory: where standin_*.csv live (tests point it at tests/fixtures/synthetic/).
+    """
     source = pick_source() if source == "auto" else source
     frames = {}
     for key, (table, needed) in TABLES.items():
@@ -51,7 +54,7 @@ def load(source: str = "auto") -> dict:
                 df = pd.read_sql_query(f"SELECT * FROM {table}", conn)
         else:
             # SYNTHETIC: stand-in CSVs; replace with live-sim's data/live_sim.db
-            df = pd.read_csv(STANDIN_DIR / f"standin_{table.removeprefix('syn_')}.csv")
+            df = pd.read_csv(directory / f"standin_{table.removeprefix('syn_')}.csv")
         missing = [c for c in needed if c not in df.columns]
         if missing:
             raise ValueError(f"{table} is missing contract columns {missing}")

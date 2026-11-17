@@ -13,6 +13,7 @@ Every generated name is SYNTHETIC: it is not a real venue and must never be show
 """
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -45,6 +46,7 @@ def generate_one(model: TinyGPT, start_id: int, end_id: int, temperature: float,
         x = torch.tensor([ids])                            # (1, T)
         logits, _ = model(x)                               # (1, T, V)
         logits = logits[0, -1] / temperature               # (V,) only the LAST position predicts next
+        logits[start_id] = float("-inf")                   # <s> only ever starts a name, never inside one
         if top_k is not None:
             cutoff = torch.topk(logits, top_k).values[-1]  # k-th largest score
             logits = logits.masked_fill(logits < cutoff, float("-inf"))
@@ -70,6 +72,17 @@ def novelty_rate(samples: list[str], train_names: set) -> float:
     return sum(s not in train_names for s in samples) / max(len(samples), 1)
 
 
+def temperature_summary(model: TinyGPT, itos: list, train_set: set, n: int = 200) -> dict:
+    """[N11] Novelty, copy rate and mean length at a low, medium and high temperature."""
+    summary = {}
+    for t in (0.3, 0.8, 1.2):
+        names = sample_names(model, itos, n, t, seed=1)
+        summary[str(t)] = {"novelty_rate": novelty_rate(names, train_set),
+                           "distinct_share": len(set(names)) / n,
+                           "mean_length": sum(map(len, names)) / n, "examples": names[:5]}
+    return summary
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--n", type=int, default=20)
@@ -77,6 +90,7 @@ def main() -> None:
     p.add_argument("--top-k", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--no-save", action="store_true", help="print only, do not write the CSV")
+    p.add_argument("--summary", action="store_true", help="also write outputs/sampling.json (T=0.3/0.8/1.2)")
     args = p.parse_args()
     model, itos = load_model()
     train, _ = split_names(clean_all(load_names()), seed=0)  # same split as train.py (seed 0)
@@ -95,6 +109,12 @@ def main() -> None:
             for s in samples:
                 w.writerow([s, args.temperature, int(s not in train_set), 1])
         print(f"wrote {path.relative_to(Path(__file__).resolve().parents[2])}")
+    if args.summary:
+        summary = temperature_summary(model, itos, train_set)
+        (OUT / "sampling.json").write_text(json.dumps(summary, indent=2))
+        for t, row in summary.items():
+            print(f"T={t}: novelty {row['novelty_rate']:.0%}, distinct {row['distinct_share']:.0%}, "
+                  f"mean length {row['mean_length']:.1f}, e.g. {row['examples'][:3]}")
 
 
 if __name__ == "__main__":

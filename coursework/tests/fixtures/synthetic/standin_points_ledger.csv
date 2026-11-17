@@ -1,0 +1,7 @@
+entry_id,scout_id,report_id,bounty_id,points,reason,ts,is_synthetic
+syn-l-000001,syn-s-0001,syn-r-000001,,10,report,2026-09-10T21:00:00-04:00,1
+syn-l-000002,syn-s-0001,syn-r-000002,,10,report,2026-09-25T23:30:00-04:00,1
+syn-l-000003,syn-s-0001,syn-r-000002,syn-b-00001,25,bounty,2026-09-25T23:30:00-04:00,1
+syn-l-000004,syn-s-0001,syn-r-000004,,10,report,2026-10-03T22:00:00-04:00,1
+syn-l-000005,syn-s-0002,syn-r-000005,,10,report,2026-09-12T21:00:00-04:00,1
+syn-l-000006,syn-s-0002,syn-r-000006,,10,report,2026-09-26T22:00:00-04:00,1

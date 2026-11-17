@@ -18,7 +18,7 @@
   "vocab_size": 43,
   "params": 107307,
   "steps_run": 1700,
-  "runtime_seconds": 38.9,
+  "runtime_seconds": 41.3,
   "best_val_loss": 2.1130712032318115,
   "val_perplexity_per_char": 8.273612249669497,
   "baselines": {
