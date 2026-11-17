@@ -1,0 +1,91 @@
+neighborhood,latest_grade,grade_order,n,pct,is_synthetic
+Chelsea,A,0,118,62.43,0
+Chelsea,B,1,8,4.23,0
+Chelsea,C,2,1,0.53,0
+Chelsea,N,3,5,2.65,0
+Chelsea,Z,4,2,1.06,0
+Chelsea,Not matched,5,55,29.1,0
+East Harlem,A,0,12,60.0,0
+East Harlem,B,1,0,0.0,0
+East Harlem,C,2,0,0.0,0
+East Harlem,N,3,0,0.0,0
+East Harlem,Z,4,0,0.0,0
+East Harlem,Not matched,5,8,40.0,0
+East Village,A,0,164,67.77,0
+East Village,B,1,14,5.79,0
+East Village,C,2,0,0.0,0
+East Village,N,3,16,6.61,0
+East Village,Z,4,5,2.07,0
+East Village,Not matched,5,43,17.77,0
+Financial District,A,0,43,55.13,0
+Financial District,B,1,3,3.85,0
+Financial District,C,2,0,0.0,0
+Financial District,N,3,4,5.13,0
+Financial District,Z,4,2,2.56,0
+Financial District,Not matched,5,26,33.33,0
+Flatiron/Gramercy,A,0,24,70.59,0
+Flatiron/Gramercy,B,1,1,2.94,0
+Flatiron/Gramercy,C,2,1,2.94,0
+Flatiron/Gramercy,N,3,2,5.88,0
+Flatiron/Gramercy,Z,4,0,0.0,0
+Flatiron/Gramercy,Not matched,5,6,17.65,0
+Harlem,A,0,23,44.23,0
+Harlem,B,1,0,0.0,0
+Harlem,C,2,1,1.92,0
+Harlem,N,3,4,7.69,0
+Harlem,Z,4,3,5.77,0
+Harlem,Not matched,5,21,40.38,0
+LES/Chinatown,A,0,84,61.76,0
+LES/Chinatown,B,1,7,5.15,0
+LES/Chinatown,C,2,1,0.74,0
+LES/Chinatown,N,3,14,10.29,0
+LES/Chinatown,Z,4,6,4.41,0
+LES/Chinatown,Not matched,5,24,17.65,0
+Midtown East/Murray Hill,A,0,98,68.06,0
+Midtown East/Murray Hill,B,1,6,4.17,0
+Midtown East/Murray Hill,C,2,1,0.69,0
+Midtown East/Murray Hill,N,3,3,2.08,0
+Midtown East/Murray Hill,Z,4,3,2.08,0
+Midtown East/Murray Hill,Not matched,5,33,22.92,0
+Midtown West,A,0,175,63.87,0
+Midtown West,B,1,13,4.74,0
+Midtown West,C,2,2,0.73,0
+Midtown West,N,3,15,5.47,0
+Midtown West,Z,4,6,2.19,0
+Midtown West,Not matched,5,63,22.99,0
+Other Manhattan,A,0,4,20.0,0
+Other Manhattan,B,1,1,5.0,0
+Other Manhattan,C,2,0,0.0,0
+Other Manhattan,N,3,0,0.0,0
+Other Manhattan,Z,4,0,0.0,0
+Other Manhattan,Not matched,5,15,75.0,0
+Tribeca/SoHo,A,0,129,71.27,0
+Tribeca/SoHo,B,1,9,4.97,0
+Tribeca/SoHo,C,2,1,0.55,0
+Tribeca/SoHo,N,3,8,4.42,0
+Tribeca/SoHo,Z,4,4,2.21,0
+Tribeca/SoHo,Not matched,5,30,16.57,0
+Upper East Side,A,0,79,65.29,0
+Upper East Side,B,1,9,7.44,0
+Upper East Side,C,2,0,0.0,0
+Upper East Side,N,3,7,5.79,0
+Upper East Side,Z,4,2,1.65,0
+Upper East Side,Not matched,5,24,19.83,0
+Upper West Side,A,0,63,64.95,0
+Upper West Side,B,1,8,8.25,0
+Upper West Side,C,2,1,1.03,0
+Upper West Side,N,3,4,4.12,0
+Upper West Side,Z,4,2,2.06,0
+Upper West Side,Not matched,5,19,19.59,0
+Washington Heights/Inwood,A,0,23,51.11,0
+Washington Heights/Inwood,B,1,0,0.0,0
+Washington Heights/Inwood,C,2,1,2.22,0
+Washington Heights/Inwood,N,3,5,11.11,0
+Washington Heights/Inwood,Z,4,2,4.44,0
+Washington Heights/Inwood,Not matched,5,14,31.11,0
+West Village,A,0,71,75.53,0
+West Village,B,1,3,3.19,0
+West Village,C,2,1,1.06,0
+West Village,N,3,6,6.38,0
+West Village,Z,4,1,1.06,0
+West Village,Not matched,5,12,12.77,0
