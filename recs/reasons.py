@@ -45,7 +45,7 @@ def _text(name: str, ev: dict, st: dict) -> str | None:
             return "No cover tonight"
         return f"Cover ${ev['cover']:.0f}, under your ${ev['max']:g}"
     if name == "distance":
-        return f"{ev['km']:.1f} km away"
+        return "Under 0.1 km away" if ev["km"] < 0.05 else f"{ev['km']:.1f} km away"
     if name == "group":
         return f"Room for a group of {ev['group_size']:g}"
     return None

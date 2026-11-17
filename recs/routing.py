@@ -192,7 +192,7 @@ def _stops(ctx: _Ctx, seq):
         lat, lon = ctx.point(vid)
         out.append({
             "order": k, "venue_id": vid, "name": rec["name"], "lat": lat, "lon": lon,
-            "arrive_at": iso(t), "leave_at": iso(leave),
+            "arrive_at": iso(t.replace(second=0, microsecond=0)), "leave_at": iso(leave.replace(second=0, microsecond=0)),
             "walk_minutes_from_prev": round_half_up(wm, 1), "distance_km": round_half_up(km, 2),
             "expected_vibe": fst.get("vibe_score"), "match_score": rec["match_score"],
             "confidence": round_half_up(fst.get("confidence") or 0.0, 2), "reasons": rec["reasons"],
