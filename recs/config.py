@@ -57,6 +57,11 @@ STATIC_GENRE_SCORE = 0.6
 RANK_BASE = 0.75
 RANK_CONF = 0.25
 MAX_REASONS = 3
+# recs addition (CCR-D to specs, not in SCORING.md): demote venues whose KNOWN crowd/dancing contradict the request.
+# energy_fit = weighted mean of the crowd and dancing component scores (known values only). Below ENERGY_FIT_MIN,
+# rank_score is multiplied by (ENERGY_PENALTY_FLOOR + fit). match_score itself is unchanged (= specs oracle).
+ENERGY_FIT_MIN = 0.5
+ENERGY_PENALTY_FLOOR = 0.5
 
 # --- routing --------------------------------------------------------------- spec: docs/specs/SCORING.md#5.12
 WALK_KMH = 4.5

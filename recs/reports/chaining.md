@@ -18,26 +18,26 @@ Clusters come from public licence/inspection data, which the synthetic generator
 
 | variant | mean realised objective | mean true-crowd fit of stops |
 |---|---|---|
-| current state only | 181.4 | 0.614 |
-| with crowd model | 185.5 | 0.698 |
+| current state only | 178.7 | 0.739 |
+| with crowd model | 184.0 | 0.802 |
 
 | night | start | variant | stops | realised objective | true-crowd fit |
 |---|---|---|---|---|---|
 | 2026-11-13 | 21:00 | current state only | 3 | 193.0 | 0.833 |
 | 2026-11-13 | 21:00 | with crowd model | 3 | 196.0 | 0.833 |
-| 2026-11-13 | 22:00 | current state only | 3 | 176.4 | 0.583 |
+| 2026-11-13 | 22:00 | current state only | 3 | 161.6 | 0.583 |
 | 2026-11-13 | 22:00 | with crowd model | 3 | 177.4 | 0.75 |
-| 2026-11-13 | 23:00 | current state only | 3 | 175.8 | 0.583 |
-| 2026-11-13 | 23:00 | with crowd model | 3 | 183.1 | 0.667 |
-| 2026-11-13 | 23:30 | current state only | 3 | 197.7 | 0.583 |
+| 2026-11-13 | 23:00 | current state only | 3 | 154.8 | 0.583 |
+| 2026-11-13 | 23:00 | with crowd model | 3 | 171.7 | 0.75 |
+| 2026-11-13 | 23:30 | current state only | 3 | 204.6 | 0.75 |
 | 2026-11-13 | 23:30 | with crowd model | 3 | 204.6 | 0.75 |
-| 2026-11-14 | 21:00 | current state only | 3 | 173.3 | 0.583 |
-| 2026-11-14 | 21:00 | with crowd model | 3 | 173.5 | 0.667 |
-| 2026-11-14 | 22:00 | current state only | 3 | 154.1 | 0.5 |
+| 2026-11-14 | 21:00 | current state only | 3 | 173.8 | 0.833 |
+| 2026-11-14 | 21:00 | with crowd model | 3 | 173.8 | 0.833 |
+| 2026-11-14 | 22:00 | current state only | 3 | 173.1 | 0.833 |
 | 2026-11-14 | 22:00 | with crowd model | 3 | 173.1 | 0.833 |
-| 2026-11-14 | 23:00 | current state only | 3 | 201.6 | 0.833 |
-| 2026-11-14 | 23:00 | with crowd model | 3 | 196.8 | 0.667 |
-| 2026-11-14 | 23:30 | current state only | 3 | 179.4 | 0.417 |
-| 2026-11-14 | 23:30 | with crowd model | 3 | 179.4 | 0.417 |
+| 2026-11-14 | 23:00 | current state only | 3 | 189.4 | 0.833 |
+| 2026-11-14 | 23:00 | with crowd model | 3 | 189.4 | 0.833 |
+| 2026-11-14 | 23:30 | current state only | 3 | 179.6 | 0.667 |
+| 2026-11-14 | 23:30 | with crowd model | 3 | 186.1 | 0.833 |
 
 Realised objective = each planned stop re-scored with the true crowd at its arrival time (evaluation only; `syn_true_state` never reaches the app). The forecast helps most for early starts, when later stops are hours away and current reports say little about them.

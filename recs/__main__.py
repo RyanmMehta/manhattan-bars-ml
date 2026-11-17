@@ -80,10 +80,12 @@ def report_clustering(meta: dict) -> str:
         L.append(f"| {s['k']} | {s['inertia']:.0f} | {s['silhouette']:.3f} | {s['min_share']:.1%} |")
     L += ["", f"Chosen **k = {meta['k']}**: highest silhouette among k with every cluster ≥ 3% of venues. "
           "Silhouettes around 0.17–0.19 mean the clusters overlap: they're useful as coarse groups, not crisp types.\n",
-          "## Clusters\n", "| id | label | venues | launch venues |", "|---|---|---|---|"]
+          "## Clusters\n", "| id | label (shown to users) | description (top features) | venues | launch venues |",
+          "|---|---|---|---|---|"]
     for k, lab in meta["labels"].items():
         m = df["cluster_id"] == int(k)
-        L.append(f"| {k} | {lab} | {int(m.sum())} | {int(df.loc[m, 'license_id'].isin(launch).sum())} |")
+        L.append(f"| {k} | {lab} | {meta['descriptions'][k]} | {int(m.sum())} | "
+                 f"{int(df.loc[m, 'license_id'].isin(launch).sum())} |")
     L += ["", "Labels come from each cluster's top z-scored features and most over-represented category. They "
           "describe the public-data profile (licence, inspections, OSM, density), not quality or vibe.", "",
           "Artifacts: `recs/artifacts/clusters.csv` (venue_id, cluster_id, cluster_label), `clusters.json` "

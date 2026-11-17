@@ -17,13 +17,13 @@ Chosen **k = 5**: highest silhouette among k with every cluster ≥ 3% of venues
 
 ## Clusters
 
-| id | label | venues | launch venues |
-|---|---|---|---|
-| 0 | drinks-only, rarely inspected | 364 | 0 |
-| 1 | web presence, late-closing, restaurant | 345 | 23 |
-| 2 | no web presence, early-closing, grade A | 591 | 4 |
-| 3 | outdoor seating, web presence, restaurant | 63 | 4 |
-| 4 | critical violations, more violations | 346 | 4 |
+| id | label (shown to users) | description (top features) | venues | launch venues |
+|---|---|---|---|---|
+| 0 | Drinks-first bar | drinks-only, rarely inspected | 364 | 0 |
+| 1 | Late-night restaurant bar | web presence, late-closing, restaurant | 345 | 23 |
+| 2 | Low-key local bar | no web presence, early-closing, grade A | 591 | 4 |
+| 3 | Restaurant bar with outdoor seating | outdoor seating, web presence, restaurant | 63 | 4 |
+| 4 | Bar & kitchen | critical violations, more violations | 346 | 4 |
 
 Labels come from each cluster's top z-scored features and most over-represented category. They describe the public-data profile (licence, inspections, OSM, density), not quality or vibe.
 

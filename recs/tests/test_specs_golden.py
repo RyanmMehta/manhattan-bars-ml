@@ -101,9 +101,20 @@ def test_differential_vs_reference_oracle():
                 assert _close(a[k], v, STATE_TOL.get(k)), (case, k, a[k], v)
         r_ours = scoring.recommend(prefs, ours, venues, now)
         r_theirs = ref.recommend(prefs, theirs, venues, now)
-        assert [r["venue_id"] for r in r_ours] == [r["venue_id"] for r in r_theirs], case
-        for a, b in zip(r_ours, r_theirs):
+        # recs' energy penalty (CCR-D) only changes rank_score/rank/order, and only when known crowd/dancing
+        # contradict the request; everything else must equal the oracle.
+        st_by = {s["venue_id"]: s for s in ours}
+        v_by = {v["venue_id"]: v for v in venues}
+        demoted = any(scoring.energy_penalty(scoring.components(prefs, st_by[v], v_by[v], None)) < 1 for v in ids)
+        if not demoted:
+            assert [r["venue_id"] for r in r_ours] == [r["venue_id"] for r in r_theirs], case
+        theirs_by = {r["venue_id"]: r for r in r_theirs}
+        assert set(theirs_by) == {r["venue_id"] for r in r_ours}
+        for a in r_ours:
+            b = theirs_by[a["venue_id"]]
             for k, v in b.items():
+                if demoted and k in ("rank", "rank_score"):
+                    continue
                 if k == "is_synthetic":  # recs also flags synthetic venue attributes (PRD F5); oracle uses state only
                     assert a[k] >= v
                     continue

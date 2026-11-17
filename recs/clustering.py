@@ -91,6 +91,37 @@ def _label(df: pd.DataFrame, labels: np.ndarray, nums, cats) -> dict[int, str]:
     return out
 
 
+SHORT_RULES = [  # (all phrases that must appear in the description) -> short user-facing label
+    (("late-closing", "restaurant"), "Late-night restaurant bar"),
+    (("outdoor seating", "restaurant"), "Restaurant bar with outdoor seating"),
+    (("outdoor seating",), "Bar with outdoor seating"),
+    (("drinks-only",), "Drinks-first bar"),
+    (("violations",), "Bar & kitchen"),
+    (("serves food",), "Bar & kitchen"),
+    (("early-closing",), "Low-key local bar"),
+    (("no web presence",), "Low-key local bar"),
+    (("late-closing",), "Late-night bar"),
+    (("dense nightlife block",), "Nightlife-strip bar"),
+]
+
+
+def short_label(description: str) -> str:
+    """Short human label (shown to users) from the raw feature description (kept as cluster_description)."""
+    for need, label in SHORT_RULES:
+        if all(n in description for n in need):
+            return label
+    return "Neighborhood bar"
+
+
+def _short_names(desc: dict[int, str]) -> dict[int, str]:
+    out, seen = {}, {}
+    for k in sorted(desc):
+        lab = short_label(desc[k])
+        seen[lab] = seen.get(lab, 0) + 1
+        out[k] = lab if seen[lab] == 1 else f"{lab} {seen[lab]}"
+    return out
+
+
 def fit(with_geo: bool = False, write: bool = True) -> dict:
     """Run the sweep; returns metadata (k, silhouette per k, profiles)."""
     from sklearn.cluster import KMeans
@@ -110,24 +141,29 @@ def fit(with_geo: bool = False, write: bool = True) -> dict:
     best = max(ok, key=lambda s: s["silhouette"])
     km = best["_km"]
     labels = km.labels_
-    names = _label(df, labels, nums, cats)
+    desc = _label(df, labels, nums, cats)
+    names = _short_names(desc)
     df["cluster_id"] = labels
     df["cluster_label"] = [names[int(c)] for c in labels]
+    df["cluster_description"] = [desc[int(c)] for c in labels]
     prof = df.groupby("cluster_id").agg(n=("license_id", "size"), **{f"mean_{c}": (c, "mean") for c in nums})
     for c in cats:
         prof[f"mode_{c}"] = df.groupby("cluster_id")[c].agg(lambda s: s.mode().iat[0])
     prof["cluster_label"] = [names[int(i)] for i in prof.index]
+    prof["cluster_description"] = [desc[int(i)] for i in prof.index]
     meta = {
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "data_source": "data/manhattan_bars.db venue_features JOIN v_bars (real public data)",
         "rows": int(len(df)), "with_geo": with_geo, "k": int(best["k"]), "seed": SEED,
         "sweep": [{k: v for k, v in s.items() if k != "_km"} for s in sweep],
-        "labels": {str(k): v for k, v in names.items()}, "is_synthetic": False,
+        "labels": {str(k): v for k, v in names.items()},
+        "descriptions": {str(k): v for k, v in desc.items()}, "is_synthetic": False,
         "profiles": json.loads(prof.reset_index().round(3).to_json(orient="records")),
     }
     if write:
         ART.mkdir(exist_ok=True)
-        df.rename(columns={"license_id": "venue_id"})[["venue_id", "cluster_id", "cluster_label"]].to_csv(CSV, index=False)
+        df.rename(columns={"license_id": "venue_id"})[["venue_id", "cluster_id", "cluster_label", "cluster_description"]].to_csv(
+            CSV, index=False)
         META.write_text(json.dumps(meta, indent=1))
         _cached.cache_clear()
     meta["_df"] = df
@@ -143,20 +179,30 @@ def _cached() -> pd.DataFrame | None:
 
 
 def assignments() -> pd.DataFrame:
-    """DataFrame[venue_id, cluster_id, cluster_label] (empty if the artifact is missing)."""
+    """DataFrame[venue_id, cluster_id, cluster_label, cluster_description] (empty if the artifact is missing)."""
     df = _cached()
-    return pd.DataFrame(columns=["venue_id", "cluster_id", "cluster_label"]) if df is None else df.copy()
+    cols = ["venue_id", "cluster_id", "cluster_label", "cluster_description"]
+    return pd.DataFrame(columns=cols) if df is None else df.copy()
 
 
 @lru_cache(maxsize=1)
 def _index() -> dict:
     df = _cached()
-    return {} if df is None else {r.venue_id: (int(r.cluster_id), r.cluster_label) for r in df.itertuples()}
+    if df is None:
+        return {}
+    desc = df["cluster_description"] if "cluster_description" in df else df["cluster_label"]
+    return {v: (int(c), lab, d) for v, c, lab, d in zip(df["venue_id"], df["cluster_id"], df["cluster_label"], desc)}
 
 
 def label_for(venue_id) -> str | None:
     v = _index().get(venue_id)
     return None if v is None else v[1]
+
+
+def description_for(venue_id) -> str | None:
+    """Raw feature description of the venue's cluster (e.g. 'web presence, late-closing, restaurant')."""
+    v = _index().get(venue_id)
+    return None if v is None else v[2]
 
 
 def cluster_for(venue_id) -> int | None:
