@@ -94,6 +94,8 @@ describe('route walk (mock mode)', () => {
     expect(screen.getByTestId('directions')).toHaveAttribute('href', expect.stringContaining('40.7'));
     expect(screen.getByText('311 noise-complaint risk')).toBeInTheDocument();
     expect(screen.getAllByTestId('demo-badge').length).toBeGreaterThan(0);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Rate 4 of 5' }));
+    expect(await screen.findByText(/Thanks/)).toBeInTheDocument();
   });
   it('/scout vibe check submits and pays points (US-06)', async () => {
     const u = userEvent.setup();

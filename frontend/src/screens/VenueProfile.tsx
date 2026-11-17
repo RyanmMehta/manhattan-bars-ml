@@ -8,6 +8,7 @@ import { ErrorState } from '../components/ui/ErrorState';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../components/ui/Toast';
 import { ConfidenceMeter } from '../components/venue/ConfidenceMeter';
+import { FeedbackPrompt } from '../components/venue/FeedbackPrompt';
 import { FreshnessTag } from '../components/venue/FreshnessTag';
 import { OfferCard } from '../components/venue/OfferCard';
 import { ReportTimeline } from '../components/venue/ReportTimeline';
@@ -123,6 +124,12 @@ export function VenueProfile() {
         </div>
         <ReportTimeline reports={recent_reports} now={nowIso} />
       </Card>
+
+      {persona === 'planner' && (
+        <Card>
+          <FeedbackPrompt venueId={venue.venue_id} />
+        </Card>
+      )}
 
       {venue.complaint_risk !== null && (
         <Card>

@@ -13,58 +13,58 @@ export. Everything else is polish after the PNGs are sent.
 ## 1. Ordered tasks
 
 ### Phase A: skeleton and design system (Nov 11)
-- [ ] **T1** (M) Scaffold `frontend/`: Vite React-TS, pinned deps, `.nvmrc`, Tailwind,
+- [x] **T1** (M) Scaffold `frontend/`: Vite React-TS, pinned deps, `.nvmrc`, Tailwind,
       ESLint/Prettier, Vitest, Playwright config, `.env.example`, `npm` scripts
       (`dev`, `build`, `preview`, `typecheck`, `lint`, `test`, `e2e`, `mockups`,
       `contract:live`, `fixtures`).
-- [ ] **T2** (M) Design tokens (`tokens.css`, `tailwind.config.ts`) and primitives:
+- [x] **T2** (M) Design tokens (`tokens.css`, `tailwind.config.ts`) and primitives:
       `Button`, `Chip`, `Card`, `Sheet`, `Slider`, `Toggle`, `Skeleton`, `Toast`,
       `EmptyState`, `ErrorState`, `Unknown`, `DemoBadge`, `DemoBanner`.
-- [ ] **T3** (M) Domain components: `VibeBadge`, `ConfidenceMeter`, `FreshnessTag`,
+- [x] **T3** (M) Domain components: `VibeBadge`, `ConfidenceMeter`, `FreshnessTag`,
       `TrendArrow`, `ReasonList`, `MissingList`, `VenueCard`, `VenueCardCompact`,
       `PickHero`, `ScoreTriplet` (vibe / match / confidence) + component tests.
-- [ ] **T4** (M) API layer: `types.ts` (CONTRACTS §F/§G shapes), `client.ts` (`now`
+- [x] **T4** (M) API layer: `types.ts` (CONTRACTS §F/§G shapes), `client.ts` (`now`
       param, bearer token, error envelope, `X-Total-Count`/`X-Data` headers),
       `adapters.ts` (display band, name fallback, null guards), `queries.ts`
       (TanStack hooks), `auth.ts` (demo-login). Unit tests.
-- [ ] **T5** (L) Mock API: MSW handlers for all 14 endpoints (CONTRACTS table + §G
+- [x] **T5** (L) Mock API: MSW handlers for all 14 endpoints (CONTRACTS table + §G
       `auth/demo-login`, `feedback`), plus
       `scripts/build-fixtures.mjs`, which builds `syn_*` fixtures from
       `data/launch_venues.csv` and `data/synthetic_live/*.csv` if present, or else from a
       seeded generator (§5). Register in `docs/synthetic/frontend.md`.
 
 ### Phase B: screens in mock mode (Nov 11–12) → mockups by Thu Nov 12
-- [ ] **T6** (S) App shell: router (PRD F7), bottom tab bar (Pick / Browse / Map / Scout /
+- [x] **T6** (S) App shell: router (PRD F7), bottom tab bar (Pick / Browse / Map / Scout /
       More), header with Prefs chip, persona context with demo-login, demo panel (US-10),
       `config/thresholds.ts`, `config/genres.ts`.
-- [ ] **T7** (M) Onboarding / prefs screen + `prefsReducer` + localStorage (US-01).
-- [ ] **T8** (M) Tonight pick screen (US-02).
-- [ ] **T9** (M) Browse: filter bar, search, sort, card list (US-03).
-- [ ] **T10** (M) Venue profile (US-04).
-- [ ] **T11** (L) Map + heat layer + time slider, lazy chunk, SVG fallback (US-05).
-- [ ] **T12** (M) Scout vibe check with nearest-venue pick, a "within 150 m" hint
+- [x] **T7** (M) Onboarding / prefs screen + `prefsReducer` + localStorage (US-01).
+- [x] **T8** (M) Tonight pick screen (US-02).
+- [x] **T9** (M) Browse: filter bar, search, sort, card list (US-03).
+- [x] **T10** (M) Venue profile (US-04).
+- [x] **T11** (L) Map + heat layer + time slider, lazy chunk, SVG fallback (US-05).
+- [x] **T12** (M) Scout vibe check with nearest-venue pick, a "within 150 m" hint
       (the server decides `verified_presence`), and offline queue (US-06).
-- [ ] **T13** (S) Leaderboard + bounties (US-07).
-- [ ] **T14** (M) Owner dashboard: KPI tiles, demand chart, update form and preview (US-09).
-- [ ] **T15** (M) Mockup export: `scripts/mockups.mjs` (Playwright, mock mode, fixed
+- [x] **T13** (S) Leaderboard + bounties (US-07).
+- [x] **T14** (M) Owner dashboard: KPI tiles, demand chart, update form and preview (US-09).
+- [x] **T15** (M) Mockup export: `scripts/mockups.mjs` (Playwright, mock mode, fixed
       `now=2026-11-14T23:30:00-05:00`), 390×844 @2x for every route plus 1440×900 for
       owner and map, then a contact sheet. Write `frontend/mockups/README.md`.
       **Send the PNGs to the master session as soon as they exist (late Nov 10
       deliverable).**
 
 ### Phase C: live API, stretch, deploy (Nov 14–16)
-- [ ] **T16** (M) Live mode against a local backend (`uvicorn` on :8000 via Vite proxy):
+- [x] **T16** (M) Live mode against a local backend (`uvicorn` on :8000 via Vite proxy):
       fix adapter mismatches, run `contract:live`, and log diffs as CRs.
-- [ ] **T17** (M) Run My Night timeline, swap stop (`exclude_venue_ids`), and route
+- [x] **T17** (M) Run My Night timeline, swap stop (`exclude_venue_ids`), and route
       mini-map behind `VITE_FEATURE_ROUTING` (US-08). Stretch.
-- [ ] **T18** (S) Post-visit feedback prompt → `POST /api/feedback`. Stretch.
-- [ ] **T19** (M) E2E suite (RULES §5) + synthetic-badge route walk + a11y checks
+- [x] **T18** (S) Post-visit feedback prompt → `POST /api/feedback`. Stretch.
+- [x] **T19** (M) E2E suite (RULES §5) + synthetic-badge route walk + a11y checks
       (axe via Playwright).
-- [ ] **T20** (S) Perf pass: lazy chunks, bundle check (≤ 250 KB gzip initial),
+- [x] **T20** (S) Perf pass: lazy chunks, bundle check (≤ 250 KB gzip initial),
       Lighthouse. Record the scores.
 - [ ] **T21** (S) Vercel deploy: `vercel.json` (SPA rewrite, optional `/api/*` rewrite to
       Render), env vars per environment, and a preview URL. Ryan supplies the account.
-- [ ] **T22** (S) Docs: `docs/workstreams/frontend.md`, final `docs/synthetic/frontend.md`,
+- [x] **T22** (S) Docs: `docs/workstreams/frontend.md`, final `docs/synthetic/frontend.md`,
       README section in `frontend/README.md`.
 
 Total ≈ 14 M + 3 L + 6 S ≈ **40–55 h**.
