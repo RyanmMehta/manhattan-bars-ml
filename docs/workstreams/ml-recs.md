@@ -23,7 +23,7 @@ Formulas: specs `docs/specs/SCORING.md` / `PARAMETERS.md` / `tools/reference_sco
 
 ```bash
 pip install -r requirements.txt -r recs/requirements-dev.txt
-python -m pytest recs/tests -q                    # 68 pass, 1 skip (genres.json not on this branch), ~8 s
+python -m pytest recs/tests -q                    # 69 pass, 1 skip (genres.json not on this branch), ~8 s
 python -m recs demo                               # DEMO_NOW 2026-11-14T23:30 ET: top 5 + Run My Night
 python -m recs demo --now 2026-11-14T21:00:00-05:00
 python -m recs plan                               # plan + greedy / local / exhaustive objective
@@ -95,7 +95,7 @@ cluster_label, complaint_risk`. Missing `cluster_label` / `complaint_risk` are f
   carry 65% of the match weight, and an empty bar scores 1.0 on "no line" and "no cover", so match stayed 65. Then its
   high confidence (0.75) lifted rank_score (60.9) above livelier but less certain venues. Fix (recs addition,
   CCR-D): `rank_score` is multiplied by an energy penalty when the **known** crowd/dancing contradict the request
-  (fit = weighted crowd+dancing component score < 0.5 → × (0.5 + fit)). `match_score` is unchanged and still equals
+  (fit = mean of known crowd/dancing component scores < 0.5 → × (0.5 + fit); adopted by specs as SCORING §9 / G9). `match_score` is unchanged and still equals
   specs' oracle. Unknown values never trigger it. Brick drops to ~37 and out of the top 5. Regression test:
   `recs/tests/test_regressions.py`.
 - **cluster_label is now a short human label** ("Late-night restaurant bar", "Drinks-first bar", "Low-key local bar",
@@ -125,6 +125,6 @@ cluster_label, complaint_risk`. Missing `cluster_label` / `complaint_risk` are f
   fields from `live_state` (G5 is identical either way).
 - CCR-C (to specs): recommendation `is_synthetic` should include venue-attribute provenance (PRD F5).
 - CCR-D (to specs): adopt the energy penalty on `rank_score` (`config.ENERGY_FIT_MIN = 0.5`,
-  `ENERGY_PENALTY_FLOOR = 0.5`) or a better fix, e.g. making vibe/energy part of match. Until then, recs' rank_score
-  differs from `reference_scoring.py` only for demoted venues (the differential test skips rank checks in those cases).
+  `ENERGY_PENALTY_FLOOR = 0.5`). **Accepted** (Contracts c3fd169, specs 008a064, golden G9); recs uses specs'
+  unweighted-mean fit and matches `reference_scoring.py` exactly again.
 - CCR-E (to backend/frontend): new Recommendation key `cluster_description` (raw); `cluster_label` is short and user-facing.

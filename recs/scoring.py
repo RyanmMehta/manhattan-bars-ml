@@ -151,11 +151,11 @@ def rank_value(match: float, conf, energy: float = 1.0) -> float:
 def energy_penalty(comps: dict) -> float:
     """1.0 unless the venue's KNOWN crowd/dancing contradict the request (e.g. a confirmed-empty bar for a
     'crowd 4, want dancing' group). Unknown values never trigger it, so missing data is never punished twice."""
-    known = [(comps[k][0], comps[k][1]) for k in ("crowd", "dancing")
-             if comps[k][0] > 0 and comps[k][3] is None]  # weight > 0 and value known
+    # unweighted mean of the KNOWN crowd/dancing component scores (specs SCORING §9 energy_fit)
+    known = [comps[k][1] for k in ("crowd", "dancing") if comps[k][0] > 0 and comps[k][3] is None]
     if not known:
         return 1.0
-    fit = sum(w * s for w, s in known) / sum(w for w, _ in known)
+    fit = sum(known) / len(known)
     return 1.0 if fit >= C.ENERGY_FIT_MIN else C.ENERGY_PENALTY_FLOOR + fit
 
 

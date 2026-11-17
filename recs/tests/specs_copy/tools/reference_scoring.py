@@ -424,6 +424,24 @@ def components(prefs: dict, state: dict, venue: dict, dist: float | None) -> dic
     }
 
 
+def energy_fit(prefs: dict, state: dict, comps: dict) -> float | None:
+    """Mean of crowd/dancing component scores from KNOWN values; None if neither is known."""
+    known = []
+    if comps["crowd"][0] is not None and state.get("crowd") is not None:
+        known.append(comps["crowd"][0])
+    if comps["dancing"][0] is not None and state.get("dancing") is not None:
+        known.append(comps["dancing"][0])
+    return sum(known) / len(known) if known else None
+
+
+def rank_raw(match: int, conf: float, fit: float | None) -> float:
+    """match · (base + slope·conf), × (energy_penalty_base + fit) when fit < energy_fit_min."""
+    score = match * (P["rank_conf_base"] + P["rank_conf_slope"] * conf)
+    if fit is not None and fit < P["energy_fit_min"]:
+        score *= P["energy_penalty_base"] + fit
+    return score
+
+
 def match_one(prefs: dict, state: dict, venue: dict) -> dict:
     """Recommendation result for one venue (before ranking)."""
     dist = venue_distance(prefs, venue)
@@ -436,13 +454,14 @@ def match_one(prefs: dict, state: dict, venue: dict) -> dict:
     match = int(round_half_up(raw))
     conf = state.get("confidence") or 0.0
     why = exclusion(prefs, state, venue, dist)
+    fit = energy_fit(prefs, state, comps)
     return {
         "venue_id": venue["venue_id"], "name": venue.get("name"),
         "match_score": match, "vibe_score": state.get("vibe_score"), "confidence": conf,
         "distance_km": None if dist is None else round_half_up(dist, 2),
         "reasons": reasons, "missing": [c[2] for c in comps.values() if c[2]],
         "excluded": why is not None, "excluded_reason": why,
-        "rank_score": round_half_up(match * (P["rank_conf_base"] + P["rank_conf_slope"] * conf), 1),
+        "rank_score": round_half_up(rank_raw(match, conf, fit), 1),
         "is_synthetic": bool(state.get("is_synthetic")),
         "_match_raw": raw,
     }
