@@ -1,0 +1,76 @@
+quote_id,interview_id,hypothesis_id,theme,sentiment,text,is_synthetic
+syn-q-0001,syn-int-001,H12,other,1,[SYNTHETIC] If it actually knew what my group likes I'd open it every time we go out.,1
+syn-q-0002,syn-int-001,H4,trust,1,[SYNTHETIC] Seeing '12 minutes ago' would make me trust it way more than a star rating.,1
+syn-q-0003,syn-int-001,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0004,syn-int-001,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0005,syn-int-001,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0006,syn-int-002,H4,trust,1,[SYNTHETIC] Seeing '12 minutes ago' would make me trust it way more than a star rating.,1
+syn-q-0007,syn-int-002,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0008,syn-int-002,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0009,syn-int-002,H7,scouting,1,"[SYNTHETIC] I'd tap a ten-second check-in if I'm already there, sure.",1
+syn-q-0010,syn-int-002,H1,pain,-1,[SYNTHETIC] The bar looked great on Instagram but it was empty when we showed up around 10:30.,1
+syn-q-0011,syn-int-003,H1,pain,0,"[SYNTHETIC] Honestly it works out about half the time, the other half we just settle.",1
+syn-q-0012,syn-int-003,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0013,syn-int-003,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0014,syn-int-003,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0015,syn-int-004,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0016,syn-int-004,H12,other,-1,[SYNTHETIC] I kind of like just wandering around the LES and seeing what's good.,1
+syn-q-0017,syn-int-004,H7,scouting,0,"[SYNTHETIC] Maybe once a night, if it was really quick.",1
+syn-q-0018,syn-int-004,H6,trust,-1,[SYNTHETIC] If the bar posts it themselves I'd assume it's marketing.,1
+syn-q-0019,syn-int-004,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0020,syn-int-005,H3,tools,0,"[SYNTHETIC] Mostly I watch stories from friends who are already out, then decide.",1
+syn-q-0021,syn-int-005,H4,trust,0,[SYNTHETIC] If it's more than about 60 minutes old I'd assume it changed.,1
+syn-q-0022,syn-int-005,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0023,syn-int-005,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0024,syn-int-005,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0025,syn-int-006,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0026,syn-int-006,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0027,syn-int-006,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0028,syn-int-006,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0029,syn-int-007,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0030,syn-int-007,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0031,syn-int-007,H6,trust,-1,[SYNTHETIC] If the bar posts it themselves I'd assume it's marketing.,1
+syn-q-0032,syn-int-007,H7,scouting,1,"[SYNTHETIC] I'd tap a ten-second check-in if I'm already there, sure.",1
+syn-q-0033,syn-int-007,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0034,syn-int-007,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0035,syn-int-008,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0036,syn-int-008,H3,tools,0,"[SYNTHETIC] Mostly I watch stories from friends who are already out, then decide.",1
+syn-q-0037,syn-int-008,H1,pain,-1,[SYNTHETIC] The bar looked great on Instagram but it was empty when we showed up around 10:30.,1
+syn-q-0038,syn-int-008,H7,scouting,0,"[SYNTHETIC] Maybe once a night, if it was really quick.",1
+syn-q-0039,syn-int-008,H3,tools,-1,"[SYNTHETIC] Every app I've tried tells me what a place is like in general, not tonight.",1
+syn-q-0040,syn-int-009,H3,tools,-1,"[SYNTHETIC] Every app I've tried tells me what a place is like in general, not tonight.",1
+syn-q-0041,syn-int-009,H8,scouting,0,"[SYNTHETIC] Points alone don't do much for me, a free drink would.",1
+syn-q-0042,syn-int-009,H4,trust,1,[SYNTHETIC] Seeing '12 minutes ago' would make me trust it way more than a star rating.,1
+syn-q-0043,syn-int-009,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0044,syn-int-009,H6,trust,-1,[SYNTHETIC] If the bar posts it themselves I'd assume it's marketing.,1
+syn-q-0045,syn-int-009,H3,tools,-1,"[SYNTHETIC] Every app I've tried tells me what a place is like in general, not tonight.",1
+syn-q-0046,syn-int-010,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0047,syn-int-010,H12,other,-1,[SYNTHETIC] I kind of like just wandering around the LES and seeing what's good.,1
+syn-q-0048,syn-int-010,H7,scouting,-1,[SYNTHETIC] I'm not going to stop my night to fill out a form.,1
+syn-q-0049,syn-int-010,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0050,syn-int-011,H2,pain,0,[SYNTHETIC] Picking the spot is always on me and it takes longer than it should.,1
+syn-q-0051,syn-int-011,H3,tools,0,"[SYNTHETIC] Mostly I watch stories from friends who are already out, then decide.",1
+syn-q-0052,syn-int-011,H1,pain,0,"[SYNTHETIC] Honestly it works out about half the time, the other half we just settle.",1
+syn-q-0053,syn-int-011,H1,pain,-1,[SYNTHETIC] The bar looked great on Instagram but it was empty when we showed up around 10:30.,1
+syn-q-0054,syn-int-011,H1,pain,-1,[SYNTHETIC] Last weekend we walked to 2 places before we found one that wasn't dead or a 40-minute line.,1
+syn-q-0055,syn-int-011,H7,scouting,1,"[SYNTHETIC] I'd tap a ten-second check-in if I'm already there, sure.",1
+syn-q-0056,syn-int-012,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0057,syn-int-012,H3,tools,-1,"[SYNTHETIC] Every app I've tried tells me what a place is like in general, not tonight.",1
+syn-q-0058,syn-int-012,H6,trust,-1,[SYNTHETIC] If the bar posts it themselves I'd assume it's marketing.,1
+syn-q-0059,syn-int-012,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0060,syn-int-012,H12,other,0,"[SYNTHETIC] It sounds useful, but I'd need my friends on it too.",1
+syn-q-0061,syn-int-013,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0062,syn-int-013,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0063,syn-int-013,H12,other,1,[SYNTHETIC] If it actually knew what my group likes I'd open it every time we go out.,1
+syn-q-0064,syn-int-013,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0065,syn-int-013,H12,other,-1,[SYNTHETIC] I kind of like just wandering around the LES and seeing what's good.,1
+syn-q-0066,syn-int-014,H9,other,0,[SYNTHETIC] Usually one person decides and everyone else just complains after.,1
+syn-q-0067,syn-int-014,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0068,syn-int-014,H10,pricing,-1,"[SYNTHETIC] We already pay for enough marketing tools, I'd need to see bodies in the door.",1
+syn-q-0069,syn-int-014,H6,trust,1,[SYNTHETIC] If a few different people said the same thing I'd believe it.,1
+syn-q-0070,syn-int-015,H4,trust,0,[SYNTHETIC] If it's more than about 30 minutes old I'd assume it changed.,1
+syn-q-0071,syn-int-015,H4,trust,1,[SYNTHETIC] Seeing '12 minutes ago' would make me trust it way more than a star rating.,1
+syn-q-0072,syn-int-015,H12,other,1,[SYNTHETIC] If it actually knew what my group likes I'd open it every time we go out.,1
+syn-q-0073,syn-int-015,H4,trust,1,[SYNTHETIC] Seeing '12 minutes ago' would make me trust it way more than a star rating.,1
+syn-q-0074,syn-int-015,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1
+syn-q-0075,syn-int-015,H3,tools,0,[SYNTHETIC] I check Google Maps for how busy it is but I don't really know how live that is.,1

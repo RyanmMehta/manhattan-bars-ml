@@ -1,0 +1,16 @@
+interview_id,segment,date,age_band,nights_out_per_month,typical_group_size,neighborhoods,current_tools,bad_pick_last_month,favorite_genres,top_factor_1,top_factor_2,top_factor_3,freshness_tolerance_min,would_scout,scout_motivator,operator_role,operator_wtp_usd_month,operator_wants,venue_mentions,concept_reaction,is_synthetic
+syn-int-001,consumer,2026-11-03,35+,4,6,les|williamsburg|chinatown,google_maps|group_chat|tiktok,1,hip-hop,want_dancing,max_line_minutes,max_cover_usd,60,0,perks,,,,0370-23-131873,2,1
+syn-int-002,consumer,2026-11-03,21-24,6,3,east_village,google_maps|instagram|group_chat|partiful,1,hip-hop|afrobeats|house,max_line_minutes,max_distance_km,crowd_pref,60,1,perks,,,,0267-22-114328|0370-23-131130|0370-23-159857,4,1
+syn-int-003,consumer,2026-11-06,25-29,5,6,les,google_maps|group_chat|yelp,1,r&b|house,max_line_minutes,want_dancing,price,30,0,perks,,,,0370-24-119240|0370-24-136682|0370-23-127506,4,1
+syn-int-004,consumer,2026-11-06,30-34,7,3,les,google_maps|instagram,1,hip-hop|house,price,genres,max_line_minutes,60,1,points,,,,0370-24-134450|0267-22-114328,5,1
+syn-int-005,consumer,2026-11-06,30-34,4,3,les|chinatown,google_maps|instagram,1,latin|throwbacks,crowd_pref,genres,max_distance_km,60,0,perks,,,,0370-23-139405|0370-21-120152|0370-21-116653,3,1
+syn-int-006,consumer,2026-11-06,18-20,8,4,les|soho|midtown,google_maps|instagram|group_chat,1,hip-hop|top-40|punk,crowd_pref,max_cover_usd,max_line_minutes,45,1,points,,,,0370-23-139405|0370-24-136624|0370-24-123085,4,1
+syn-int-007,consumer,2026-11-09,25-29,3,4,bushwick,group_chat,1,reggaeton|house,price,max_cover_usd,want_dancing,45,1,helping,,,,0370-23-131319,4,1
+syn-int-008,consumer,2026-11-09,18-20,1,1,les,google_maps|instagram|group_chat,1,indie,want_dancing,max_line_minutes,max_cover_usd,45,0,helping,,,,0370-24-134450|0267-23-159615|0370-23-128544,3,1
+syn-int-009,scout,2026-11-10,25-29,11,5,chinatown|bushwick|midtown,google_maps|instagram|group_chat|tiktok,1,techno|rock|jazz,max_cover_usd,price,max_line_minutes,60,3,points,,,,0370-23-127506|0267-23-159615,5,1
+syn-int-010,scout,2026-11-10,18-20,15,3,bushwick,group_chat|resy|yelp,1,house,max_distance_km,max_cover_usd,max_line_minutes,60,3,perks,,,,0370-23-127248|0370-23-160789|0370-23-137572,5,1
+syn-int-011,scout,2026-11-10,21-24,7,4,les|chinatown|bushwick,group_chat|tiktok,1,pop|indie,max_line_minutes,genres,max_cover_usd,90,3,points,,,,0267-22-114328,2,1
+syn-int-012,operator,2026-11-11,na,24,,les|williamsburg|midtown,instagram|group_chat|partiful,,hip-hop|pop|indie,,,,,,,owner,49,post_offers,0370-23-139405|0267-22-114328|0370-24-131778,1,1
+syn-int-013,operator,2026-11-11,na,18,,les|williamsburg|chinatown,group_chat|partiful|dice,,hip-hop|r&b,,,,,,,bar_manager,0,demand_analytics,0370-23-127248|0370-23-159857|0370-24-131778,3,1
+syn-int-014,operator,2026-11-12,na,19,,les|williamsburg|west_village,google_maps|instagram|group_chat,,hip-hop|latin|disco,,,,,,,owner,0,dj_updates,0370-24-119240|0370-24-136564,3,1
+syn-int-015,operator,2026-11-12,na,24,,east_village|williamsburg,instagram|group_chat|partiful|dice|yelp|tiktok,,latin|top-40,,,,,,,promoter,25,dj_updates,0370-23-160789|0370-23-127506,3,1
