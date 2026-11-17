@@ -39,6 +39,8 @@ make status                            # which workstreams are done / merged
 | 6 | backend (re-merge) | d66cde0 | none | — | backend 94 pass | G1–G8 tests |
 | 7 | live-sim + backend (re-merge) | 0d2a26c, 9bb542c | `backend/scripts/build_sim.sh` | took backend (same contract command) | backend 96, simulator 28, contract 72 pass | integration fix to build_sim.sh now upstream |
 | 8 | ml-recs | 5e10061 | none | — | recs 65, backend 96 (recs engine), contract 83/83, tableau 13 | snapshots regenerated with `python -m recs snapshots`; tableau extracts + stand-in PNG/PDF re-rendered (HH:30 rule checked: 245/245 cells match) |
+| 9 | coursework | 9b8fb37 | none | — | coursework 22 pass (needs CPU torch); ownership audit 0 files outside `coursework/` | |
+| 10 | backend (re-merge) | bd463d9 | none | — | backend 98, contract 83/83 | numeric complaint_risk accepted |
 
 ## Seeded demo data (US-7)
 `make data` run twice from scratch → identical per-table fingerprints (`scripts/integration/db_fingerprint.py`):

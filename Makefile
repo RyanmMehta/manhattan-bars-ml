@@ -34,6 +34,7 @@ test-units:
 	@[ ! -d recs ] || $(PY) -m pytest -q recs
 	@[ ! -d backend ] || $(PY) -m pytest -q backend
 	@[ ! -f frontend/package.json ] || (cd frontend && npm test --if-present)
+	@[ ! -d coursework/tests ] || $(PY) -m pytest -q coursework
 
 test-contract:
 	$(PY) -m pytest -q tests/contract
