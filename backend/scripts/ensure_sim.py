@@ -28,8 +28,10 @@ def copy_to_db(sim_path: str, url: str) -> None:
             rows = src.execute(f"SELECT {', '.join(have)} FROM {table}").fetchall()
             if rows:
                 ph = ", ".join(f":{c}" for c in have)
-                conn.execute(text(f"INSERT INTO {table} VALUES ({ph})"),
-                             [dict(zip(have, r, strict=True)) for r in rows])
+                conn.execute(
+                    text(f"INSERT INTO {table} VALUES ({ph})"),
+                    [dict(zip(have, r, strict=True)) for r in rows],
+                )
             print(f"copied {table}: {len(rows)} rows")
     src.close()
 

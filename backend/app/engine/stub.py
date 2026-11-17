@@ -314,12 +314,13 @@ class StubEngine:
             ln = s.get("line_minutes")
             if ln is None:
                 unknown("line", "line not reported tonight")
-            elif ln > ml:
-                comps["line"] = (W["line"], 0.0)
-                excluded_reason = excluded_reason or f"line ~{ln} min over your {ml}"
             else:
-                comps["line"] = (W["line"], 1 - 0.5 * ln / ml if ml else 1.0)
-                reasons_by["line"] = f"Line ~{ln} min, under your {ml}"
+                # Over-limit values keep their formula score (specs G6); exclusion is separate.
+                comps["line"] = (W["line"], max(0.0, 1 - 0.5 * ln / ml) if ml else 1.0)
+                if ln > ml:
+                    excluded_reason = excluded_reason or f"line ~{ln} min over your {ml}"
+                else:
+                    reasons_by["line"] = f"Line ~{ln} min, under your {ml}"
 
         # cover
         mc = prefs.get("max_cover_usd")
@@ -327,14 +328,15 @@ class StubEngine:
             cv = s.get("cover_usd")
             if cv is None:
                 unknown("cover", "cover not reported tonight")
-            elif cv > mc:
-                comps["cover"] = (W["cover"], 0.0)
-                excluded_reason = excluded_reason or f"cover ${cv:g} over your ${mc:g}"
             else:
-                comps["cover"] = (W["cover"], 1.0 if cv == 0 or not mc else 1 - 0.5 * cv / mc)
-                reasons_by["cover"] = (
-                    "No cover" if cv == 0 else f"Cover ${cv:g}, under your ${mc:g}"
-                )
+                score = 1.0 if cv == 0 or not mc else max(0.0, 1 - 0.5 * cv / mc)
+                comps["cover"] = (W["cover"], score)
+                if cv > mc:
+                    excluded_reason = excluded_reason or f"cover ${cv:g} over your ${mc:g}"
+                else:
+                    reasons_by["cover"] = (
+                        "No cover" if cv == 0 else f"Cover ${cv:g}, under your ${mc:g}"
+                    )
 
         # group
         gsz = prefs.get("group_size")

@@ -2601,7 +2601,7 @@
             "title": "Leave At"
           },
           "walk_minutes_from_prev": {
-            "type": "integer",
+            "type": "number",
             "title": "Walk Minutes From Prev"
           },
           "distance_km": {

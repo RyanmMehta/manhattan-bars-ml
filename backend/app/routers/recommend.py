@@ -25,6 +25,22 @@ def _inputs(s: Session, ctx: Ctx, now, prefs: Preferences) -> tuple[dict, list, 
     return p, [states[i] for i in ids], svc.engine_venues(ctx, attrs, venues)
 
 
+def order_and_rank(rows: list) -> list:
+    """Non-excluded by rank_score desc (ties: nearer first), then excluded; ranks 1..n.
+    recs may leave `rank` null on excluded rows, so the backend always assigns it."""
+    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+        return rows
+
+    def key(r: dict) -> tuple:
+        d = r.get("distance_km")
+        return (bool(r.get("excluded")), -(r.get("rank_score") or 0), d if d is not None else 1e9)
+
+    out = sorted(rows, key=key)
+    for i, r in enumerate(out, 1):
+        r["rank"] = i
+    return out
+
+
 def _validated(model, rows: list, fallback):
     try:
         return [model.model_validate(r).model_dump() for r in rows]
@@ -43,9 +59,10 @@ def recommend(
 ) -> list[dict]:
     user_id = who.subject_id if who and who.role == "user" else None
     p, states, venues = _inputs(s, ctx, now, prefs)
-    raw = ctx.engine.recommend(p, states, venues, now)
-    rows = _validated(Recommendation, raw, lambda: StubEngine().recommend(p, states, venues, now))
-    rows.sort(key=lambda r: (r["excluded"], r["rank"]))
+    raw = order_and_rank(ctx.engine.recommend(p, states, venues, now))
+    rows = _validated(
+        Recommendation, raw, lambda: order_and_rank(StubEngine().recommend(p, states, venues, now))
+    )
     for r in rows:
         v = ctx.catalog.by_id.get(r["venue_id"]) or {}
         r["complaint_risk"] = complaint_risk(v)
