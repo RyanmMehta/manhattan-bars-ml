@@ -1,0 +1,58 @@
+dataset,column,question_id,type,allowed_values,nullable,description
+syn_survey_responses,response_id,system,id,syn-srv-####;srv-r-####,0,Row ID. Synthetic rows syn-srv-0001...; real rows srv-r-0001...
+syn_survey_responses,submitted_at,system,datetime,ISO 8601 with America/New_York offset,0,Form submission time (synthetic spread Oct 26-Nov 12 2026)
+syn_survey_responses,age_band,Q1,enum,18-20;21-24;25-29;30-34;35+,0,How old are you?
+syn_survey_responses,student,Q2,int,0..1,0,Are you currently a student? 1=yes
+syn_survey_responses,nights_out_per_month,Q3,int,0..30,0,In the last 30 days how many nights did you go out to a bar or club?
+syn_survey_responses,typical_group_size,Q4,int,1..12,0,How many people (including you) are usually in your group?
+syn_survey_responses,who_picks,Q5,enum,me;friend;rotates;group_vote,0,Who usually picks where the group goes?
+syn_survey_responses,decision_minutes,Q6,int,0..120,0,"Last time you went out, about how many minutes did the group spend deciding where to go?"
+syn_survey_responses,current_tools,Q7,multi_enum,google_maps;instagram;group_chat;partiful;resy;dice;yelp;tiktok;none,0,"What did you use to decide last time? (pipe-separated; 'none' alone if nothing)"
+syn_survey_responses,bad_pick_last_month,Q8,int,0..1,0,"In the last month, did your group go somewhere that turned out wrong (too empty, too packed, long line, wrong music, surprise cover)? 1=yes"
+syn_survey_responses,importance_genres,Q9a,int,1..5,0,How much does the music genre matter when choosing? (1 not at all - 5 deal-breaker)
+syn_survey_responses,importance_want_dancing,Q9b,int,1..5,0,How much does whether people are dancing matter?
+syn_survey_responses,importance_crowd_pref,Q9c,int,1..5,0,How much does how crowded it is matter?
+syn_survey_responses,importance_max_cover_usd,Q9d,int,1..5,0,How much does the cover charge matter?
+syn_survey_responses,importance_max_line_minutes,Q9e,int,1..5,0,How much does the line / wait matter?
+syn_survey_responses,importance_max_distance_km,Q9f,int,1..5,0,How much does walking distance matter?
+syn_survey_responses,importance_price,Q9g,int,1..5,0,How much do drink prices matter?
+syn_survey_responses,importance_friends_there,Q9h,int,1..5,0,How much does knowing friends are there matter?
+syn_survey_responses,favorite_genres,Q10,multi_enum,hip-hop;r&b;afrobeats;latin;reggaeton;house;techno;edm;disco;pop;top-40;throwbacks;indie;rock;punk;jazz;soul-funk,1,"Pick up to 3 genres you most want to hear (pipe-separated; empty if no preference)"
+syn_survey_responses,genre_no_pref,Q10,int,0..1,0,Ticked 'no preference' for music. 1 = no preference (favorite_genres empty)
+syn_survey_responses,freshness_tolerance_min,Q11,int,15;30;45;60;90;120,0,"If an app told you how busy a bar is, how old could that info be before you'd stop trusting it? (minutes)"
+syn_survey_responses,trust_cue_pref,Q12,enum,n_reports;recency;verified_scout;venue_official,0,Which would make you trust a live report most?
+syn_survey_responses,would_use_weekly,Q13,int,0..1,0,"After reading the concept: would you use this on most weeks you go out? 1=yes"
+syn_survey_responses,nps_concept,Q14,int,0..10,0,How likely are you to recommend this app to a friend? (0-10)
+syn_survey_responses,would_scout,Q15,int,0..3,0,"Would you send a 10-second vibe check from a bar you're at in exchange for perks? 0=no 1=maybe 2=yes 3=already do something like this"
+syn_survey_responses,reports_per_night_if_scout,Q16,int,0..10,0,"If yes/maybe: how many vibe checks would you send on a typical night out? (0 if no)"
+syn_survey_responses,points_value_pref,Q17,enum,free_drink;skip_line;cover_waiver;status,0,Which reward would make sending vibe checks worth it?
+syn_survey_responses,is_synthetic,system,int,0..1,0,1 = synthetic placeholder row; 0 = real response
+syn_interviews,interview_id,system,id,syn-int-###;int-r-###,0,Row ID. Synthetic syn-int-001...; real int-r-001...
+syn_interviews,segment,screener,enum,consumer;scout;operator,0,Interview segment
+syn_interviews,date,system,date,YYYY-MM-DD,0,Interview date
+syn_interviews,age_band,screener,enum,18-20;21-24;25-29;30-34;35+;na,0,Age band (na for operators who decline)
+syn_interviews,nights_out_per_month,warm-up,int,0..30,0,Nights out in the last 30 days (operators: nights they work the floor)
+syn_interviews,typical_group_size,warm-up,int,1..12,1,Usual group size (null for operators)
+syn_interviews,neighborhoods,warm-up,multi_enum,les;east_village;soho;williamsburg;west_village;chinatown;bushwick;midtown,0,Neighborhoods they go out in (pipe-separated)
+syn_interviews,current_tools,core,multi_enum,google_maps;instagram;group_chat;partiful;resy;dice;yelp;tiktok;none,0,Tools used to decide (operators: tools they post to)
+syn_interviews,bad_pick_last_month,core,int,0..1,1,Bad pick in the last month (null for operators)
+syn_interviews,favorite_genres,core,multi_enum,hip-hop;r&b;afrobeats;latin;reggaeton;house;techno;edm;disco;pop;top-40;throwbacks;indie;rock;punk;jazz;soul-funk,1,Genres they mention wanting (operators: genres they book)
+syn_interviews,top_factor_1,core,enum,genres;want_dancing;crowd_pref;max_cover_usd;max_line_minutes;max_distance_km;price;friends_there,1,Most important decision factor (null for operators)
+syn_interviews,top_factor_2,core,enum,genres;want_dancing;crowd_pref;max_cover_usd;max_line_minutes;max_distance_km;price;friends_there,1,Second factor
+syn_interviews,top_factor_3,core,enum,genres;want_dancing;crowd_pref;max_cover_usd;max_line_minutes;max_distance_km;price;friends_there,1,Third factor
+syn_interviews,freshness_tolerance_min,core,int,15;30;45;60;90;120,1,Oldest info they'd trust (minutes; null for operators)
+syn_interviews,would_scout,concept,int,0..3,1,0=no 1=maybe 2=yes 3=already (null for operators)
+syn_interviews,scout_motivator,concept,enum,points;perks;status;helping;none,1,What would motivate reporting (null for operators)
+syn_interviews,operator_role,screener,enum,owner;gm;bar_manager;promoter,1,Operator role (operators only; no names stored)
+syn_interviews,operator_wtp_usd_month,concept,int,0..500,1,Max USD/month they said they'd pay for the venue tools shown (operators only)
+syn_interviews,operator_wants,concept,multi_enum,claimed_profile;post_offers;dj_updates;demand_analytics;scout_reports_on_my_venue;competitor_benchmark,1,Venue features they want (operators only)
+syn_interviews,venue_mentions,core,multi_enum,launch venue license_id,1,Launch venues mentioned (pipe of venue_id = SLA license_id)
+syn_interviews,concept_reaction,concept,int,1..5,0,Reaction to the concept (1 negative - 5 very positive)
+syn_interviews,is_synthetic,system,int,0..1,0,1 = synthetic placeholder row; 0 = real interview
+syn_interview_quotes,quote_id,system,id,syn-q-####;q-r-####,0,Row ID
+syn_interview_quotes,interview_id,system,id,syn-int-###;int-r-###,0,Interview this quote came from
+syn_interview_quotes,hypothesis_id,system,enum,H1;H2;H3;H4;H5;H6;H7;H8;H9;H10;H11;H12,0,Hypothesis the quote bears on (research/hypotheses.md)
+syn_interview_quotes,theme,system,enum,pain;tools;trust;scouting;pricing;other,0,Coded theme
+syn_interview_quotes,sentiment,system,int,-1..1,0,-1 negative / 0 neutral / 1 positive toward the concept or hypothesis
+syn_interview_quotes,text,system,str,"synthetic rows start with '[SYNTHETIC] '",0,Anonymized quote text
+syn_interview_quotes,is_synthetic,system,int,0..1,0,1 = synthetic placeholder row
