@@ -21,9 +21,9 @@ setup:
 launch-venues:
 	$(PY) -I scripts/build_launch_venues_full.py
 
-# v2.2 §J: exactly this command (the Render build runs the same).
+# v2.2 §J: exactly this command, no -I (v2.2 §J CR-15; the Render build runs the same).
 data:
-	python -I -m simulator --seed 42 --out data/live_sim.db $(NIGHTS_FLAG)
+	python -m simulator --seed 42 --out data/live_sim.db $(NIGHTS_FLAG)
 
 test: test-smoke test-units test-contract test-e2e
 

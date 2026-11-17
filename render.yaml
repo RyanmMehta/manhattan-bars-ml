@@ -9,7 +9,7 @@ services:
     rootDir: .
     buildCommand: >-
       pip install -r backend/requirements.txt &&
-      python -I -m simulator --seed 42 --out data/live_sim.db
+      python -m simulator --seed 42 --out data/live_sim.db
     startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     autoDeploy: false

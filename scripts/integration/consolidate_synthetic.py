@@ -44,7 +44,7 @@ backend from day one. The backend reads `syn_x UNION ALL x`.
 1. Start writing real rows into the un-prefixed twin (the app's POST endpoints already do).
 2. When the real table has enough data, set `INCLUDE_SYNTHETIC=0` on the backend (Render env).
    `/api/health` then reports `"data": "real"` and lists return `X-Data: real`.
-3. Stop running `python -I -m simulator --seed 42 --out data/live_sim.db` in the build and unset
+3. Stop running `python -m simulator --seed 42 --out data/live_sim.db` in the build and unset
    `DEMO_NOW` / `VITE_DEMO_NOW` so the app uses the wall clock.
 4. Remove the dataset's `SYNTHETIC:` code paths listed below and its row in the owner's registry.
 

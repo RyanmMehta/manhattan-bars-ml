@@ -30,7 +30,7 @@ data is synthetic (seed 42) and shows the **demo data** badge; see `SYNTHETIC_DA
 ## Deploy (prepared, not run — needs Ryan's accounts)
 **Backend (Render)**
 1. Render → New → Blueprint → connect `ryanmmehta/manhattan-bars-ml`, branch `nightlife/integration`; it reads root `render.yaml`.
-2. Build runs `pip install -r backend/requirements.txt && python -I -m simulator --seed 42 --out data/live_sim.db` (v2.2 §J, build time).
+2. Build runs `pip install -r backend/requirements.txt && python -m simulator --seed 42 --out data/live_sim.db` (v2.2 §J, build time).
 3. Set `CORS_ORIGINS=https://<frontend>.vercel.app,http://localhost:5173` in the dashboard. Others come from `render.yaml` (`LIVE_SIM_DB`, `DEMO_NOW`, `INCLUDE_SYNTHETIC=1`, `FEATURE_*`, `PYTHON_VERSION`).
 4. Check `https://<backend>.onrender.com/api/health` → `{"ok": true, "recs": "real", ...}`.
 

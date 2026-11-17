@@ -3,7 +3,7 @@
 Owner: Ryan Mehta · Branch `nightlife/integration` · Plan: `docs/prd/integration/`
 
 ## What was built
-- `Makefile`: `setup`, `launch-venues`, `data` (exactly `python -I -m simulator --seed 42 --out data/live_sim.db`, `DATA_NIGHTS=N` → `--nights N`), `test` (smoke → units → contract → e2e), `test-deployed`, `demo`, `synthetic-docs`, `audit`, `status`.
+- `Makefile`: `setup`, `launch-venues`, `data` (exactly `python -m simulator --seed 42 --out data/live_sim.db`, `DATA_NIGHTS=N` → `--nights N`), `test` (smoke → units → contract → e2e), `test-deployed`, `demo`, `synthetic-docs`, `audit`, `status`.
 - `scripts/build_launch_venues_full.py` → committed `data/launch_venues_full.csv` (35 venues + OSM display name, hours, website flag, neighbourhood).
 - `scripts/integration/`: `consolidate_synthetic.py` (→ `SYNTHETIC_DATA.md`), `ownership_audit.py`, `merge_status.py`, `pipeline_smoke.py`, `run_demo.py`, `backend_app.py`, `warmup.sh`.
 - `tests/contract/`: `schemas.py` + `constants.py` (CONTRACTS transcribed once), `test_syn_tables.py`, `test_recs_interface.py` (G1/G5), `test_api.py`, `test_isolation.py` (INCLUDE_SYNTHETIC=0, truth tables dropped, grep), `test_demo_snapshots.py`, `test_launch_venues.py`. Each skips cleanly until its workstream is merged.

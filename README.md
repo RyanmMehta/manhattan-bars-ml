@@ -13,7 +13,7 @@ information about nearby nightlife venues. Launch area: 35 bars in Manhattan's L
 ## Run the app locally
 ```
 make setup        # python deps (+ frontend npm ci)
-make data         # python -I -m simulator --seed 42 --out data/live_sim.db
+make data         # python -m simulator --seed 42 --out data/live_sim.db
 make test         # pipeline smoke, workstream tests, contract tests, browser e2e
 make demo         # backend :8000 + frontend :5173 pinned to Sat Nov 14, 11:30 PM
 ```
