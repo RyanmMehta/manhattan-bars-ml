@@ -71,6 +71,8 @@ run `python -I docs/specs/tools/check_golden.py --regen`, review the diff, commi
 | `group_capacity_per_person` | 10 | people | `min(1, capacity/(10·group_size))` | | — |
 | `rank_conf_base` | 0.75 | – | `rank_score = match·(0.75 + 0.25·conf)` | | NDCG@5 |
 | `rank_conf_slope` | 0.25 | – | same | | |
+| `energy_fit_min` | 0.5 | – | SCORING §9 energy penalty: applies when fit < this | quiet venue must not top a busy-dancing request (Contracts c3fd169) | NDCG@5 |
+| `energy_penalty_base` | 0.5 | – | rank_score × (0.5 + fit) | fit 0 halves rank_score | NDCG@5 |
 | `max_reasons` | 3 | – | reasons list length | | — |
 | `reason_min_component` | 0.6 | – | a component must score ≥ this to be a reason | | — |
 
@@ -141,7 +143,8 @@ run `python -I docs/specs/tools/check_golden.py --regen`, review the diff, commi
   "match_w_genre": 0.25, "match_w_dancing": 0.20, "match_w_crowd": 0.15, "match_w_line": 0.10,
   "match_w_cover": 0.10, "match_w_distance": 0.15, "match_w_group": 0.05,
   "unknown_component": 0.4, "static_genre_score": 0.6, "group_capacity_per_person": 10,
-  "rank_conf_base": 0.75, "rank_conf_slope": 0.25, "max_reasons": 3, "reason_min_component": 0.6,
+  "rank_conf_base": 0.75, "rank_conf_slope": 0.25,
+  "energy_fit_min": 0.5, "energy_penalty_base": 0.5, "max_reasons": 3, "reason_min_component": 0.6,
   "presence_radius_m": 150, "rate_venue_window_min": 20, "rate_hour_max": 6,
   "consensus_window_min": 20, "consensus_min_others": 2,
   "rep_lr": 0.05, "rep_target_agreement": 0.7, "rep_verified_bonus": 0.005,
