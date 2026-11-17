@@ -55,6 +55,12 @@ const banner = (page) => page.getByTestId('demo-banner');
     await page.getByRole('button', { name: 'Hip-hop' }).click();
     await page.getByRole('button', { name: 'R&B' }).click();
     await page.getByRole('switch', { name: /dance/i }).click();
+    const crowd = page.getByLabel('Crowd', { exact: true });
+    await crowd.fill('4');
+    if ((await crowd.inputValue()) !== '4') throw new Error('could not set crowd to 4');
+    page.on('request', (r) => {
+      if (r.url().includes('/api/recommend') && !ctxData.recommendBody) ctxData.recommendBody = r.postData();
+    });
     await page.getByRole('button', { name: /Save/ }).click();
     await page.waitForURL(/tonight/, { timeout: 10000 });
   });
@@ -65,6 +71,9 @@ const banner = (page) => page.getByTestId('demo-banner');
     const txt = await hero.innerText();
     if (!/match/i.test(txt)) throw new Error(`no match score in hero: ${txt.slice(0, 200)}`);
     ctxData.heroText = txt.slice(0, 300);
+    const m = txt.match(/VIBE\s+(\d+)/i);
+    if (!m) throw new Error(`no vibe number in hero: ${txt.slice(0, 200)}`);
+    if (Number(m[1]) < 35) throw new Error(`#1 pick has vibe ${m[1]} (< 35, "Chill") for hip-hop/r&b + dancing + crowd 4`);
   });
 
   await step(page, 'demo badge + clock 11:30 PM on tonight', async () => {
