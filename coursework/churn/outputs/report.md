@@ -1,3 +1,9 @@
+<!-- header -->
+# Scout churn report (synthetic data)
+
+Built by the scripts in `coursework/churn/` (see NOTES.md). All Scouts are SYNTHETIC; nothing here is evidence about real Scouts.
+<!-- /header -->
+
 <!-- results -->
 ## Results: 5 models x (CV on train snapshot, out-of-time test) (synthetic data)
 
@@ -15,6 +21,15 @@ Train snapshot cutoff 2026-10-01: 64 Scouts, base rate 29.7%. Test snapshot cuto
 | forest | {'min_samples_leaf': 5} | test | 0.787 [0.68, 0.88] | 0.651 (0.36) | 0.180 | 0.43 | 0.60 | 0.77 | 0.68 |
 | boosting | {'learning_rate': 0.1} | CV (OOF) | 0.667 (15-fold 0.738 ± 0.134) | 0.424 (0.30) | 0.214 | 0.22 | 0.43 | 0.84 | 0.57 |
 | boosting | {'learning_rate': 0.1} | test | 0.755 [0.64, 0.86] | 0.602 (0.36) | 0.201 | 0.22 | 0.61 | 0.81 | 0.69 |
+
+Threshold = max F1 on out-of-fold train predictions, then applied unchanged to test. Test ROC AUC brackets are bootstrap 95% CIs (1,000 resamples of Scouts). With under 100 Scouts per snapshot the CIs overlap a lot, so the ranking between the non-baseline models is not reliable; only 'better than the majority baseline' is.
+
+### PRD targets (placeholders) vs result
+
+- Selected model test ROC AUC >= 0.75: **0.826** (met)
+- PR AUC lift >= 2x base rate: **2.11x** (met)
+- Best test Brier <= logistic regression's: best is logistic (0.170 vs logistic 0.170)
+- Snapshot sizes: train 64 Scouts / 19 churners (plan wanted >= 60 / >= 15: met)
 <!-- /results -->
 
 <!-- interpretation -->
@@ -78,6 +93,14 @@ Each leaf shows the class-weighted counts [stay, churn] and the predicted class 
 | share_flagged_or_removed | 0.007 | 0.003 |
 | tenure_days | 0.006 | 0.012 |
 | share_saturday_reports | 0.006 | 0.003 |
+
+### Targeting view: churn rate among the riskiest Scouts (test snapshot, logistic)
+
+| riskiest share | scouts | churned | churn rate | lift vs base |
+|---|---|---|---|---|
+| 10% | 9 | 8 | 0.889 | 2.466 |
+| 25% | 22 | 16 | 0.727 | 2.018 |
+| 50% | 43 | 26 | 0.605 | 1.677 |
 
 Plots: `timeline.png`, `roc_pr_test.png`, `calibration_test.png`, `permutation_importance.png`.
 <!-- /interpretation -->

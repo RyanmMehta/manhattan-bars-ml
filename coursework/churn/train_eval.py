@@ -1,5 +1,7 @@
 """Compare a majority baseline, logistic regression and three tree models for Scout churn.
 
+Goal [N1]: rank Scouts by their risk of going quiet, so bounties can be aimed at them.
+
 Inputs : outputs/synthetic/churn_dataset_<train cutoff>.csv and _<test cutoff>.csv (build_dataset.py)
 Outputs: outputs/metrics.json, the "results" section of outputs/report.md,
          outputs/synthetic/scout_churn_risk.csv (test-snapshot risk from the selected model)
@@ -142,6 +144,21 @@ def results_markdown(results: dict, train: pd.DataFrame, test: pd.DataFrame, sel
             lines.append(f"| {name}{' **(selected)**' if name == selected else ''} | {r['params']} | {split} | {auc} "
                          f"| {m['pr_auc']:.3f} ({m['base_rate']:.2f}) | {m['brier']:.3f} | {m['threshold']:.2f} "
                          f"| {m['precision']:.2f} | {m['recall']:.2f} | {m['f1']:.2f} |")
+    sel = results[selected]
+    lift = sel["test"]["pr_auc"] / sel["test"]["base_rate"]
+    best_brier = min((n for n in results if n != "majority"), key=lambda n: results[n]["test"]["brier"])
+    lines += ["", "Threshold = max F1 on out-of-fold train predictions, then applied unchanged to test. "
+              "Test ROC AUC brackets are bootstrap 95% CIs (1,000 resamples of Scouts). "
+              "With under 100 Scouts per snapshot the CIs overlap a lot, so the ranking between the "
+              "non-baseline models is not reliable; only 'better than the majority baseline' is.", "",
+              "### PRD targets (placeholders) vs result", "",
+              f"- Selected model test ROC AUC >= 0.75: **{sel['test']['roc_auc']:.3f}** "
+              f"({'met' if sel['test']['roc_auc'] >= 0.75 else 'MISSED'})",
+              f"- PR AUC lift >= 2x base rate: **{lift:.2f}x** ({'met' if lift >= 2 else 'MISSED'})",
+              f"- Best test Brier <= logistic regression's: best is {best_brier} "
+              f"({results[best_brier]['test']['brier']:.3f} vs logistic {results['logistic']['test']['brier']:.3f})",
+              f"- Snapshot sizes: train {len(train)} Scouts / {int(train.churned.sum())} churners "
+              f"(plan wanted >= 60 / >= 15: {'met' if len(train) >= 60 and train.churned.sum() >= 15 else 'MISSED'})"]
     return "\n".join(lines)
 
 
@@ -165,6 +182,9 @@ def main() -> None:
     summary = {"train_cutoff": TRAIN_CUTOFF, "test_cutoff": TEST_CUTOFF, "n_train": len(train),
                "n_test": len(test), "selected_model": selected, "features": FEATURES, "models": results}
     (OUT / "metrics.json").write_text(json.dumps(summary, indent=2, default=float))
+    write_section(OUT / "report.md", "header", "# Scout churn report (synthetic data)\n\n"
+                  "Built by the scripts in `coursework/churn/` (see NOTES.md). All Scouts are "
+                  "SYNTHETIC; nothing here is evidence about real Scouts.")
     write_section(OUT / "report.md", "results", results_markdown(results, train, test, selected))
 
 

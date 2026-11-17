@@ -113,6 +113,17 @@ def importance(model, test: pd.DataFrame, name: str) -> pd.DataFrame:
     return table
 
 
+def top_risk_table(model, test: pd.DataFrame) -> pd.DataFrame:
+    """[N9] The business view: if we only contact the riskiest X% of Scouts, how many really churn?"""
+    ranked = test.assign(prob=model.predict_proba(test[FEATURES])[:, 1]).sort_values("prob", ascending=False)
+    rows = []
+    for share in (0.10, 0.25, 0.50):
+        top = ranked.head(max(1, round(len(ranked) * share)))
+        rows.append({"riskiest share": f"{share:.0%}", "scouts": len(top), "churned": int(top["churned"].sum()),
+                     "churn rate": float(top["churned"].mean()), "lift vs base": float(top["churned"].mean() / ranked["churned"].mean())})
+    return pd.DataFrame(rows)
+
+
 def main() -> None:
     summary = json.loads((OUT / "metrics.json").read_text())
     # SYNTHETIC: datasets built from synthetic Scouts
@@ -135,6 +146,8 @@ def main() -> None:
           "```", tree_text.strip(), "```", "",
           f"### Permutation importance on the test snapshot ({selected}, 30 shuffles)", "",
           md_table(imp.head(10)), "",
+          f"### Targeting view: churn rate among the riskiest Scouts (test snapshot, {selected})", "",
+          md_table(top_risk_table(models[selected], test)), "",
           "Plots: `timeline.png`, `roc_pr_test.png`, `calibration_test.png`, `permutation_importance.png`."]
     write_section(OUT / "report.md", "interpretation", "\n".join(md))
     print(odds.head(6).to_string(index=False))
