@@ -1,0 +1,203 @@
+{
+  "description": "G1 + operator cover 15 + contract Preferences. Expect match 83, rank_score 76.2.",
+  "expected": {
+    "debug": {
+      "0370-24-119240": {
+        "W": 2.274232620934771,
+        "agree": 0.8585735685616661,
+        "conf_raw": 0.6700699335942777,
+        "cover_usd_raw": 15,
+        "crowd_raw": 3.7645507142601664,
+        "dancing_raw": 1.481299328787495,
+        "diverse": 1.0,
+        "line_minutes_raw": 10,
+        "match_raw": 82.7618507714255,
+        "sd_w": 0.42427929431500155,
+        "support": 0.7804455647485387,
+        "vibe_raw": 65.47962218203324
+      }
+    },
+    "recommendations": [
+      {
+        "confidence": 0.67,
+        "distance_km": 0.44,
+        "excluded": false,
+        "excluded_reason": null,
+        "is_synthetic": true,
+        "match_score": 83,
+        "missing": [],
+        "name": "HOME SWEET HOME, FIG19",
+        "rank": 1,
+        "rank_score": 76.2,
+        "reasons": [
+          "Hip-hop playing (4 reports, 5 min ago)",
+          "Dancing reported (4 reports)",
+          "Crowd 3.8 of 5, close to your 4"
+        ],
+        "venue_id": "0370-24-119240",
+        "vibe_score": 65
+      }
+    ],
+    "states": [
+      {
+        "confidence": 0.67,
+        "cover_usd": 15,
+        "crowd": 3.8,
+        "dancing": 1.5,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 10,
+        "music_genres": [
+          "hip-hop"
+        ],
+        "n_reports": 4,
+        "sources": [
+          "scout",
+          "venue_update"
+        ],
+        "trend": null,
+        "venue_id": "0370-24-119240",
+        "vibe_score": 65
+      }
+    ],
+    "ui": {
+      "0370-24-119240": {
+        "stale": false,
+        "vibe_label": "Packed"
+      }
+    }
+  },
+  "hand_checked": true,
+  "id": "G5",
+  "is_synthetic": 1,
+  "name": "G5_match_contract_prefs",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": {
+    "crowd_pref": 4,
+    "genres": [
+      "hip-hop",
+      "r&b"
+    ],
+    "group_size": 4,
+    "lat": 40.7203,
+    "lon": -73.9881,
+    "max_cover_usd": 20,
+    "max_distance_km": 1.5,
+    "max_line_minutes": 15,
+    "want_dancing": true
+  },
+  "reports": [
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000001",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0001",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 15,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000002",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0002",
+      "status": "accepted",
+      "ts": "2026-11-14T23:18:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 3,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000003",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0003",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000004",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0004",
+      "status": "accepted",
+      "ts": "2026-11-14T22:50:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0001"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0002"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0003"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0004"
+    }
+  ],
+  "updates": [
+    {
+      "cover_usd": 15,
+      "dj": null,
+      "event": null,
+      "genres": "hip-hop",
+      "is_synthetic": 1,
+      "offer": null,
+      "offer_expires_at": null,
+      "ts": "2026-11-14T23:00:00-05:00",
+      "update_id": "syn-u-000001",
+      "venue_id": "0370-24-119240"
+    }
+  ],
+  "venues": [
+    {
+      "capacity": 120,
+      "genres": "hip-hop|house",
+      "is_synthetic": 1,
+      "lat": 40.7194,
+      "lon": -73.99319,
+      "name": "HOME SWEET HOME, FIG19",
+      "venue_id": "0370-24-119240"
+    }
+  ]
+}

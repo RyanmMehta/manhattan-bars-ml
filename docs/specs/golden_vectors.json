@@ -1,0 +1,1824 @@
+{
+  "description": "Golden vectors G1–G8 for docs/specs/SCORING.md (synthetic test fixtures).",
+  "is_synthetic": 1,
+  "now": "2026-11-14T23:30:00-05:00",
+  "parameters": {
+    "H_crowd_min": 30,
+    "H_operator_min": 120,
+    "H_scout_cover_genre_min": 60,
+    "agree_penalty": 0.5,
+    "agree_sd_scale": 1.5,
+    "bounty_agree_conflict": 0.6,
+    "bounty_base_pts": 20,
+    "bounty_conf_max": 0.3,
+    "bounty_max_open": 8,
+    "bounty_null_fresh_pts": 50,
+    "bounty_step_pts": 10,
+    "bounty_ttl_min": 60,
+    "conf_k": 1.5,
+    "consensus_min_others": 2,
+    "consensus_window_min": 20,
+    "cutoff_age_min": 180,
+    "default_crowd_pref": 3,
+    "default_group_size": 2,
+    "default_lat": 40.7185,
+    "default_lon": -73.9878,
+    "default_max_cover_usd": 30,
+    "default_max_distance_km": 1.5,
+    "default_max_line_minutes": 20,
+    "display_low_min": 0.2,
+    "display_show_min": 0.4,
+    "dispute_autoreject_h": 48,
+    "diverse_single_scout": 0.6,
+    "dwell_min": 60,
+    "earth_radius_km": 6371.0,
+    "future_skew_min": 2,
+    "genre_share_min": 0.3,
+    "group_capacity_per_person": 10,
+    "level_insider": 500,
+    "level_legend": 1500,
+    "level_regular": 100,
+    "line_cap_min": 30,
+    "match_w_cover": 0.1,
+    "match_w_crowd": 0.15,
+    "match_w_dancing": 0.2,
+    "match_w_distance": 0.15,
+    "match_w_genre": 0.25,
+    "match_w_group": 0.05,
+    "match_w_line": 0.1,
+    "max_reasons": 3,
+    "min_field_weight": 0.3,
+    "new_scout_reports": 3,
+    "operator_conf_cap": 0.25,
+    "outlier_crowd_gap": 2.5,
+    "outlier_min_others": 3,
+    "points_hold_min": 30,
+    "presence_radius_m": 150,
+    "pts_accepted": 10,
+    "pts_clawback_penalty": -10,
+    "pts_first_tonight": 5,
+    "pts_verified": 5,
+    "rank_conf_base": 0.75,
+    "rank_conf_slope": 0.25,
+    "rate_hour_max": 6,
+    "rate_venue_window_min": 20,
+    "reason_min_component": 0.6,
+    "rep_base": 0.25,
+    "rep_dispute_upheld": -0.1,
+    "rep_lr": 0.05,
+    "rep_max": 0.98,
+    "rep_min": 0.05,
+    "rep_new_scout": 0.5,
+    "rep_slope": 0.75,
+    "rep_target_agreement": 0.7,
+    "rep_verified_bonus": 0.005,
+    "stale_tag_min": 60,
+    "static_genre_score": 0.6,
+    "trend_delta": 0.4,
+    "trend_min_weight": 0.5,
+    "trend_prior_min": 90,
+    "trend_recent_min": 30,
+    "unknown_component": 0.4,
+    "velocity_kmh_max": 15,
+    "vibe_band_lively_min": 35,
+    "vibe_band_packed_min": 65,
+    "vibe_w_crowd": 0.5,
+    "vibe_w_dance": 0.35,
+    "vibe_w_line": 0.15,
+    "w_disputed": 0.5,
+    "w_operator": 0.8,
+    "w_unverified": 0.6,
+    "walk_kmh": 4.5,
+    "walk_penalty_per_km": 10
+  },
+  "tolerance": {
+    "confidence": 0.01,
+    "crowd": 0.05,
+    "dancing": 0.05,
+    "match_score": 0,
+    "rank_score": 0.15,
+    "vibe_score": 1
+  },
+  "vectors": [
+    {
+      "description": "4 fresh agreeing scouts (PRD §5.8). Expect vibe 65 Packed, conf 0.67, show.",
+      "expected": {
+        "debug": {
+          "0370-24-119240": {
+            "W": 2.274232620934771,
+            "agree": 0.8585735685616661,
+            "conf_raw": 0.6700699335942777,
+            "cover_usd_raw": null,
+            "crowd_raw": 3.7645507142601664,
+            "dancing_raw": 1.481299328787495,
+            "diverse": 1.0,
+            "line_minutes_raw": 10,
+            "sd_w": 0.42427929431500155,
+            "support": 0.7804455647485387,
+            "vibe_raw": 65.47962218203324
+          }
+        },
+        "recommendations": null,
+        "states": [
+          {
+            "confidence": 0.67,
+            "cover_usd": null,
+            "crowd": 3.8,
+            "dancing": 1.5,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 10,
+            "music_genres": [
+              "hip-hop"
+            ],
+            "n_reports": 4,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-24-119240",
+            "vibe_score": 65
+          }
+        ],
+        "ui": {
+          "0370-24-119240": {
+            "stale": false,
+            "vibe_label": "Packed"
+          }
+        }
+      },
+      "hand_checked": true,
+      "id": "G1",
+      "is_synthetic": 1,
+      "name": "G1_normal_four_scouts",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": null,
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 15,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002",
+          "status": "accepted",
+          "ts": "2026-11-14T23:18:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 3,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003",
+          "status": "accepted",
+          "ts": "2026-11-14T23:10:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004",
+          "status": "accepted",
+          "ts": "2026-11-14T22:50:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 120,
+          "genres": "hip-hop|house",
+          "is_synthetic": 1,
+          "lat": 40.7194,
+          "lon": -73.99319,
+          "name": "HOME SWEET HOME, FIG19",
+          "venue_id": "0370-24-119240"
+        }
+      ]
+    },
+    {
+      "description": "G1 aged +120 min plus one 200-min report (ignored: > cutoff). Crowd too thin → vibe null, conf < 0.20, display none, stale.",
+      "expected": {
+        "debug": {
+          "0370-24-119240": {
+            "W": 0.1421395388084232,
+            "agree": 0.8585735685616662,
+            "conf_raw": 0.07762235720632943,
+            "cover_usd_raw": null,
+            "crowd_raw": null,
+            "dancing_raw": null,
+            "diverse": 1.0,
+            "line_minutes_raw": null,
+            "sd_w": 0.4242792943150015,
+            "support": 0.09040851017154772,
+            "vibe_raw": null
+          }
+        },
+        "recommendations": null,
+        "states": [
+          {
+            "confidence": 0.08,
+            "cover_usd": null,
+            "crowd": null,
+            "dancing": null,
+            "display": "none",
+            "freshness_minutes": 125,
+            "is_synthetic": true,
+            "line_minutes": null,
+            "music_genres": [
+              "hip-hop"
+            ],
+            "n_reports": 4,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-24-119240",
+            "vibe_score": null
+          }
+        ],
+        "ui": {
+          "0370-24-119240": {
+            "stale": true,
+            "vibe_label": null
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G2",
+      "is_synthetic": 1,
+      "name": "G2_stale_reports",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": null,
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001",
+          "status": "accepted",
+          "ts": "2026-11-14T21:25:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 15,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002",
+          "status": "accepted",
+          "ts": "2026-11-14T21:18:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 3,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003",
+          "status": "accepted",
+          "ts": "2026-11-14T21:10:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004",
+          "status": "accepted",
+          "ts": "2026-11-14T20:50:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 5,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 30,
+          "music_genre": "techno",
+          "report_id": "syn-r-000005",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0005",
+          "status": "accepted",
+          "ts": "2026-11-14T20:10:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0005"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 120,
+          "genres": "hip-hop|house",
+          "is_synthetic": 1,
+          "lat": 40.7194,
+          "lon": -73.99319,
+          "name": "HOME SWEET HOME, FIG19",
+          "venue_id": "0370-24-119240"
+        }
+      ]
+    },
+    {
+      "description": "3 reports from one scout: diverse = 0.6 caps confidence.",
+      "expected": {
+        "debug": {
+          "0370-24-119240": {
+            "W": 1.8353510449593375,
+            "agree": 1.0,
+            "conf_raw": 0.4234926900064228,
+            "cover_usd_raw": null,
+            "crowd_raw": 4.0,
+            "dancing_raw": 1.0,
+            "diverse": 0.6,
+            "line_minutes_raw": 10,
+            "sd_w": 0.0,
+            "support": 0.7058211500107047,
+            "vibe_raw": 60.0
+          }
+        },
+        "recommendations": null,
+        "states": [
+          {
+            "confidence": 0.42,
+            "cover_usd": null,
+            "crowd": 4.0,
+            "dancing": 1.0,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 10,
+            "music_genres": [
+              "house"
+            ],
+            "n_reports": 3,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-24-119240",
+            "vibe_score": 60
+          }
+        ],
+        "ui": {
+          "0370-24-119240": {
+            "stale": false,
+            "vibe_label": "Lively"
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G3",
+      "is_synthetic": 1,
+      "name": "G3_single_scout",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": null,
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "house",
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0007",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "house",
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0007",
+          "status": "accepted",
+          "ts": "2026-11-14T23:15:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "house",
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0007",
+          "status": "accepted",
+          "ts": "2026-11-14T23:05:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0007"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 120,
+          "genres": "hip-hop|house",
+          "is_synthetic": 1,
+          "lat": 40.7194,
+          "lon": -73.99319,
+          "name": "HOME SWEET HOME, FIG19",
+          "venue_id": "0370-24-119240"
+        }
+      ]
+    },
+    {
+      "description": "Operator update only (cover 20, hip-hop). vibe null, conf ≤ 0.25, display none; missing dancing/crowd entries.",
+      "expected": {
+        "debug": {
+          "0370-23-127248": {
+            "W": 0.0,
+            "conf_raw": 0.1887748625363387,
+            "cover_usd_raw": 20,
+            "crowd_raw": null,
+            "dancing_raw": null,
+            "line_minutes_raw": null,
+            "match_raw": 66.91612804888148,
+            "operator_W": 0.7550994501453548,
+            "vibe_raw": null
+          }
+        },
+        "recommendations": [
+          {
+            "confidence": 0.19,
+            "distance_km": 0.11,
+            "excluded": false,
+            "excluded_reason": null,
+            "is_synthetic": true,
+            "match_score": 67,
+            "missing": [
+              "no dancing reports",
+              "no fresh reports — scores are low confidence",
+              "line not reported tonight"
+            ],
+            "name": "MEHANATA BULGARIAN BAR",
+            "rank": 1,
+            "rank_score": 53.4,
+            "reasons": [
+              "Hip-hop playing (posted by venue)",
+              "0.1 km away",
+              "Room for your group of 4"
+            ],
+            "venue_id": "0370-23-127248",
+            "vibe_score": null
+          }
+        ],
+        "states": [
+          {
+            "confidence": 0.19,
+            "cover_usd": 20,
+            "crowd": null,
+            "dancing": null,
+            "display": "none",
+            "freshness_minutes": 10,
+            "is_synthetic": true,
+            "line_minutes": null,
+            "music_genres": [
+              "hip-hop"
+            ],
+            "n_reports": 0,
+            "sources": [
+              "venue_update"
+            ],
+            "trend": null,
+            "venue_id": "0370-23-127248",
+            "vibe_score": null
+          }
+        ],
+        "ui": {
+          "0370-23-127248": {
+            "stale": false,
+            "vibe_label": null
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G4",
+      "is_synthetic": 1,
+      "name": "G4_operator_only",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": {
+        "crowd_pref": 4,
+        "genres": [
+          "hip-hop",
+          "r&b"
+        ],
+        "group_size": 4,
+        "lat": 40.7203,
+        "lon": -73.9881,
+        "max_cover_usd": 20,
+        "max_distance_km": 1.5,
+        "max_line_minutes": 15,
+        "want_dancing": true
+      },
+      "reports": [],
+      "scouts": [],
+      "updates": [
+        {
+          "cover_usd": 20,
+          "dj": "syn-DJ Nova",
+          "event": null,
+          "genres": "hip-hop",
+          "is_synthetic": 1,
+          "offer": null,
+          "offer_expires_at": null,
+          "ts": "2026-11-14T23:20:00-05:00",
+          "update_id": "syn-u-000001",
+          "venue_id": "0370-23-127248"
+        }
+      ],
+      "venues": [
+        {
+          "capacity": 150,
+          "genres": null,
+          "is_synthetic": 1,
+          "lat": 40.71943,
+          "lon": -73.98868,
+          "name": "MEHANATA BULGARIAN BAR",
+          "venue_id": "0370-23-127248"
+        }
+      ]
+    },
+    {
+      "description": "G1 + operator cover 15 + contract Preferences. Expect match 83, rank_score 76.2.",
+      "expected": {
+        "debug": {
+          "0370-24-119240": {
+            "W": 2.274232620934771,
+            "agree": 0.8585735685616661,
+            "conf_raw": 0.6700699335942777,
+            "cover_usd_raw": 15,
+            "crowd_raw": 3.7645507142601664,
+            "dancing_raw": 1.481299328787495,
+            "diverse": 1.0,
+            "line_minutes_raw": 10,
+            "match_raw": 82.7618507714255,
+            "sd_w": 0.42427929431500155,
+            "support": 0.7804455647485387,
+            "vibe_raw": 65.47962218203324
+          }
+        },
+        "recommendations": [
+          {
+            "confidence": 0.67,
+            "distance_km": 0.44,
+            "excluded": false,
+            "excluded_reason": null,
+            "is_synthetic": true,
+            "match_score": 83,
+            "missing": [],
+            "name": "HOME SWEET HOME, FIG19",
+            "rank": 1,
+            "rank_score": 76.2,
+            "reasons": [
+              "Hip-hop playing (4 reports, 5 min ago)",
+              "Dancing reported (4 reports)",
+              "Crowd 3.8 of 5, close to your 4"
+            ],
+            "venue_id": "0370-24-119240",
+            "vibe_score": 65
+          }
+        ],
+        "states": [
+          {
+            "confidence": 0.67,
+            "cover_usd": 15,
+            "crowd": 3.8,
+            "dancing": 1.5,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 10,
+            "music_genres": [
+              "hip-hop"
+            ],
+            "n_reports": 4,
+            "sources": [
+              "scout",
+              "venue_update"
+            ],
+            "trend": null,
+            "venue_id": "0370-24-119240",
+            "vibe_score": 65
+          }
+        ],
+        "ui": {
+          "0370-24-119240": {
+            "stale": false,
+            "vibe_label": "Packed"
+          }
+        }
+      },
+      "hand_checked": true,
+      "id": "G5",
+      "is_synthetic": 1,
+      "name": "G5_match_contract_prefs",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": {
+        "crowd_pref": 4,
+        "genres": [
+          "hip-hop",
+          "r&b"
+        ],
+        "group_size": 4,
+        "lat": 40.7203,
+        "lon": -73.9881,
+        "max_cover_usd": 20,
+        "max_distance_km": 1.5,
+        "max_line_minutes": 15,
+        "want_dancing": true
+      },
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 15,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002",
+          "status": "accepted",
+          "ts": "2026-11-14T23:18:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 3,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003",
+          "status": "accepted",
+          "ts": "2026-11-14T23:10:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004",
+          "status": "accepted",
+          "ts": "2026-11-14T22:50:00-05:00",
+          "venue_id": "0370-24-119240",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0001"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0002"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0003"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0004"
+        }
+      ],
+      "updates": [
+        {
+          "cover_usd": 15,
+          "dj": null,
+          "event": null,
+          "genres": "hip-hop",
+          "is_synthetic": 1,
+          "offer": null,
+          "offer_expires_at": null,
+          "ts": "2026-11-14T23:00:00-05:00",
+          "update_id": "syn-u-000001",
+          "venue_id": "0370-24-119240"
+        }
+      ],
+      "venues": [
+        {
+          "capacity": 120,
+          "genres": "hip-hop|house",
+          "is_synthetic": 1,
+          "lat": 40.7194,
+          "lon": -73.99319,
+          "name": "HOME SWEET HOME, FIG19",
+          "venue_id": "0370-24-119240"
+        }
+      ]
+    },
+    {
+      "description": "Known cover $25 > max $20 excludes ATT; VER cover unknown is NOT excluded and lists 'cover not reported tonight'.",
+      "expected": {
+        "debug": {
+          "0370-23-127506": {
+            "W": 1.3550574047138664,
+            "agree": 0.8340425911749614,
+            "conf_raw": 0.4960875519916531,
+            "cover_usd_raw": null,
+            "crowd_raw": 3.453921305305913,
+            "dancing_raw": 0.5460786946940872,
+            "diverse": 1.0,
+            "line_minutes_raw": 5,
+            "match_raw": 74.99988294494531,
+            "sd_w": 0.4978722264751159,
+            "support": 0.5947988235142614,
+            "vibe_raw": 42.730393473470436
+          },
+          "0370-24-138636": {
+            "W": 1.3075929757299352,
+            "agree": 1.0,
+            "conf_raw": 0.581772045950055,
+            "cover_usd_raw": 25,
+            "crowd_raw": 4.0,
+            "dancing_raw": 1.4596543229922505,
+            "diverse": 1.0,
+            "line_minutes_raw": 5,
+            "match_raw": 83.78596893874644,
+            "sd_w": 0.0,
+            "support": 0.581772045950055,
+            "vibe_raw": 65.54395065236437
+          }
+        },
+        "recommendations": [
+          {
+            "confidence": 0.5,
+            "distance_km": 0.05,
+            "excluded": false,
+            "excluded_reason": null,
+            "is_synthetic": true,
+            "match_score": 75,
+            "missing": [
+              "cover not reported tonight"
+            ],
+            "name": "VERLAINE",
+            "rank": 1,
+            "rank_score": 65.6,
+            "reasons": [
+              "R&B playing (2 reports, 6 min ago)",
+              "Under 0.1 km away",
+              "Crowd 3.5 of 5, close to your 4"
+            ],
+            "venue_id": "0370-23-127506",
+            "vibe_score": 43
+          },
+          {
+            "confidence": 0.58,
+            "distance_km": 0.33,
+            "excluded": true,
+            "excluded_reason": "cover $25 over your $20",
+            "is_synthetic": true,
+            "match_score": 84,
+            "missing": [],
+            "name": "ATTABOY COCKTAILS LLC",
+            "rank": 2,
+            "rank_score": 75.2,
+            "reasons": [
+              "Hip-hop playing (2 reports, 8 min ago)",
+              "Dancing reported (2 reports)",
+              "Crowd 4 of 5, close to your 4"
+            ],
+            "venue_id": "0370-24-138636",
+            "vibe_score": 66
+          }
+        ],
+        "states": [
+          {
+            "confidence": 0.5,
+            "cover_usd": null,
+            "crowd": 3.5,
+            "dancing": 0.5,
+            "display": "show",
+            "freshness_minutes": 6,
+            "is_synthetic": true,
+            "line_minutes": 5,
+            "music_genres": [
+              "r&b"
+            ],
+            "n_reports": 2,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-23-127506",
+            "vibe_score": 43
+          },
+          {
+            "confidence": 0.58,
+            "cover_usd": 25,
+            "crowd": 4.0,
+            "dancing": 1.5,
+            "display": "show",
+            "freshness_minutes": 8,
+            "is_synthetic": true,
+            "line_minutes": 5,
+            "music_genres": [
+              "hip-hop"
+            ],
+            "n_reports": 2,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-24-138636",
+            "vibe_score": 66
+          }
+        ],
+        "ui": {
+          "0370-23-127506": {
+            "stale": false,
+            "vibe_label": "Lively"
+          },
+          "0370-24-138636": {
+            "stale": false,
+            "vibe_label": "Packed"
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G6",
+      "is_synthetic": 1,
+      "name": "G6_exclusion_known_vs_unknown",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": {
+        "crowd_pref": 4,
+        "genres": [
+          "hip-hop",
+          "r&b"
+        ],
+        "group_size": 4,
+        "lat": 40.7203,
+        "lon": -73.9881,
+        "max_cover_usd": 20,
+        "max_distance_km": 1.5,
+        "max_line_minutes": 15,
+        "want_dancing": true
+      },
+      "reports": [
+        {
+          "cover_usd": 25,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0011",
+          "status": "accepted",
+          "ts": "2026-11-14T23:22:00-05:00",
+          "venue_id": "0370-24-138636",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": 25,
+          "crowd": 4,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": "hip-hop",
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0012",
+          "status": "accepted",
+          "ts": "2026-11-14T23:15:00-05:00",
+          "venue_id": "0370-24-138636",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 3,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "r&b",
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0013",
+          "status": "accepted",
+          "ts": "2026-11-14T23:24:00-05:00",
+          "venue_id": "0370-23-127506",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 0,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": "r&b",
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0014",
+          "status": "accepted",
+          "ts": "2026-11-14T23:16:00-05:00",
+          "venue_id": "0370-23-127506",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0011"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0012"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0013"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0014"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 40,
+          "genres": "soul-funk|jazz",
+          "is_synthetic": 1,
+          "lat": 40.71893,
+          "lon": -73.99157,
+          "name": "ATTABOY COCKTAILS LLC",
+          "venue_id": "0370-24-138636"
+        },
+        {
+          "capacity": 90,
+          "genres": "pop|top-40",
+          "is_synthetic": 1,
+          "lat": 40.71993,
+          "lon": -73.98786,
+          "name": "VERLAINE",
+          "venue_id": "0370-23-127506"
+        }
+      ]
+    },
+    {
+      "description": "accepted + disputed (×0.5) + flagged (0) + future-dated +5 min (ignored) + pending unverified (×0.6) + removed (0).",
+      "expected": {
+        "debug": {
+          "0370-23-139176": {
+            "W": 1.2771332135746827,
+            "agree": 0.7166445465538673,
+            "conf_raw": 0.41077526558058797,
+            "cover_usd_raw": null,
+            "crowd_raw": 3.264124932276313,
+            "dancing_raw": 0.7358750677236875,
+            "diverse": 1.0,
+            "line_minutes_raw": 10,
+            "sd_w": 0.8500663603383979,
+            "support": 0.5731924809250071,
+            "vibe_raw": 46.17937533861844
+          }
+        },
+        "recommendations": null,
+        "states": [
+          {
+            "confidence": 0.41,
+            "cover_usd": null,
+            "crowd": 3.3,
+            "dancing": 0.7,
+            "display": "show",
+            "freshness_minutes": 10,
+            "is_synthetic": true,
+            "line_minutes": 10,
+            "music_genres": null,
+            "n_reports": 3,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-23-139176",
+            "vibe_score": 46
+          }
+        ],
+        "ui": {
+          "0370-23-139176": {
+            "stale": false,
+            "vibe_label": "Lively"
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G7",
+      "is_synthetic": 1,
+      "name": "G7_disputed_and_flagged",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": null,
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 10,
+          "music_genre": null,
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0021",
+          "status": "accepted",
+          "ts": "2026-11-14T23:20:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 0,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 0,
+          "music_genre": null,
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0022",
+          "status": "disputed",
+          "ts": "2026-11-14T23:20:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 5,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 30,
+          "music_genre": null,
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0023",
+          "status": "flagged",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 1,
+          "dancing": 0,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 0,
+          "music_genre": null,
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0024",
+          "status": "accepted",
+          "ts": "2026-11-14T23:35:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 3,
+          "dancing": 1,
+          "distance_m": null,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000005",
+          "reputation": 0.5,
+          "scout_id": "syn-s-0025",
+          "status": "pending",
+          "ts": "2026-11-14T23:15:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 0
+        },
+        {
+          "cover_usd": null,
+          "crowd": 5,
+          "dancing": 2,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 30,
+          "music_genre": null,
+          "report_id": "syn-r-000006",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0026",
+          "status": "removed",
+          "ts": "2026-11-14T23:27:00-05:00",
+          "venue_id": "0370-23-139176",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0021"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0022"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0023"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0024"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.5,
+          "scout_id": "syn-s-0025"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0026"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 60,
+          "genres": null,
+          "is_synthetic": 1,
+          "lat": 40.7189,
+          "lon": -73.9871,
+          "name": "NURSE BETTIE",
+          "venue_id": "0370-23-139176"
+        }
+      ]
+    },
+    {
+      "description": "Crowd 2→4 (rising), 4→2 (falling), thin prior window (null).",
+      "expected": {
+        "debug": {
+          "0370-21-116653": {
+            "W": 2.7849317503569972,
+            "agree": 0.6964036204116313,
+            "conf_raw": 0.5876257148705121,
+            "cover_usd_raw": null,
+            "crowd_raw": 2.5871281739964376,
+            "dancing_raw": 1.0,
+            "diverse": 1.0,
+            "line_minutes_raw": 5,
+            "sd_w": 0.9107891387651063,
+            "support": 0.8438004881754885,
+            "vibe_raw": 39.83910217495547
+          },
+          "0370-23-138427": {
+            "W": 2.1012424152624245,
+            "agree": 0.8371782641937185,
+            "conf_raw": 0.6309035692945857,
+            "cover_usd_raw": null,
+            "crowd_raw": 3.872583372028866,
+            "dancing_raw": 1.0,
+            "diverse": 1.0,
+            "line_minutes_raw": 5,
+            "sd_w": 0.48846520741884436,
+            "support": 0.7536072020481864,
+            "vibe_raw": 55.907292150360824
+          },
+          "0370-24-136624": {
+            "W": 2.7849317503569972,
+            "agree": 0.6964036204116313,
+            "conf_raw": 0.5876257148705121,
+            "cover_usd_raw": null,
+            "crowd_raw": 3.412871826003563,
+            "dancing_raw": 1.0,
+            "diverse": 1.0,
+            "line_minutes_raw": 5,
+            "sd_w": 0.9107891387651063,
+            "support": 0.8438004881754885,
+            "vibe_raw": 50.160897825044536
+          }
+        },
+        "recommendations": null,
+        "states": [
+          {
+            "confidence": 0.59,
+            "cover_usd": null,
+            "crowd": 2.6,
+            "dancing": 1.0,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 5,
+            "music_genres": null,
+            "n_reports": 6,
+            "sources": [
+              "scout"
+            ],
+            "trend": "falling",
+            "venue_id": "0370-21-116653",
+            "vibe_score": 40
+          },
+          {
+            "confidence": 0.63,
+            "cover_usd": null,
+            "crowd": 3.9,
+            "dancing": 1.0,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 5,
+            "music_genres": null,
+            "n_reports": 4,
+            "sources": [
+              "scout"
+            ],
+            "trend": null,
+            "venue_id": "0370-23-138427",
+            "vibe_score": 56
+          },
+          {
+            "confidence": 0.59,
+            "cover_usd": null,
+            "crowd": 3.4,
+            "dancing": 1.0,
+            "display": "show",
+            "freshness_minutes": 5,
+            "is_synthetic": true,
+            "line_minutes": 5,
+            "music_genres": null,
+            "n_reports": 6,
+            "sources": [
+              "scout"
+            ],
+            "trend": "rising",
+            "venue_id": "0370-24-136624",
+            "vibe_score": 50
+          }
+        ],
+        "ui": {
+          "0370-21-116653": {
+            "stale": false,
+            "vibe_label": "Lively"
+          },
+          "0370-23-138427": {
+            "stale": false,
+            "vibe_label": "Lively"
+          },
+          "0370-24-136624": {
+            "stale": false,
+            "vibe_label": "Lively"
+          }
+        }
+      },
+      "hand_checked": false,
+      "id": "G8",
+      "is_synthetic": 1,
+      "name": "G8_trend_rising_falling",
+      "now": "2026-11-14T23:30:00-05:00",
+      "prefs": null,
+      "reports": [
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000001",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0031",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000002",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0032",
+          "status": "accepted",
+          "ts": "2026-11-14T23:20:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000003",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0033",
+          "status": "accepted",
+          "ts": "2026-11-14T23:10:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000004",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0034",
+          "status": "accepted",
+          "ts": "2026-11-14T22:50:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000005",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0035",
+          "status": "accepted",
+          "ts": "2026-11-14T22:40:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000006",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0036",
+          "status": "accepted",
+          "ts": "2026-11-14T22:30:00-05:00",
+          "venue_id": "0370-24-136624",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000007",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0041",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000008",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0042",
+          "status": "accepted",
+          "ts": "2026-11-14T23:20:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000009",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0043",
+          "status": "accepted",
+          "ts": "2026-11-14T23:10:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000010",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0044",
+          "status": "accepted",
+          "ts": "2026-11-14T22:50:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000011",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0045",
+          "status": "accepted",
+          "ts": "2026-11-14T22:40:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000012",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0046",
+          "status": "accepted",
+          "ts": "2026-11-14T22:30:00-05:00",
+          "venue_id": "0370-21-116653",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000013",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0051",
+          "status": "accepted",
+          "ts": "2026-11-14T23:25:00-05:00",
+          "venue_id": "0370-23-138427",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000014",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0052",
+          "status": "accepted",
+          "ts": "2026-11-14T23:20:00-05:00",
+          "venue_id": "0370-23-138427",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 4,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000015",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0053",
+          "status": "accepted",
+          "ts": "2026-11-14T23:10:00-05:00",
+          "venue_id": "0370-23-138427",
+          "verified_presence": 1
+        },
+        {
+          "cover_usd": null,
+          "crowd": 2,
+          "dancing": 1,
+          "distance_m": 40,
+          "is_synthetic": 1,
+          "line_minutes": 5,
+          "music_genre": null,
+          "report_id": "syn-r-000016",
+          "reputation": 0.8,
+          "scout_id": "syn-s-0054",
+          "status": "accepted",
+          "ts": "2026-11-14T22:10:00-05:00",
+          "venue_id": "0370-23-138427",
+          "verified_presence": 1
+        }
+      ],
+      "scouts": [
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0031"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0032"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0033"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0034"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0035"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0036"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0041"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0042"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0043"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0044"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0045"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0046"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0051"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0052"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0053"
+        },
+        {
+          "is_synthetic": 1,
+          "reputation": 0.8,
+          "scout_id": "syn-s-0054"
+        }
+      ],
+      "updates": [],
+      "venues": [
+        {
+          "capacity": 100,
+          "genres": "rock",
+          "is_synthetic": 1,
+          "lat": 40.71999,
+          "lon": -73.98461,
+          "name": "DONNYBROOK",
+          "venue_id": "0370-24-136624"
+        },
+        {
+          "capacity": 80,
+          "genres": "hip-hop",
+          "is_synthetic": 1,
+          "lat": 40.7215,
+          "lon": -73.98479,
+          "name": "SUBJECT",
+          "venue_id": "0370-21-116653"
+        },
+        {
+          "capacity": 70,
+          "genres": null,
+          "is_synthetic": 1,
+          "lat": 40.72162,
+          "lon": -73.98457,
+          "name": "MAYFLY",
+          "venue_id": "0370-23-138427"
+        }
+      ]
+    }
+  ]
+}

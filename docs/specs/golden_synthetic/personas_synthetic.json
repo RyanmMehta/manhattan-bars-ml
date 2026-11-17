@@ -1,0 +1,26 @@
+{
+  "description": "SYNTHETIC group personas (Preferences objects) for stories and eval examples; replace with research interview results.",
+  "is_synthetic": 1,
+  "personas": [
+    {"persona_id": "syn-p-01", "label": "dancer group", "is_synthetic": 1,
+     "prefs": {"genres": ["hip-hop", "afrobeats", "reggaeton"], "want_dancing": true, "crowd_pref": 5,
+               "max_cover_usd": 25, "max_line_minutes": 20, "max_distance_km": 1.5,
+               "lat": 40.7185, "lon": -73.9878, "group_size": 5}},
+    {"persona_id": "syn-p-02", "label": "cocktail pair", "is_synthetic": 1,
+     "prefs": {"genres": ["jazz", "soul-funk"], "want_dancing": false, "crowd_pref": 2,
+               "max_cover_usd": 0, "max_line_minutes": 15, "max_distance_km": 1.0,
+               "lat": 40.7203, "lon": -73.9881, "group_size": 2}},
+    {"persona_id": "syn-p-03", "label": "budget crew", "is_synthetic": 1,
+     "prefs": {"genres": ["throwbacks", "top-40"], "want_dancing": true, "crowd_pref": 4,
+               "max_cover_usd": 10, "max_line_minutes": 10, "max_distance_km": 1.0,
+               "lat": 40.7190, "lon": -73.9870, "group_size": 4}},
+    {"persona_id": "syn-p-04", "label": "big group of 8", "is_synthetic": 1,
+     "prefs": {"genres": ["house", "disco"], "want_dancing": true, "crowd_pref": 4,
+               "max_cover_usd": 30, "max_line_minutes": 25, "max_distance_km": 2.0,
+               "lat": 40.7195, "lon": -73.9890, "group_size": 8}},
+    {"persona_id": "syn-p-05", "label": "no preferences", "is_synthetic": 1,
+     "prefs": {"genres": [], "want_dancing": null, "crowd_pref": 3,
+               "max_cover_usd": 30, "max_line_minutes": 20, "max_distance_km": 1.5,
+               "lat": 40.7185, "lon": -73.9878, "group_size": 2}}
+  ]
+}

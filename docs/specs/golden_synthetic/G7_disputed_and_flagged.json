@@ -1,0 +1,195 @@
+{
+  "description": "accepted + disputed (×0.5) + flagged (0) + future-dated +5 min (ignored) + pending unverified (×0.6) + removed (0).",
+  "expected": {
+    "debug": {
+      "0370-23-139176": {
+        "W": 1.2771332135746827,
+        "agree": 0.7166445465538673,
+        "conf_raw": 0.41077526558058797,
+        "cover_usd_raw": null,
+        "crowd_raw": 3.264124932276313,
+        "dancing_raw": 0.7358750677236875,
+        "diverse": 1.0,
+        "line_minutes_raw": 10,
+        "sd_w": 0.8500663603383979,
+        "support": 0.5731924809250071,
+        "vibe_raw": 46.17937533861844
+      }
+    },
+    "recommendations": null,
+    "states": [
+      {
+        "confidence": 0.41,
+        "cover_usd": null,
+        "crowd": 3.3,
+        "dancing": 0.7,
+        "display": "show",
+        "freshness_minutes": 10,
+        "is_synthetic": true,
+        "line_minutes": 10,
+        "music_genres": null,
+        "n_reports": 3,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-23-139176",
+        "vibe_score": 46
+      }
+    ],
+    "ui": {
+      "0370-23-139176": {
+        "stale": false,
+        "vibe_label": "Lively"
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G7",
+  "is_synthetic": 1,
+  "name": "G7_disputed_and_flagged",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": null,
+  "reports": [
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": null,
+      "report_id": "syn-r-000001",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0021",
+      "status": "accepted",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": null,
+      "report_id": "syn-r-000002",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0022",
+      "status": "disputed",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 5,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 30,
+      "music_genre": null,
+      "report_id": "syn-r-000003",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0023",
+      "status": "flagged",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 1,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": null,
+      "report_id": "syn-r-000004",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0024",
+      "status": "accepted",
+      "ts": "2026-11-14T23:35:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 3,
+      "dancing": 1,
+      "distance_m": null,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000005",
+      "reputation": 0.5,
+      "scout_id": "syn-s-0025",
+      "status": "pending",
+      "ts": "2026-11-14T23:15:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 0
+    },
+    {
+      "cover_usd": null,
+      "crowd": 5,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 30,
+      "music_genre": null,
+      "report_id": "syn-r-000006",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0026",
+      "status": "removed",
+      "ts": "2026-11-14T23:27:00-05:00",
+      "venue_id": "0370-23-139176",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0021"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0022"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0023"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0024"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.5,
+      "scout_id": "syn-s-0025"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0026"
+    }
+  ],
+  "updates": [],
+  "venues": [
+    {
+      "capacity": 60,
+      "genres": null,
+      "is_synthetic": 1,
+      "lat": 40.7189,
+      "lon": -73.9871,
+      "name": "NURSE BETTIE",
+      "venue_id": "0370-23-139176"
+    }
+  ]
+}
