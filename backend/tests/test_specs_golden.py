@@ -1,5 +1,5 @@
 """Specs golden vectors G1-G8 (copied test fixture from origin/nightlife/specs
-docs/specs/golden_vectors.json @ fdcd327). SYNTHETIC: specs' hand-built fixtures."""
+docs/specs/golden_vectors.json @ 008a064). SYNTHETIC: specs' hand-built fixtures."""
 
 import importlib.util
 import json

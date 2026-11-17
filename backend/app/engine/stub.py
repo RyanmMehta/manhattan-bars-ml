@@ -445,12 +445,12 @@ class StubEngine:
 
 def energy_penalty(comps: dict, unknown_keys: set[str]) -> float:
     """contracts c3fd169: rank_score *= (floor + fit) when the KNOWN crowd/dancing fit < 0.5.
-    fit = weighted mean of those component scores (same weights as match, as in recs)."""
+    fit = plain mean of those component scores (specs G9)."""
     known = [comps[k] for k in ("crowd", "dancing") if k in comps and k not in unknown_keys]
     known = [(w, s) for w, s in known if w > 0]
     if not known:
         return 1.0
-    fit = sum(w * s for w, s in known) / sum(w for w, _ in known)
+    fit = sum(s for _, s in known) / len(known)  # plain mean (specs G9, recs c8f98b7)
     return 1.0 if fit >= C.ENERGY_FIT_MIN else C.ENERGY_PENALTY_FLOOR + fit
 
 

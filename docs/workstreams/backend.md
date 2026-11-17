@@ -24,7 +24,7 @@ Plan: `docs/prd/backend/` (PRD, RULES, OUTLINE). Contract: `docs/CONTRACTS.md` v
 
 ## Verified
 - `cd backend && pytest -q --cov=app`: **94 passed (+2 skipped without a real live_sim.db), ~5 s, ~95% coverage**; `ruff check` clean.
-- **Specs golden vectors G1–G8** (`docs/specs/golden_vectors.json` from origin/nightlife/specs `fdcd327`,
+- **Specs golden vectors G1–G8** (`docs/specs/golden_vectors.json` from origin/nightlife/specs `008a064`, now incl. G9,
   copied as test fixture `backend/tests/fixtures/specs_golden_vectors.json`): all 8 states and the
   G4/G5/G6 recommendations match within specs' tolerances, on the stub and on real recs.
   Covers every endpoint, each PRD §5 AC, auth (401/403/404), 422/429, golden G1 (vibe 65 /
@@ -113,8 +113,8 @@ See `backend/README.md`. Short version:
     copied from the venue card / live state so the frontend's /tonight needs one request.
 
 19. **Energy-contradiction penalty** (contracts `c3fd169`) in the stub, mirroring recs `48d4ace`:
-    `rank_score *= 0.5 + fit` when fit < 0.5, fit = match-weighted mean of the KNOWN crowd/dancing
-    component scores; unknown values never trigger it; `match_score` unchanged.
+    `rank_score *= 0.5 + fit` when fit < 0.5, fit = PLAIN mean of the KNOWN crowd/dancing
+    component scores (specs G9 / recs `c8f98b7`); unknown values never trigger it; `match_score` unchanged.
 20. `cluster_label` (short human label) and `cluster_description` (raw feature text) pass through on
     recommendation rows and venue cards; cards read them from recs' clustering artifacts (null on the stub).
     Verified on recs `48d4ace` + live-sim `c3edeba`: 115 tests pass; stub and recs give the same order on all
