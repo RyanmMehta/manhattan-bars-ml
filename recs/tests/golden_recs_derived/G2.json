@@ -1,0 +1,74 @@
+{
+ "id": "G2",
+ "description": "stale: one 150-min-old report counts (too thin), 185-min-old and future (+5 min) reports ignored",
+ "reports": [
+  {
+   "report_id": "syn-r-000101",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0001",
+   "ts": "2026-11-14T21:00:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000102",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0002",
+   "ts": "2026-11-14T20:25:00-05:00",
+   "crowd": 5,
+   "dancing": 2,
+   "line_minutes": 30,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000103",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0003",
+   "ts": "2026-11-14T23:35:00-05:00",
+   "crowd": 5,
+   "dancing": 2,
+   "line_minutes": 30,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  }
+ ],
+ "updates": [],
+ "expected": {
+  "state": {
+   "crowd": null,
+   "dancing": null,
+   "line_minutes": null,
+   "vibe_score": null,
+   "confidence": 0.01,
+   "trend": null,
+   "display": "none",
+   "n_reports": 1,
+   "freshness_minutes": 150
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "prefs": null,
+ "venue": null
+}

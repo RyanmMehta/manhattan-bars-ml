@@ -1,0 +1,42 @@
+{
+ "id": "G3",
+ "description": "single new scout (r=0.5), fresh, maxed-out values -> diverse 0.6",
+ "reports": [
+  {
+   "report_id": "syn-r-000104",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0009",
+   "ts": "2026-11-14T23:30:00-05:00",
+   "crowd": 5,
+   "dancing": 2,
+   "line_minutes": 30,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.5,
+   "is_synthetic": 1
+  }
+ ],
+ "updates": [],
+ "expected": {
+  "state": {
+   "crowd": 5.0,
+   "dancing": 2.0,
+   "line_minutes": 30,
+   "vibe_score": 100,
+   "confidence": 0.2,
+   "trend": null,
+   "display": "low",
+   "n_reports": 1,
+   "freshness_minutes": 0
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "prefs": null,
+ "venue": null
+}

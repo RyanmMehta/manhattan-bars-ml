@@ -1,0 +1,42 @@
+{
+ "id": "G4",
+ "description": "operator update only: cover 20, genres hip-hop|r&b -> vibe null, conf = min(0.25, 0.25*0.8)",
+ "reports": [],
+ "updates": [
+  {
+   "update_id": "syn-u-000001",
+   "venue_id": "0370-24-138636",
+   "ts": "2026-11-14T23:30:00-05:00",
+   "cover_usd": 20,
+   "dj": "DJ Syn",
+   "genres": "hip-hop|r&b",
+   "event": null,
+   "offer": null,
+   "offer_expires_at": null,
+   "is_synthetic": 1
+  }
+ ],
+ "expected": {
+  "state": {
+   "crowd": null,
+   "cover_usd": 20,
+   "music_genres": [
+    "hip-hop",
+    "r&b"
+   ],
+   "vibe_score": null,
+   "confidence": 0.2,
+   "display": "none",
+   "n_reports": 0,
+   "sources": [
+    "venue_update"
+   ]
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "prefs": null,
+ "venue": null
+}

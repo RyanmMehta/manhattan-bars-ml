@@ -1,0 +1,90 @@
+{
+ "id": "G1",
+ "description": "normal: 4 scouts r=0.8 verified, ages 5/12/20/40 (specs \u00a75.8)",
+ "reports": [
+  {
+   "report_id": "syn-r-000001",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0001",
+   "ts": "2026-11-14T23:25:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": null,
+   "music_genre": "hip-hop",
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000002",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0002",
+   "ts": "2026-11-14T23:18:00-05:00",
+   "crowd": 4,
+   "dancing": 1,
+   "line_minutes": 15,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000003",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0003",
+   "ts": "2026-11-14T23:10:00-05:00",
+   "crowd": 3,
+   "dancing": 1,
+   "line_minutes": 10,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000004",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0004",
+   "ts": "2026-11-14T22:50:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 5,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  }
+ ],
+ "updates": [],
+ "expected": {
+  "state": {
+   "crowd": 3.8,
+   "dancing": 1.5,
+   "line_minutes": 10,
+   "vibe_score": 65,
+   "confidence": 0.67,
+   "trend": null,
+   "display": "show",
+   "n_reports": 4,
+   "freshness_minutes": 5
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "prefs": null,
+ "venue": null
+}

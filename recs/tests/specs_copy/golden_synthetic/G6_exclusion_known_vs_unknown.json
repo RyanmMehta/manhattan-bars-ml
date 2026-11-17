@@ -1,0 +1,257 @@
+{
+  "description": "Known cover $25 > max $20 excludes ATT; VER cover unknown is NOT excluded and lists 'cover not reported tonight'.",
+  "expected": {
+    "debug": {
+      "0370-23-127506": {
+        "W": 1.3550574047138664,
+        "agree": 0.8340425911749614,
+        "conf_raw": 0.4960875519916531,
+        "cover_usd_raw": null,
+        "crowd_raw": 3.453921305305913,
+        "dancing_raw": 0.5460786946940872,
+        "diverse": 1.0,
+        "line_minutes_raw": 5,
+        "match_raw": 74.99988294494531,
+        "sd_w": 0.4978722264751159,
+        "support": 0.5947988235142614,
+        "vibe_raw": 42.730393473470436
+      },
+      "0370-24-138636": {
+        "W": 1.3075929757299352,
+        "agree": 1.0,
+        "conf_raw": 0.581772045950055,
+        "cover_usd_raw": 25,
+        "crowd_raw": 4.0,
+        "dancing_raw": 1.4596543229922505,
+        "diverse": 1.0,
+        "line_minutes_raw": 5,
+        "match_raw": 83.78596893874644,
+        "sd_w": 0.0,
+        "support": 0.581772045950055,
+        "vibe_raw": 65.54395065236437
+      }
+    },
+    "recommendations": [
+      {
+        "confidence": 0.5,
+        "distance_km": 0.05,
+        "excluded": false,
+        "excluded_reason": null,
+        "is_synthetic": true,
+        "match_score": 75,
+        "missing": [
+          "cover not reported tonight"
+        ],
+        "name": "VERLAINE",
+        "rank": 1,
+        "rank_score": 65.6,
+        "reasons": [
+          "R&B playing (2 reports, 6 min ago)",
+          "Under 0.1 km away",
+          "Crowd 3.5 of 5, close to your 4"
+        ],
+        "venue_id": "0370-23-127506",
+        "vibe_score": 43
+      },
+      {
+        "confidence": 0.58,
+        "distance_km": 0.33,
+        "excluded": true,
+        "excluded_reason": "cover $25 over your $20",
+        "is_synthetic": true,
+        "match_score": 84,
+        "missing": [],
+        "name": "ATTABOY COCKTAILS LLC",
+        "rank": 2,
+        "rank_score": 75.2,
+        "reasons": [
+          "Hip-hop playing (2 reports, 8 min ago)",
+          "Dancing reported (2 reports)",
+          "Crowd 4 of 5, close to your 4"
+        ],
+        "venue_id": "0370-24-138636",
+        "vibe_score": 66
+      }
+    ],
+    "states": [
+      {
+        "confidence": 0.5,
+        "cover_usd": null,
+        "crowd": 3.5,
+        "dancing": 0.5,
+        "display": "show",
+        "freshness_minutes": 6,
+        "is_synthetic": true,
+        "line_minutes": 5,
+        "music_genres": [
+          "r&b"
+        ],
+        "n_reports": 2,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-23-127506",
+        "vibe_score": 43
+      },
+      {
+        "confidence": 0.58,
+        "cover_usd": 25,
+        "crowd": 4.0,
+        "dancing": 1.5,
+        "display": "show",
+        "freshness_minutes": 8,
+        "is_synthetic": true,
+        "line_minutes": 5,
+        "music_genres": [
+          "hip-hop"
+        ],
+        "n_reports": 2,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-24-138636",
+        "vibe_score": 66
+      }
+    ],
+    "ui": {
+      "0370-23-127506": {
+        "stale": false,
+        "vibe_label": "Lively"
+      },
+      "0370-24-138636": {
+        "stale": false,
+        "vibe_label": "Packed"
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G6",
+  "is_synthetic": 1,
+  "name": "G6_exclusion_known_vs_unknown",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": {
+    "crowd_pref": 4,
+    "genres": [
+      "hip-hop",
+      "r&b"
+    ],
+    "group_size": 4,
+    "lat": 40.7203,
+    "lon": -73.9881,
+    "max_cover_usd": 20,
+    "max_distance_km": 1.5,
+    "max_line_minutes": 15,
+    "want_dancing": true
+  },
+  "reports": [
+    {
+      "cover_usd": 25,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000001",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0011",
+      "status": "accepted",
+      "ts": "2026-11-14T23:22:00-05:00",
+      "venue_id": "0370-24-138636",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": 25,
+      "crowd": 4,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000002",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0012",
+      "status": "accepted",
+      "ts": "2026-11-14T23:15:00-05:00",
+      "venue_id": "0370-24-138636",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 3,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": "r&b",
+      "report_id": "syn-r-000003",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0013",
+      "status": "accepted",
+      "ts": "2026-11-14T23:24:00-05:00",
+      "venue_id": "0370-23-127506",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": "r&b",
+      "report_id": "syn-r-000004",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0014",
+      "status": "accepted",
+      "ts": "2026-11-14T23:16:00-05:00",
+      "venue_id": "0370-23-127506",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0011"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0012"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0013"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0014"
+    }
+  ],
+  "updates": [],
+  "venues": [
+    {
+      "capacity": 40,
+      "genres": "soul-funk|jazz",
+      "is_synthetic": 1,
+      "lat": 40.71893,
+      "lon": -73.99157,
+      "name": "ATTABOY COCKTAILS LLC",
+      "venue_id": "0370-24-138636"
+    },
+    {
+      "capacity": 90,
+      "genres": "pop|top-40",
+      "is_synthetic": 1,
+      "lat": 40.71993,
+      "lon": -73.98786,
+      "name": "VERLAINE",
+      "venue_id": "0370-23-127506"
+    }
+  ]
+}

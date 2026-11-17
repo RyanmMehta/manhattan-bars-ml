@@ -1,0 +1,5 @@
+update_id,venue_id,ts,cover_usd,dj,genres,event,offer,offer_expires_at,is_synthetic
+syn-u-000001,syn-v-001,2026-11-14T22:30:00-05:00,25,DJ Syn,hip-hop|r&b,,,,1
+syn-u-000002,syn-v-003,2026-11-14T23:00:00-05:00,10,,house,,2-for-1 until midnight,2026-11-15T00:00:00-05:00,1
+syn-u-000003,syn-v-004,2026-11-14T20:10:00-05:00,0,,jazz,,,,1
+syn-u-000004,syn-v-005,2026-11-14T23:25:00-05:00,,,top-40|pop,Trivia,,,1

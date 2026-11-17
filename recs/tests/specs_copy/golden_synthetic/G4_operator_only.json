@@ -1,0 +1,117 @@
+{
+  "description": "Operator update only (cover 20, hip-hop). vibe null, conf ≤ 0.25, display none; missing dancing/crowd entries.",
+  "expected": {
+    "debug": {
+      "0370-23-127248": {
+        "W": 0.0,
+        "conf_raw": 0.1887748625363387,
+        "cover_usd_raw": 20,
+        "crowd_raw": null,
+        "dancing_raw": null,
+        "line_minutes_raw": null,
+        "match_raw": 66.91612804888148,
+        "operator_W": 0.7550994501453548,
+        "vibe_raw": null
+      }
+    },
+    "recommendations": [
+      {
+        "confidence": 0.19,
+        "distance_km": 0.11,
+        "excluded": false,
+        "excluded_reason": null,
+        "is_synthetic": true,
+        "match_score": 67,
+        "missing": [
+          "no dancing reports",
+          "no fresh reports — scores are low confidence",
+          "line not reported tonight"
+        ],
+        "name": "MEHANATA BULGARIAN BAR",
+        "rank": 1,
+        "rank_score": 53.4,
+        "reasons": [
+          "Hip-hop playing (posted by venue)",
+          "0.1 km away",
+          "Room for your group of 4"
+        ],
+        "venue_id": "0370-23-127248",
+        "vibe_score": null
+      }
+    ],
+    "states": [
+      {
+        "confidence": 0.19,
+        "cover_usd": 20,
+        "crowd": null,
+        "dancing": null,
+        "display": "none",
+        "freshness_minutes": 10,
+        "is_synthetic": true,
+        "line_minutes": null,
+        "music_genres": [
+          "hip-hop"
+        ],
+        "n_reports": 0,
+        "sources": [
+          "venue_update"
+        ],
+        "trend": null,
+        "venue_id": "0370-23-127248",
+        "vibe_score": null
+      }
+    ],
+    "ui": {
+      "0370-23-127248": {
+        "stale": false,
+        "vibe_label": null
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G4",
+  "is_synthetic": 1,
+  "name": "G4_operator_only",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": {
+    "crowd_pref": 4,
+    "genres": [
+      "hip-hop",
+      "r&b"
+    ],
+    "group_size": 4,
+    "lat": 40.7203,
+    "lon": -73.9881,
+    "max_cover_usd": 20,
+    "max_distance_km": 1.5,
+    "max_line_minutes": 15,
+    "want_dancing": true
+  },
+  "reports": [],
+  "scouts": [],
+  "updates": [
+    {
+      "cover_usd": 20,
+      "dj": "syn-DJ Nova",
+      "event": null,
+      "genres": "hip-hop",
+      "is_synthetic": 1,
+      "offer": null,
+      "offer_expires_at": null,
+      "ts": "2026-11-14T23:20:00-05:00",
+      "update_id": "syn-u-000001",
+      "venue_id": "0370-23-127248"
+    }
+  ],
+  "venues": [
+    {
+      "capacity": 150,
+      "genres": null,
+      "is_synthetic": 1,
+      "lat": 40.71943,
+      "lon": -73.98868,
+      "name": "MEHANATA BULGARIAN BAR",
+      "venue_id": "0370-23-127248"
+    }
+  ]
+}

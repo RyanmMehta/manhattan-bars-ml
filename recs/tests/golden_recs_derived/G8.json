@@ -1,0 +1,151 @@
+{
+ "id": "G8",
+ "description": "trend: recent (ages 5,10) vs prior (ages 35,40), r=1 verified; rising (5 vs 3) and falling (2 vs 4) variants",
+ "reports": [
+  {
+   "report_id": "syn-r-000401",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0021",
+   "ts": "2026-11-14T23:25:00-05:00",
+   "crowd": 5,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000402",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0022",
+   "ts": "2026-11-14T23:20:00-05:00",
+   "crowd": 5,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000403",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0023",
+   "ts": "2026-11-14T22:55:00-05:00",
+   "crowd": 3,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000404",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0024",
+   "ts": "2026-11-14T22:50:00-05:00",
+   "crowd": 3,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  }
+ ],
+ "reports_falling": [
+  {
+   "report_id": "syn-r-000405",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0021",
+   "ts": "2026-11-14T23:25:00-05:00",
+   "crowd": 2,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000406",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0022",
+   "ts": "2026-11-14T23:20:00-05:00",
+   "crowd": 2,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000407",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0023",
+   "ts": "2026-11-14T22:55:00-05:00",
+   "crowd": 4,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000408",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0024",
+   "ts": "2026-11-14T22:50:00-05:00",
+   "crowd": 4,
+   "dancing": null,
+   "line_minutes": null,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 1.0,
+   "is_synthetic": 1
+  }
+ ],
+ "updates": [],
+ "expected": {
+  "state": {
+   "trend": "rising"
+  },
+  "state_falling": {
+   "trend": "falling"
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "prefs": null,
+ "venue": null
+}
