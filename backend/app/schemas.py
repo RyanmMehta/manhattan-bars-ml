@@ -151,6 +151,9 @@ class PlanNightIn(Preferences):
 class Recommendation(Out):
     venue_id: str
     name: str
+    display_name: str | None = None  # contracts b99a592: copied from the venue card
+    freshness_minutes: int | None = None  # from the Live Venue State
+    n_reports: int | None = None  # from the Live Venue State
     match_score: int
     vibe_score: int | None
     confidence: float | None

@@ -19,7 +19,7 @@ otherwise the stub engine (same formulas, v2 §A constants) serves every call.
 
 ## Tests
 ```bash
-cd backend && pytest -q --cov=app            # 96 tests, ~5 s, ~95% coverage
+cd backend && pytest -q --cov=app            # 97 tests, ~5 s, ~95% coverage
 BACKEND_TEST_RECS_MODE=recs PYTHONPATH=<dir containing recs/> pytest -q   # same suite on real recs
 ruff check . && ruff format --check .
 ```

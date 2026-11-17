@@ -79,6 +79,7 @@ def recommend(
     p, states, venues = _inputs(s, ctx, now, prefs)
     raw = ctx.engine.recommend(p, states, venues, now)
     risk_scores = split_complaint_risk(raw)
+    state_by = {st["venue_id"]: st for st in states}
     raw = order_and_rank(raw)
     rows = _validated(
         Recommendation, raw, lambda: order_and_rank(StubEngine().recommend(p, states, venues, now))
@@ -86,6 +87,10 @@ def recommend(
     for r in rows:
         v = ctx.catalog.by_id.get(r["venue_id"]) or {}
         r["complaint_risk"] = complaint_risk(v) | {"score": risk_scores.get(r["venue_id"])}
+        st = state_by.get(r["venue_id"]) or {}
+        r["display_name"] = v.get("display_name") or r["name"]
+        r["freshness_minutes"] = st.get("freshness_minutes")
+        r["n_reports"] = st.get("n_reports") or 0
         if not r["excluded"]:
             svc.log_event(s, ctx, r["venue_id"], "recommend_impression", user_id)
     s.commit()
