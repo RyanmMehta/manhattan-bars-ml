@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -35,7 +36,7 @@ def make_client(tmp_path, fixture_sim):
             launch_venues_full_csv=str(tmp_path / "no_full.csv"),
             manual_attributes_csv=str(tmp_path / "no_manual.csv"),
             demo_now=DEMO_NOW,
-            recs_mode="stub",
+            recs_mode=os.environ.get("BACKEND_TEST_RECS_MODE", "stub"),
             allow_write_now=True,
             allow_fixture_sim=False,
             admin_token="test-admin",

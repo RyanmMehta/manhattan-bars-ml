@@ -1,0 +1,33 @@
+# Render Blueprint for the backend only. Blueprint path: backend/render.yaml
+# (integration may copy it to the repo root, v2 §C). Not deployed yet: no Render account.
+services:
+  - type: web
+    name: nightlife-backend
+    runtime: docker
+    plan: free                      # PLACEHOLDER: Starter + disk if demo writes must survive restarts
+    branch: nightlife/backend       # integration switches this to the merged branch
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: DEMO_NOW
+        value: "2026-11-14T23:30:00-05:00"
+      - key: INCLUDE_SYNTHETIC
+        value: "1"
+      - key: ALLOW_FIXTURE_SIM
+        value: "0"
+      - key: DEMO_AUTH
+        value: "1"
+      - key: RECS_MODE
+        value: auto
+      - key: FEATURE_ROUTING
+        value: "1"
+      - key: FEATURE_HEATMAP
+        value: "1"
+      - key: CORS_ORIGINS
+        value: "https://nightlife-autopilot.vercel.app,http://localhost:5173"  # PLACEHOLDER Vercel URL
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: LOG_LEVEL
+        value: INFO

@@ -178,7 +178,7 @@ class Stop(Out):
     lon: float
     arrive_at: str
     leave_at: str
-    walk_minutes_from_prev: int
+    walk_minutes_from_prev: float
     distance_km: float | None
     expected_vibe: float | None
     match_score: float | None

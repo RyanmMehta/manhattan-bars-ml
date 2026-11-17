@@ -1,8 +1,15 @@
+import os
+
+
 def test_health(client):
     r = client.get("/api/health")
     assert r.status_code == 200
     b = r.json()
-    assert b["ok"] is True and b["recs"] == "stub" and b["data"] == "synthetic"
+    assert (
+        b["ok"] is True
+        and b["recs"] == ("real" if os.environ.get("BACKEND_TEST_RECS_MODE") == "recs" else "stub")
+        and b["data"] == "synthetic"
+    )
     assert b["demo_now"] == "2026-11-14T23:30:00-05:00"
 
 
