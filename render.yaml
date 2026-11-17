@@ -2,7 +2,7 @@
 # merged branch. Not deployed (no Render account yet); steps in DEMO.md §Deploy.
 services:
   - type: web
-    name: nightlife-backend
+    name: nightlife-autopilot-api   # must match frontend/vercel.json /api rewrite target
     runtime: docker
     plan: free                      # ephemeral disk: demo writes reset on restart
     branch: nightlife/integration

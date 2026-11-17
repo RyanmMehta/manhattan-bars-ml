@@ -10,15 +10,55 @@ information about nearby nightlife venues. Launch area: 35 bars in Manhattan's L
 > each piece is swapped for real data. The public-data pipeline below is real.
 
 <!-- integration:app-start -->
+**Live URLs:** not deployed yet (needs Render + Vercel accounts) — steps in [`DEMO.md`](DEMO.md#deploy-prepared-not-run--needs-ryans-render--vercel-accounts).
+Expected: frontend `https://<your-app>.vercel.app`, API `https://nightlife-autopilot-api.onrender.com/api/health`.
+
 ## Run the app locally
 ```
-make setup        # python deps (+ frontend npm ci)
-make data         # python -m simulator --seed 42 --out data/live_sim.db
-make test         # pipeline smoke, workstream tests, contract tests, browser e2e
-make demo         # backend :8000 + frontend :5173 pinned to Sat Nov 14, 11:30 PM
+make setup        # python deps (backend, recs, dev) + frontend npm ci
+make data         # python -m simulator --seed 42 --out data/live_sim.db   (~10 s, 36 nights)
+make snapshots    # demo_night_snapshots.csv from recs (run after make data)
+make demo         # backend http://127.0.0.1:8000  +  frontend http://127.0.0.1:5173, pinned to Sat Nov 14, 11:30 PM
+make test         # pipeline smoke → workstream unit tests → contract tests → browser e2e
 ```
-Demo script and deploy steps: [`DEMO.md`](DEMO.md). Shared contracts: [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
-Integration notes and merge log: [`docs/workstreams/integration.md`](docs/workstreams/integration.md).
+Coursework tests also need CPU PyTorch: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+
+## Architecture
+Public data (`data/launch_venues_full.csv`) + synthetic live data (`data/live_sim.db`, from `simulator/`)
+→ `backend/` (FastAPI) reads `syn_* UNION ALL` real twin tables → `recs/` computes live venue state
+(time decay, scout reputation, confidence) and ranks venues for the group → `frontend/` (React + Vite).
+Diagram and request flow: [`docs/specs/architecture.md`](docs/specs/architecture.md); formulas:
+[`docs/specs/SCORING.md`](docs/specs/SCORING.md); contracts: [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
+
+## Folders
+| Folder | Owner | What |
+|---|---|---|
+| `src/`, `data/manhattan_bars.db`, `reports/` | pipeline | public-data scrape → DB → synthetic training data → ML eval (below) |
+| `docs/specs/` | specs | requirements, scoring rules, golden test vectors, team docs |
+| `research/` | research | competitors, interview guide, synthetic interview/survey data |
+| `analytics/tableau/` | tableau | Tableau extracts, stand-in dashboard PNG/PDF, build steps |
+| `simulator/`, `data/synthetic_live/` | live-sim | seeded simulator of scouts, reports, venue updates, users |
+| `recs/` | ml-recs | live state, scoring, crowd model, clustering, Run My Night routing |
+| `backend/` | backend | FastAPI app, migrations, Dockerfile |
+| `frontend/` | frontend | React app, mockups, frontend tests, `vercel.json` |
+| `coursework/` | coursework | tiny transformer + scout churn exercises |
+| `tests/`, `scripts/`, `Makefile`, `render.yaml`, `DEMO.md`, `SYNTHETIC_DATA.md` | integration | contract + e2e tests, glue scripts, deploy config |
+
+## Environment variables
+| Name | Where | Default (demo) | Meaning |
+|---|---|---|---|
+| `DEMO_NOW` | backend | `2026-11-14T23:30:00-05:00` | replay clock; writes are stamped at it |
+| `INCLUDE_SYNTHETIC` | backend | `1` | `0` hides all `syn_*` rows (swap-to-real switch) |
+| `LIVE_SIM_DB` | backend, recs | `data/live_sim.db` | generated synthetic DB |
+| `DATABASE_URL` | backend | `sqlite:///backend/app.db` | real twin tables (SQLite or Postgres) |
+| `CORS_ORIGINS` | backend | localhost:5173 + Vercel URL | allowed browser origins |
+| `FEATURE_ROUTING`, `FEATURE_HEATMAP` | backend | `1` | Run My Night / heatmap |
+| `VITE_API_MODE` | frontend | `live` (`mock` = in-browser fixtures) | |
+| `VITE_API_BASE` | frontend | `/api` (Vercel proxy) or `http://127.0.0.1:8000/api` | API base **including `/api`** |
+| `VITE_DEMO_NOW` | frontend | `2026-11-14T23:30:00-05:00` | forwarded as `now=`; `?now=` in the URL overrides |
+| `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP` | frontend | `1` | |
+
+Per-workstream notes: `docs/workstreams/<name>.md`. Integration merge log: [`docs/workstreams/integration.md`](docs/workstreams/integration.md).
 <!-- integration:app-end -->
 
 ---

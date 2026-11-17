@@ -27,16 +27,24 @@ data is synthetic (seed 42) and shows the **demo data** badge; see `SYNTHETIC_DA
 - Backend down → laptop `make demo` (local, same data, same clock).
 - Everything down → screenshots in `docs/demo/` (e2e run writes them; copy the latest set there).
 
-## Deploy (prepared, not run — needs Ryan's accounts)
-**Backend (Render)**
-1. Render → New → Blueprint → connect `ryanmmehta/manhattan-bars-ml`, branch `nightlife/integration`; it reads root `render.yaml`.
-2. Build runs `pip install -r backend/requirements.txt && python -m simulator --seed 42 --out data/live_sim.db` (v2.2 §J, build time).
-3. Set `CORS_ORIGINS=https://<frontend>.vercel.app,http://localhost:5173` in the dashboard. Others come from `render.yaml` (`LIVE_SIM_DB`, `DEMO_NOW`, `INCLUDE_SYNTHETIC=1`, `FEATURE_*`, `PYTHON_VERSION`).
-4. Check `https://<backend>.onrender.com/api/health` → `{"ok": true, "recs": "real", ...}`.
+## Deploy (prepared, not run — needs Ryan's Render + Vercel accounts)
+Branch for both: `nightlife/integration`. Nothing below needs a secret in the repo.
 
-**Frontend (Vercel)**
-1. Vercel → Add New Project → same repo, branch `nightlife/integration`, **Root Directory `frontend`**, framework Vite, build `npm run build`, output `dist`.
-2. Env: `VITE_API_BASE=https://<backend>.onrender.com/api`, `VITE_API_MODE=live`, `VITE_DEMO_NOW=2026-11-14T23:30:00-05:00`, `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP` (match the backend flags).
-3. SPA rewrite to `index.html` (`frontend/vercel.json`).
-4. Back on Render, put the Vercel URL in `CORS_ORIGINS`; redeploy.
-5. `make test-deployed BASE_URL=https://<frontend>.vercel.app API_URL=https://<backend>.onrender.com` three times.
+**1. Backend on Render (Docker, free tier)**
+1. Render → New → **Blueprint** → connect GitHub repo `ryanmmehta/manhattan-bars-ml`, branch `nightlife/integration`, Blueprint path `render.yaml` (root).
+2. It creates web service **`nightlife-autopilot-api`** (Docker, `backend/Dockerfile`, context = repo root). Keep that name: `frontend/vercel.json` proxies `/api/*` to `https://nightlife-autopilot-api.onrender.com`. If Render gives a different URL, edit that rewrite.
+3. The image build runs `backend/scripts/build_sim.sh` → `python -m simulator --seed 42 --out data/live_sim.db` (build time, v2.2 §J); boot runs `alembic upgrade head`, checks the sim DB, starts uvicorn. The image excludes `data/manhattan_bars.db` and uses `data/launch_venues_full.csv`.
+4. Env (from `render.yaml`): `DEMO_NOW=2026-11-14T23:30:00-05:00`, `INCLUDE_SYNTHETIC=1`, `ALLOW_FIXTURE_SIM=0`, `DEMO_AUTH=1`, `RECS_MODE=auto`, `FEATURE_ROUTING=1`, `FEATURE_HEATMAP=1`, `ADMIN_TOKEN` (generated), `CORS_ORIGINS` (set to `https://<your-app>.vercel.app,http://localhost:5173`).
+5. Check: `curl https://nightlife-autopilot-api.onrender.com/api/health` → `{"ok": true, "recs": "real", "data": "synthetic", "demo_now": "2026-11-14T23:30:00-05:00"}`.
+
+**2. Frontend on Vercel**
+1. Vercel → Add New → Project → import the same repo; **Root Directory `frontend`**; production branch `nightlife/integration` (Settings → Git). `frontend/vercel.json` sets Vite, `npm run build`, `dist`, the `/api` proxy and SPA rewrites.
+2. Environment variables (Production): `VITE_API_MODE=live` (the committed `.env.production` defaults to `mock`), `VITE_API_BASE=/api` (same-origin via the proxy, so no CORS needed), `VITE_DEMO_NOW=2026-11-14T23:30:00-05:00`, `VITE_FEATURE_ROUTING=1`, `VITE_FEATURE_HEATMAP=1`. Redeploy after setting them (Vite bakes env at build time).
+3. Put the Vercel URL in Render's `CORS_ORIGINS` (only needed if you later call the API cross-origin).
+
+**3. Verify**
+```
+make test-deployed BASE_URL=https://<your-app>.vercel.app API_URL=https://nightlife-autopilot-api.onrender.com   # run 3×
+API_URL=https://nightlife-autopilot-api.onrender.com scripts/integration/warmup.sh --loop                      # during class
+```
+Free tier: the backend sleeps after ~15 min idle (first request ~1 min) and its disk is ephemeral (demo writes reset on restart).
