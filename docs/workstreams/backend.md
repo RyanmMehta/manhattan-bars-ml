@@ -109,6 +109,9 @@ See `backend/README.md`. Short version:
     validation and silently sent every `/api/recommend` to the stub; that fallback now logs a warning.
 17. `exclude_venue_ids` is dropped from `/api/recommend` output (as recs does), not only from plan-night.
 
+18. `/api/recommend` rows also carry `display_name`, `freshness_minutes`, `n_reports` (contracts `b99a592`),
+    copied from the venue card / live state so the frontend's /tonight needs one request.
+
 ## Optional fields added (all optional, no renames)
 Venue card: `address`, `neighborhood`. Report response: `verified_presence`, `distance_m`.
 Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop: as v2 §F.

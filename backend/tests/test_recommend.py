@@ -158,3 +158,14 @@ def test_numeric_complaint_risk_from_engine(client, monkeypatch):
 def test_exclude_venue_ids_dropped(client):
     rows = client.post("/api/recommend", json=PREFS | {"exclude_venue_ids": [VENUE]}).json()
     assert len(rows) == 34 and VENUE not in {r["venue_id"] for r in rows}
+
+
+def test_rows_carry_card_and_state_fields(client):
+    rows = client.post("/api/recommend", json=PREFS).json()
+    cards = {c["venue_id"]: c for c in client.get("/api/venues").json()}
+    for r in rows:
+        c = cards[r["venue_id"]]
+        assert r["display_name"] == c["display_name"]
+        assert r["freshness_minutes"] == c["state"]["freshness_minutes"]
+        assert r["n_reports"] == c["state"]["n_reports"]
+    assert any(r["n_reports"] > 0 and r["freshness_minutes"] is not None for r in rows)
