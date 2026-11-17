@@ -23,13 +23,16 @@ Plan: `docs/prd/backend/` (PRD, RULES, OUTLINE). Contract: `docs/CONTRACTS.md` v
   `render.yaml`.
 
 ## Verified
-- `cd backend && pytest -q --cov=app`: **82 passed, ~5 s, 95% coverage**; `ruff check` clean.
+- `cd backend && pytest -q --cov=app`: **94 passed, ~5 s, ~95% coverage**; `ruff check` clean.
+- **Specs golden vectors G1–G8** (`docs/specs/golden_vectors.json` from origin/nightlife/specs `fdcd327`,
+  copied as test fixture `backend/tests/fixtures/specs_golden_vectors.json`): all 8 states and the
+  G4/G5/G6 recommendations match within specs' tolerances, on the stub and on real recs.
   Covers every endpoint, each PRD §5 AC, auth (401/403/404), 422/429, golden G1 (vibe 65 /
   conf 0.67) and G5 (match 83 / rank 76), midnight replay (23:59 report seen at 00:10),
   `INCLUDE_SYNTHETIC=0` sweep, migration up/down, sim schema check, recs-failure fallback,
   no truth/reputation-history tables referenced in `app/`.
-- **Against real `recs`** (origin/nightlife/ml-recs `7153736`, via `PYTHONPATH`, not copied):
-  full suite 84 passed (G1/G5 also run through recs); local server + smoke script: 18/18 calls
+- **Against real `recs`** (origin/nightlife/ml-recs `7153736`, re-checked on `219b735`; via `PYTHONPATH`, not copied):
+  full suite 107 passed on `219b735` (G1/G5 also run through recs); local server + smoke script: 18/18 calls
   served by recs, 0 stub fallbacks; `/api/venues` ~10 ms, `/api/recommend` ~16 ms,
   `/api/heatmap?by=hour` ~27 ms.
 - Local boot with `start.sh` + `smoke.py`: all endpoints OK (stub and recs).
@@ -86,6 +89,10 @@ See `backend/README.md`. Short version:
 13. `/api/recommend` with a user token attaches `user_id` to impression events (used for feedback's `recommended_at`).
 14. CORS default includes a placeholder `https://nightlife-autopilot.vercel.app`.
 
+15. The backend sets `rank` itself after ordering (non-excluded by `rank_score`, then excluded),
+    because recs leaves `rank` null on excluded rows. The stub scores an over-limit cover or line with
+    its normal formula (specs G6); the exclusion is a separate flag.
+
 ## Optional fields added (all optional, no renames)
 Venue card: `address`, `neighborhood`. Report response: `verified_presence`, `distance_m`.
 Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop: as v2 §F.
@@ -106,6 +113,8 @@ Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop:
   `backend/scripts/build_sim.sh` tries the contract command, then falls back to `python -m simulator`.
 - **CR-16 (Stop shape):** `walk_minutes_from_prev` is a float in real recs (e.g. 5.3) — the
   backend schema accepts float; please state "number" in the contract.
+- **CR-18 (rank):** recs returns `rank: null` for excluded rows; the contract implies a 1-based
+  rank on every row. The backend fills it in; recs or the contract should pick one.
 - **CR-17 (heatmap):** document that `by=hour` omits hours that haven't started at `now`.
 - Still open from PRD §13: backend keeps internal `users`, `venue_attributes` (and now
   `bounty_claims`) real tables — integration please confirm.

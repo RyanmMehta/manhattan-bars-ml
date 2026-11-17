@@ -116,3 +116,21 @@ def test_plan_night_validation_and_flag(client, make_client):
     assert client.post("/api/plan-night", json={"start_time": "22:00"}).status_code == 422
     off = make_client(feature_routing=False)
     assert off.post("/api/plan-night", json=PREFS).status_code == 404
+
+
+def test_null_rank_from_engine_is_assigned(client, monkeypatch):
+    eng = client.app.state.ctx.engine
+    real = eng.recommend
+
+    def null_ranks(*a):
+        rows = real(*a)
+        for r in rows:
+            if r["excluded"]:
+                r["rank"] = None
+        return rows[::-1]
+
+    monkeypatch.setattr(eng, "recommend", null_ranks)
+    rows = client.post("/api/recommend", json=PREFS).json()
+    assert [x["rank"] for x in rows] == list(range(1, len(rows) + 1))
+    flags = [x["excluded"] for x in rows]
+    assert flags == sorted(flags)
