@@ -1,6 +1,6 @@
 # Workstream: frontend (as built)
 
-Owner: Ryan Mehta · Branch: `nightlife/frontend` · Built Nov 17 2026 against CONTRACTS v2.2 + §J (`b46d75f`).
+Owner: Ryan Mehta · Branch: `nightlife/frontend` · Built Nov 17 2026 against CONTRACTS v2.2 + §J (`651c7b4`, incl. CR-15..19).
 Folder: `frontend/` (see `frontend/README.md` for run and deploy steps). Synthetic registry: `docs/synthetic/frontend.md`.
 
 ## What was built
@@ -28,7 +28,7 @@ Folder: `frontend/` (see `frontend/README.md` for run and deploy steps). Synthet
 | Task | Status |
 |---|---|
 | T1–T15 | done |
-| T16 live mode | done against the contract; **pending backend**: `nightlife/backend` had no code on Nov 17, so `contract:live` has only been run in self-test mode (8/8 pass). The live build shows "live API isn't answering → Use demo mode" when `/api/health` fails or takes over 5 s. |
+| T16 live mode | **done and verified against the real backend** (backend `bd463d9`, real `recs` from ml-recs `5e10061`, `live_sim.db` from live-sim `0d2a26c`, full 36-night seed-42 run, all run locally from scratch worktrees; nothing copied into this branch). `npm run contract:live` passes 9/9, including `/openapi.json`. `npm run e2e:live` passes 6/6 (pick, browse, profile with complaint_risk, vibe check → 201, owner dashboard + update → 201, leaderboard/plan/map/feedback). If `/api/health` fails or takes over 5 s, the app shows "Use demo mode". |
 | T17 Run My Night | done (mock) |
 | T18 feedback prompt | done (mock) |
 | T19 e2e + a11y | done: 24 Playwright tests (flows, badge on every route, axe 0 serious/critical on 11 routes, no horizontal scroll at 360/390 px) |
@@ -40,6 +40,7 @@ Folder: `frontend/` (see `frontend/README.md` for run and deploy steps). Synthet
 - `npm run typecheck`: pass. `npm run lint`: pass (0 warnings).
 - `npm test`: 81 Vitest tests pass; line coverage 81.5% on `src/api`, `src/state`, `src/components`, `src/lib`.
 - `npm run e2e`: 24/24 pass (3 repeated runs of the main suite green).
+- `npm run e2e:live` (live build via preview proxy to :8000): 6/6 pass. `npm run contract:live`: 9/9 pass.
 - Bundle: initial JS ≈ 87 KB gzip (react 51.6 + query 13.8 + app 21.7). MapLibre (220 KB gz), Recharts (104 KB gz)
   and the mock API (141 KB gz) load lazily.
 - **Lighthouse** (v12.2.1, mobile emulation, production build in mock mode, `/tonight`): **Performance 94,
@@ -72,16 +73,33 @@ None yet. Steps are in `frontend/README.md` § Deploy. `.env.production` default
 - `@types/node` (types for the Playwright config and Node scripts), `axe-core` (a11y checks in e2e, T19),
   `@vitest/coverage-v8` (coverage gate). All are dev-only.
 
+## Live-mode fixes made after testing against the backend (frontend side)
+- `complaint_risk` is now the CR-19 object `{label, noise_complaints_3y, level, score}` in types, guards, fixtures,
+  contract samples and the profile. It shows "311 noise-complaint risk" + level + 3-year count, never as a vibe.
+- `GET /owner/{id}/dashboard` needs the venue owner's bearer token. The client now sends it, and the mock enforces the same 401/403.
+- `withAuth` in `persona.tsx`: logs in as the right persona (owner for the right venue) and, on a 401 (expired or unknown
+  token, e.g. after a backend restart), logs in again once and retries (RULES §3 "one-tap re-login", automated).
+- Feedback is `role=user` only. The app logs in as the planner (user), and the mock enforces the same rule.
+- Recommendation rows have no `display_name` or freshness, so the Pick screen joins `/api/venues` cards for display only
+  (the order stays the backend `rank`). Missing freshness is hidden, never shown as "no recent reports".
+- `walk_minutes_from_prev` (float) is rounded for display. `genres` on venue updates is accepted as a string or an array.
+
 ## Open issues
 1. LCP 2.8 s on simulated 4G in mock mode (target 2.5 s). Causes: the Google Fonts request and MSW start-up before
    first render. Fixes: self-host the fonts or use `preload`; in live mode MSW isn't loaded at all.
-2. Live mode has not been verified against a real backend (none existed). Run `npm run contract:live` as soon as
-   `backend/` is up and log mismatches as CRs.
+2. Observed with real recs at 23:30 (reported to master, not a frontend bug): the top pick for hip-hop/r&b + dancing
+   + crowd 4 is "Brick" with vibe 0 (Chill) at High confidence, and `cluster_label` reads
+   "web presence, late-closing, restaurant", which is not user-facing copy.
 3. Heatmap `by=hour` uses the nearest 30-min snapshot in the mock; real `hour` semantics come from the backend.
 4. The Vercel account and domain (PRD Q5) are still with Ryan.
 
 ## Contract change requests
-None new. Observations for integration:
+- CR-17 (suggestion): add `display_name`, `freshness_minutes` and `n_reports` to recommendation rows so `/tonight` needs
+  one request instead of two. The frontend currently joins `/api/venues`.
+- CR-18 (note): the CONTRACTS table doesn't say `GET /api/owner/{id}/dashboard` needs auth. The backend requires the
+  owner's token, and the frontend follows the backend.
+
+Earlier: Observations for integration:
 - CR-15 (suggestion): add `address` to the venue card shape (§G). The profile shows it, and the mock already sends it.
   If the backend omits it, the UI falls back to lat/lon.
 - CR-16 (suggestion): give `syn_venue_updates.genres` one type on the wire (array). The UI accepts both a pipe-string and an array.

@@ -5,5 +5,5 @@
   "reasons": ["Hip-hop playing (2 reports, 12 min ago)", "Line ~10 min, under your 15"],
   "missing": ["cover not reported tonight"],
   "excluded": false, "excluded_reason": null, "rank_score": 84.3, "rank": 1,
-  "cluster_label": null, "complaint_risk": 0.4, "is_synthetic": true
+  "cluster_label": null, "complaint_risk": {"label": "311 noise-complaint risk", "noise_complaints_3y": 281, "level": "high", "score": null}, "is_synthetic": true
 }]

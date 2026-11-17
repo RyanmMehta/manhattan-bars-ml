@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecommend } from '../api/queries';
+import { venueName } from '../api/adapters';
+import { useRecommend, useVenues } from '../api/queries';
+import type { Recommendation, VenueCard } from '../api/types';
 import { DemoBadge } from '../components/demo/DemoBadge';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -19,6 +21,21 @@ export function Pick() {
   const { prefs, fromUrl } = usePrefs();
   const { now } = useDemoClock();
   const q = useRecommend(prefs);
+  // Recommendation rows carry only `name` and no freshness (CONTRACTS shape); join the venue card for
+  // display_name and live-state freshness. Display only: order still comes from the backend's `rank`.
+  const cards = useVenues({ lat: prefs.lat, lon: prefs.lon });
+  const byId = useMemo(() => new Map((cards.data?.rows ?? []).map((c) => [c.venue_id, c])), [cards.data]);
+  const enrich = (r: Recommendation): Recommendation => {
+    const c: VenueCard | undefined = byId.get(r.venue_id);
+    const s = c?.state;
+    return {
+      ...r,
+      name: c ? venueName(c) : venueName({ name: r.name, display_name: null }),
+      freshness_minutes: r.freshness_minutes !== undefined ? r.freshness_minutes : s ? s.freshness_minutes : undefined,
+      n_reports: r.n_reports !== undefined ? r.n_reports : s ? s.n_reports : undefined,
+      display: r.display ?? s?.display,
+    };
+  };
   const [showExcluded, setShowExcluded] = useState(false);
   const toast = useToast();
 
@@ -34,7 +51,7 @@ export function Pick() {
 
   if (q.isPending) return <Skeleton lines={3} className="h-40" />;
   if (q.isError) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
-  const rows = [...q.data].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+  const rows = [...q.data].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)).map(enrich);
   const included = rows.filter((r) => !r.excluded);
   const excluded = rows.filter((r) => r.excluded);
   const [hero, ...rest] = included;

@@ -18,7 +18,7 @@ const state = (p: Partial<LiveVenueState> = {}): LiveVenueState => ({
 });
 const card = (s: LiveVenueState | null, syn: 0 | 1 = 1): Card => ({
   venue_id: 'v1', name: 'APT 5 LLC', display_name: null, style: 'club', genres: ['hip-hop'], price_level: 2, typical_cover_usd: 10,
-  lat: 40.7, lon: -73.9, distance_km: 0.4, opening_hours: null, is_claimed: 0, state: s, complaint_risk: 0.3, is_synthetic: syn,
+  lat: 40.7, lon: -73.9, distance_km: 0.4, opening_hours: null, is_claimed: 0, state: s, complaint_risk: { label: '311 noise-complaint risk', noise_complaints_3y: 12, level: 'low', score: 0.1 }, is_synthetic: syn,
 });
 const rec = (p: Partial<Recommendation> = {}): Recommendation => ({
   venue_id: 'v1', name: 'Subject', match_score: 91, vibe_score: 78, confidence: 0.71, distance_km: 0.3,

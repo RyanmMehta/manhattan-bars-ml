@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'public/mockServiceWorker.js', 'node_modules', 'test-results'] },
+  { ignores: ['dist', 'dist-live', 'coverage', 'public/mockServiceWorker.js', 'node_modules', 'test-results'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

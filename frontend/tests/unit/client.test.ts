@@ -56,7 +56,6 @@ describe('api (mock backend)', () => {
     expect(await api.heatmap(true)).toHaveLength(35);
     expect((await api.leaderboard())[0]?.rank).toBe(1);
     expect((await api.bounties())[0]?.points).toBe(50);
-    expect((await api.ownerDashboard('0370-23-127248')).demand_by_hour.length).toBeGreaterThan(5);
     const plan = await api.planNight({ ...DEFAULT_PREFS, n_stops: 3 });
     expect(plan).toHaveLength(3);
     const swapped = await api.planNight({ ...DEFAULT_PREFS, n_stops: 3, exclude_venue_ids: [plan[0]!.venue_id] });
@@ -79,6 +78,8 @@ describe('api (mock backend)', () => {
     const o = await api.demoLogin({ display_name: 'Demo Owner', role: 'owner', venue_id: '0370-23-127248' });
     setToken({ token: o.token, issued_at: Date.now(), role: 'owner', id: o.user_id ?? null, display_name: 'Demo Owner' });
     await expect(api.report({ venue_id: '0370-23-127248', crowd: 3, dancing: 1, line_minutes: 5 })).rejects.toMatchObject({ status: 403 });
+    expect((await api.ownerDashboard('0370-23-127248')).demand_by_hour.length).toBeGreaterThan(5);
+    await expect(api.ownerDashboard('0370-21-116653')).rejects.toMatchObject({ status: 403 });
     await api.ownerUpdate('0370-23-127248', { cover_usd: 10, dj: 'Balkan Beat', genres: ['throwbacks'], event: null, offer: '$10 before midnight', offer_expires_at: '2026-11-15T00:00:00-05:00' });
     expect((await api.venue('0370-23-127248')).offers[0]?.offer).toBe('$10 before midnight');
   });

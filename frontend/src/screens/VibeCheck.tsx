@@ -20,12 +20,12 @@ import { usePrefs } from '../state/prefs';
 export function VibeCheck() {
   const [params] = useSearchParams();
   const { prefs } = usePrefs();
-  const { persona, ownerVenueId, ensureLogin } = usePersona();
+  const { persona, ownerVenueId } = usePersona();
   const toast = useToast();
   const nav = useNavigate();
   const [loc, setLoc] = useState<{ lat: number; lon: number } | null>(null);
   const venues = useVenues({ lat: prefs.lat, lon: prefs.lon });
-  const submit = useSubmitReport();
+  const submit = useSubmitReport(persona === 'planner' ? 'scout' : persona);
   const opened = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
 
@@ -57,7 +57,6 @@ export function VibeCheck() {
 
   const send = async (body: ReportInput) => {
     try {
-      await ensureLogin(persona === 'planner' ? 'scout' : persona);
       const r = await submit.mutateAsync(body);
       toast(`+${r.points_pending} pts pending · ${r.status} · ${elapsed}s`);
       nav(`/venue/${body.venue_id}`);

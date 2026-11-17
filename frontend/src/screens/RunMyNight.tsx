@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { venueName } from '../api/adapters';
 import { usePlan } from '../api/queries';
 import { DemoBadge } from '../components/demo/DemoBadge';
 import { Button } from '../components/ui/Button';
@@ -81,7 +82,7 @@ export function RunMyNight() {
                 </span>
                 {s.walk_minutes_from_prev !== null && (
                   <p className="mb-1 text-xs text-muted">
-                    🚶 {s.walk_minutes_from_prev} min walk{s.distance_km !== null ? ` · ${s.distance_km.toFixed(1)} km` : ''}
+                    🚶 {Math.round(s.walk_minutes_from_prev)} min walk{s.distance_km !== null ? ` · ${s.distance_km.toFixed(1)} km` : ''}
                   </p>
                 )}
                 <div className="rounded-lg border border-line bg-surface p-3">
@@ -91,7 +92,7 @@ export function RunMyNight() {
                         {clockLabel(s.arrive_at)} – {clockLabel(s.leave_at)}
                       </p>
                       <Link to={`/venue/${s.venue_id}`} className="font-display text-base font-semibold hover:text-accent">
-                        {s.name}
+                        {venueName({ name: s.name, display_name: null })}
                       </Link>
                     </div>
                     <span className="font-display text-accent">{s.match_score}</span>

@@ -7,3 +7,4 @@ test-results/
 playwright-report/
 *.trace.zip
 .vercel
+dist-live/

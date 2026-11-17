@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { api, getToken, setToken, type StoredToken } from '../api/client';
+import { ApiError, api, getToken, setToken, type StoredToken } from '../api/client';
 import type { Role } from '../api/types';
 
 export type Persona = 'planner' | 'scout' | 'owner';
@@ -17,7 +17,9 @@ interface PersonaState {
 interface PersonaCtx extends PersonaState {
   token: StoredToken | null;
   login: (p: Persona, venueId?: string) => Promise<StoredToken>;
-  ensureLogin: (p?: Persona) => Promise<StoredToken>;
+  ensureLogin: (p?: Persona, venueId?: string) => Promise<StoredToken>;
+  /** Log in as `p` if needed, run `fn`; on 401 (expired/unknown token) log in again once and retry (RULES §3). */
+  withAuth: <R>(p: Persona, fn: () => Promise<R>, venueId?: string) => Promise<R>;
   setPersona: (p: Persona) => void;
   logout: () => void;
 }
@@ -74,13 +76,29 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [state.ownerVenueId]);
 
   const ensureLogin = useCallback(
-    async (p?: Persona) => {
+    async (p?: Persona, venueId?: string) => {
       const want = p ?? state.persona;
       const cur = getToken();
-      if (cur && cur.role === ROLE[want]) return cur;
-      return login(want);
+      if (cur && cur.role === ROLE[want] && (want !== 'owner' || !venueId || cur.venue_id === venueId)) return cur;
+      return login(want, venueId);
     },
     [login, state.persona],
+  );
+
+  const withAuth = useCallback(
+    async <R,>(p: Persona, fn: () => Promise<R>, venueId?: string): Promise<R> => {
+      await ensureLogin(p, venueId);
+      try {
+        return await fn();
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) {
+          await login(p, venueId);
+          return fn();
+        }
+        throw e;
+      }
+    },
+    [ensureLogin, login],
   );
 
   const setPersona = useCallback((p: Persona) => {
@@ -96,8 +114,8 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, token, login, ensureLogin, setPersona, logout }),
-    [state, token, login, ensureLogin, setPersona, logout],
+    () => ({ ...state, token, login, ensureLogin, withAuth, setPersona, logout }),
+    [state, token, login, ensureLogin, withAuth, setPersona, logout],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -206,7 +206,9 @@ export function makeHandlers(db: Db = createDb(), base = '/api') {
     }),
 
     http.post(p('/feedback'), async ({ request }) => {
-      if (!auth(request)) return err(401, 'unauthorized', 'Bearer token required');
+      const who = auth(request);
+      if (!who) return err(401, 'unauthorized', 'Bearer token required');
+      if (who.role !== 'user') return err(403, 'forbidden', 'Only users can leave feedback');
       const b = (await request.json()) as Record<string, unknown>;
       return HttpResponse.json({ feedback_id: `syn-f-${db.seq++}`, ...b, is_synthetic: 1 }, { status: 201 });
     }),
@@ -222,7 +224,11 @@ export function makeHandlers(db: Db = createDb(), base = '/api') {
       return HttpResponse.json(rows, { headers: H });
     }),
 
-    http.get(p('/owner/:id/dashboard'), ({ params }) => {
+    http.get(p('/owner/:id/dashboard'), ({ request, params }) => {
+      // Mirrors backend bd463d9: the venue owner's bearer token is required.
+      const who = auth(request);
+      if (!who) return err(401, 'unauthorized', 'Missing bearer token');
+      if (who.role !== 'owner' || who.venue_id !== params.id) return err(403, 'forbidden', "Only this venue's owner can do that");
       const d = db.owner[String(params.id)];
       return d ? HttpResponse.json(d) : err(404, 'not_found', 'Venue not found');
     }),

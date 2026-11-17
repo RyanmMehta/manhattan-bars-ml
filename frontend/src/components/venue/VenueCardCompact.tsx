@@ -25,7 +25,7 @@ export function VenueCardCompact({ rec, excluded = false }: { rec: Recommendatio
             <ConfidenceMeter confidence={rec.confidence} />
             <DemoBadge data={rec} />
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2"><FreshnessTag minutes={rec.freshness_minutes ?? null} />
+          <div className="mt-1 flex flex-wrap items-center gap-2">{rec.freshness_minutes !== undefined && <FreshnessTag minutes={rec.freshness_minutes} />}
             {rec.reasons[0] && <span className="text-xs text-muted">· {rec.reasons[0]}</span>}</div>
           {band === 'none' && <Link to={`/scout?venue=${rec.venue_id}`} className="mt-1 inline-flex min-h-[44px] items-center text-sm text-cyan">Be the Scout →</Link>}
         </>

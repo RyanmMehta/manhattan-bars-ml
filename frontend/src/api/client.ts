@@ -187,7 +187,7 @@ export const api = {
     return checkList(json, guard.isBounty, 'bounty');
   },
   async ownerDashboard(id: string): Promise<T.OwnerDashboard> {
-    const { json } = await request('GET', `/owner/${encodeURIComponent(id)}/dashboard`);
+    const { json } = await request('GET', `/owner/${encodeURIComponent(id)}/dashboard`, { auth: true });
     return check(json, guard.isOwnerDashboard, 'owner dashboard');
   },
   async ownerUpdate(id: string, u: Omit<T.VenueUpdate, 'update_id' | 'ts' | 'venue_id'>): Promise<unknown> {

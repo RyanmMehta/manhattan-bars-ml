@@ -15,7 +15,6 @@ import { ReportTimeline } from '../components/venue/ReportTimeline';
 import { GENRES, genreLabel } from '../config/genres';
 import { shiftIso } from '../lib/time';
 import { useNowIso } from '../state/demoClock';
-import { usePersona } from '../state/persona';
 
 const DemandChart = lazy(() => import('../components/owner/DemandChart'));
 
@@ -30,7 +29,6 @@ export function OwnerDashboard() {
   const detail = useVenue(venueId);
   const all = useVenues({});
   const upd = useOwnerUpdate(venueId);
-  const { login, token } = usePersona();
   const toast = useToast();
   const [d, setD] = useState<Draft>({ cover_usd: 10, dj: '', genres: [], event: '', offer: '', offer_expires_at: null });
   const [expires, setExpires] = useState<'none' | 'midnight' | '1h'>('midnight');
@@ -45,7 +43,6 @@ export function OwnerDashboard() {
 
   const post = async () => {
     try {
-      if (!(token?.role === 'owner' && token.venue_id === venueId)) await login('owner', venueId);
       await upd.mutateAsync(draft);
       toast('Update posted. Guests see it on your card now.');
     } catch (e) {

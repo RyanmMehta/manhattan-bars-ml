@@ -40,6 +40,14 @@ export interface LiveVenueState {
   is_synthetic: Synthetic;
 }
 
+/** CONTRACTS §J CR-19: complaint_risk object. Shown as label + level only, never as a vibe signal. */
+export interface ComplaintRisk {
+  label: string;
+  noise_complaints_3y: number | null;
+  level: 'low' | 'medium' | 'high' | null;
+  score: number | null;
+}
+
 export interface VenueCard {
   venue_id: string;
   name: string;
@@ -54,7 +62,7 @@ export interface VenueCard {
   opening_hours: string | null;
   is_claimed: boolean | 0 | 1;
   state: LiveVenueState | null;
-  complaint_risk: number | null;
+  complaint_risk: ComplaintRisk | null;
   address?: string | null;
   is_synthetic: Synthetic;
 }
@@ -64,6 +72,8 @@ export interface ScoutReport {
   venue_id: string;
   scout_id?: string;
   scout_level?: number | null;
+  scout_display_name?: string | null;
+  reputation?: number | null;
   ts: string;
   crowd: number;
   dancing: number;
@@ -110,7 +120,7 @@ export interface Recommendation {
   rank_score?: number;
   rank?: number;
   cluster_label?: string | null;
-  complaint_risk?: number | null;
+  complaint_risk?: ComplaintRisk | null;
   freshness_minutes?: number | null;
   n_reports?: number | null;
   display?: Display;

@@ -5,14 +5,14 @@ import { useToast } from '../ui/Toast';
 
 /** T18 (stretch): post-visit feedback → POST /api/feedback. */
 export function FeedbackPrompt({ venueId }: { venueId: string }) {
-  const { ensureLogin, token } = usePersona();
+  const { withAuth } = usePersona();
   const toast = useToast();
   const [done, setDone] = useState(false);
   if (done) return <p className="text-sm text-muted">Thanks, that helps tomorrow’s picks.</p>;
   const send = async (visited: 0 | 1, rating: number | null) => {
     try {
-      const t = token?.role === 'user' ? token : await ensureLogin('planner');
-      await api.feedback({ user_id: t.id ?? undefined, venue_id: venueId, visited, rating });
+      // Backend: only role=user may leave feedback; user_id comes from the token server-side.
+      await withAuth('planner', () => api.feedback({ venue_id: venueId, visited, rating }));
       setDone(true);
     } catch (e) {
       toast(e instanceof ApiError ? e.message : 'Could not send feedback', 'error');

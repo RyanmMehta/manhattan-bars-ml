@@ -2,6 +2,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { REFRESH_MS } from '../config/thresholds';
 import { useDemoClock } from '../state/demoClock';
+import { usePersona, type Persona } from '../state/persona';
 import { api } from './client';
 import type * as T from './types';
 
@@ -56,9 +57,15 @@ export function useBounties() {
   const { now } = useDemoClock();
   return useQuery({ queryKey: ['bounties', now], queryFn: () => api.bounties() });
 }
+/** Backend requires the venue owner's bearer token for the dashboard. */
 export function useOwnerDashboard(id: string | undefined) {
   const { now } = useDemoClock();
-  return useQuery({ queryKey: ['owner', id, now], queryFn: () => api.ownerDashboard(id ?? ''), enabled: !!id });
+  const { withAuth } = usePersona();
+  return useQuery({
+    queryKey: ['owner', id, now],
+    queryFn: () => withAuth('owner', () => api.ownerDashboard(id ?? ''), id),
+    enabled: !!id,
+  });
 }
 export function usePlan(prefs: T.Preferences, n: number, enabled: boolean) {
   const { now } = useDemoClock();
@@ -70,10 +77,11 @@ export function usePlan(prefs: T.Preferences, n: number, enabled: boolean) {
   });
 }
 
-export function useSubmitReport() {
+export function useSubmitReport(as: Persona) {
   const qc = useQueryClient();
+  const { withAuth } = usePersona();
   return useMutation({
-    mutationFn: (i: T.ReportInput) => api.report(i),
+    mutationFn: (i: T.ReportInput) => withAuth(as, () => api.report(i)),
     onSuccess: () => {
       for (const k of ['venue', 'venues', 'recommend', 'heatmap', 'leaderboard', 'bounties']) {
         void qc.invalidateQueries({ queryKey: [k] });
@@ -83,8 +91,9 @@ export function useSubmitReport() {
 }
 export function useOwnerUpdate(id: string) {
   const qc = useQueryClient();
+  const { withAuth } = usePersona();
   return useMutation({
-    mutationFn: (u: Omit<T.VenueUpdate, 'update_id' | 'ts' | 'venue_id'>) => api.ownerUpdate(id, u),
+    mutationFn: (u: Omit<T.VenueUpdate, 'update_id' | 'ts' | 'venue_id'>) => withAuth('owner', () => api.ownerUpdate(id, u), id),
     onSuccess: () => {
       for (const k of ['venue', 'venues', 'owner', 'recommend']) void qc.invalidateQueries({ queryKey: [k] });
     },

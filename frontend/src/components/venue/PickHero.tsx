@@ -23,7 +23,7 @@ export function PickHero({ rec, onShare }: { rec: Recommendation; onShare?: () =
         <DemoBadge data={rec} />
       </div>
       <div className="mt-3"><ScoreTriplet match={rec.match_score} vibe={rec.vibe_score} confidence={rec.confidence} display={rec.display} /></div>
-      <div className="mt-2"><FreshnessTag minutes={rec.freshness_minutes ?? null} nReports={rec.n_reports} /></div>
+      <div className="mt-2">{rec.freshness_minutes !== undefined && <FreshnessTag minutes={rec.freshness_minutes} nReports={rec.n_reports} />}</div>
       <div className="mt-3 space-y-2">
         <ReasonList reasons={rec.reasons.slice(0, 4)} />
         <MissingList missing={rec.missing} />

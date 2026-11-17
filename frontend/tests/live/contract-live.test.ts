@@ -45,6 +45,8 @@ describe(`contract:live against ${SELF ? 'mock self-test' : BASE}`, () => {
     expect(['synthetic', 'real', 'mixed']).toContain(res.headers.get('X-Data'));
     const rows = json as { venue_id: string; distance_km?: number }[];
     expect(rows.every(syn)).toBe(true);
+    // CONTRACTS §J CR-19: complaint_risk is an object with the fixed label.
+    expect(rows.every((r) => { const c = (r as { complaint_risk?: { label?: string } | null }).complaint_risk; return c === null || c?.label === '311 noise-complaint risk'; })).toBe(true);
     expect(rows[0]?.distance_km).toBeTypeOf('number');
     venueId = rows[0]!.venue_id;
   });
@@ -66,8 +68,12 @@ describe(`contract:live against ${SELF ? 'mock self-test' : BASE}`, () => {
     expect(Array.isArray(b) && b.every(g.isBounty)).toBe(true);
     expect(list((await get('/heatmap?by=hour')).json, g.isHeatPoint)).toBe(true);
   });
-  it('GET /owner/{id}/dashboard', async () => {
-    expect(g.isOwnerDashboard((await get(`/owner/${venueId}/dashboard`)).json)).toBe(true);
+  it('GET /owner/{id}/dashboard (owner bearer required)', async () => {
+    expect((await get(`/owner/${venueId}/dashboard`)).res.status).toBe(401);
+    const o = await post('/auth/demo-login', { display_name: 'Contract Owner', role: 'owner', venue_id: venueId });
+    const tok = (o.json as { token: string }).token;
+    const res = await fetch(`${BASE}/owner/${venueId}/dashboard?now=${encodeURIComponent(NOW)}`, { headers: { Authorization: `Bearer ${tok}` } });
+    expect(g.isOwnerDashboard(await res.json())).toBe(true);
   });
   it('auth + writes: demo-login, reports, owner update, feedback; 401 envelope', async () => {
     const anon = await post('/reports', { venue_id: venueId, crowd: 3, dancing: 1, line_minutes: 5 });
@@ -81,7 +87,9 @@ describe(`contract:live against ${SELF ? 'mock self-test' : BASE}`, () => {
     const bad = await post('/reports', { venue_id: venueId }, tok);
     expect(bad.res.status).toBe(422);
     expect(g.asErrorEnvelope(bad.json)).not.toBeNull();
-    const f = await post('/feedback', { venue_id: venueId, visited: 1, rating: 4 }, tok);
+    expect((await post('/feedback', { venue_id: venueId, visited: 1, rating: 4 }, tok)).res.status).toBe(403); // scouts can't
+    const usr = await post('/auth/demo-login', { display_name: 'Contract User', role: 'user' });
+    const f = await post('/feedback', { venue_id: venueId, visited: 1, rating: 4 }, (usr.json as { token: string }).token);
     expect(f.res.ok).toBe(true);
     const o = await post('/auth/demo-login', { display_name: 'Contract Owner', role: 'owner', venue_id: venueId });
     const ot = (o.json as { token: string }).token;

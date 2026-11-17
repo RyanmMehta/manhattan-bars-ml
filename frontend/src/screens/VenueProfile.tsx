@@ -1,11 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
-import { displayBand, venueName } from '../api/adapters';
+import { complaintLevelLabel, displayBand, venueName } from '../api/adapters';
 import { useVenue } from '../api/queries';
 import { DemoBadge } from '../components/demo/DemoBadge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ErrorState } from '../components/ui/ErrorState';
 import { Skeleton } from '../components/ui/Skeleton';
+import { Unknown } from '../components/ui/Unknown';
 import { useToast } from '../components/ui/Toast';
 import { ConfidenceMeter } from '../components/venue/ConfidenceMeter';
 import { FeedbackPrompt } from '../components/venue/FeedbackPrompt';
@@ -131,11 +132,16 @@ export function VenueProfile() {
         </Card>
       )}
 
-      {venue.complaint_risk !== null && (
-        <Card>
-          <h2 className="text-sm font-medium">311 noise-complaint risk</h2>
+      {venue.complaint_risk && (
+        <Card data-testid="complaint-risk">
+          {/* CONTRACTS §J CR-19: label + level only; never a vibe or ranking signal. */}
+          <h2 className="text-sm font-medium">{venue.complaint_risk.label}</h2>
           <p className="text-sm text-muted">
-            {Math.round(venue.complaint_risk * 100)}% (from NYC 311 public data; not a quality or vibe signal)
+            {complaintLevelLabel(venue.complaint_risk) ?? <Unknown />}
+            {venue.complaint_risk.noise_complaints_3y !== null
+              ? ` · ${venue.complaint_risk.noise_complaints_3y} complaints in 3 years`
+              : ''}
+            {' '}(NYC 311 public data; not a quality or vibe signal)
           </p>
         </Card>
       )}

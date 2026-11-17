@@ -31,9 +31,12 @@ export function isLiveState(v: unknown): v is T.LiveVenueState {
     (v.music_genres === null || v.music_genres === undefined || isStrArr(v.music_genres))
   );
 }
+const crOk = (v: unknown) =>
+  v === null || v === undefined || (isObj(v) && isStr(v.label) && (v.level === null || v.level === undefined || v.level === 'low' || v.level === 'medium' || v.level === 'high'));
+
 export function isVenueCard(v: unknown): v is T.VenueCard {
   return (
-    isObj(v) && isStr(v.venue_id) && isStr(v.name) && strOrNull(v.display_name) &&
+        isObj(v) && isStr(v.venue_id) && isStr(v.name) && strOrNull(v.display_name) && crOk(v.complaint_risk) &&
     isNum(v.lat) && isNum(v.lon) && (v.genres === undefined || isStrArr(v.genres)) &&
     (v.state === null || v.state === undefined || isLiveState(v.state))
   );
@@ -49,7 +52,7 @@ export function isVenueDetail(v: unknown): v is T.VenueDetail {
 }
 export function isRecommendation(v: unknown): v is T.Recommendation {
   return (
-    isObj(v) && isStr(v.venue_id) && isNum(v.match_score) && numOrNull(v.vibe_score) &&
+    isObj(v) && isStr(v.venue_id) && isNum(v.match_score) && numOrNull(v.vibe_score) && crOk(v.complaint_risk) &&
     numOrNull(v.confidence) && isStrArr(v.reasons) && isStrArr(v.missing) && typeof v.excluded === 'boolean'
   );
 }
@@ -118,4 +121,9 @@ export const DANCING_LABEL = ['None', 'Some', 'Lots'] as const;
 export function dancingLabel(d: number | null): string | null {
   if (d === null) return null;
   return DANCING_LABEL[Math.max(0, Math.min(2, Math.round(d)))] ?? null;
+}
+
+export function complaintLevelLabel(cr: T.ComplaintRisk | null | undefined): string | null {
+  if (!cr || !cr.level) return null;
+  return cr.level.charAt(0).toUpperCase() + cr.level.slice(1);
 }

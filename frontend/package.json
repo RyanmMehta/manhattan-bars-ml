@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "e2e": "playwright test --trace off",
+    "e2e:live": "playwright test --config playwright.live.config.ts --trace off",
     "mockups": "node scripts/mockups.mjs",
     "contract:live": "vitest run --config vitest.live.config.ts",
     "fixtures": "node scripts/build-fixtures.mjs"

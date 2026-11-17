@@ -114,7 +114,12 @@ const venues = launch.map((v) => {
     opening_hours: null,
     is_claimed: o.is_claimed ?? 0,
     // Real public signal (311 noise complaints), normalised; shown only on the profile.
-    complaint_risk: round((Number(v.noise_complaints) || 0) / maxNoise, 2),
+    // CONTRACTS §J CR-19 object. Count is real public data; level cut-offs are a frontend placeholder (score ÷ max).
+    complaint_risk: (() => {
+      const n = Number(v.noise_complaints) || 0;
+      const score = round(n / maxNoise, 2);
+      return { label: '311 noise-complaint risk', noise_complaints_3y: n, level: score < 0.2 ? 'low' : score < 0.5 ? 'medium' : 'high', score };
+    })(),
     is_synthetic: 1,
   };
 });

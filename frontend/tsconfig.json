@@ -15,5 +15,5 @@
     "noEmit": true,
     "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "tests", "vite.config.ts", "vitest.live.config.ts", "tailwind.config.ts", "playwright.config.ts"]
+  "include": ["src", "tests", "vite.config.ts", "vitest.live.config.ts", "playwright.live.config.ts", "tailwind.config.ts", "playwright.config.ts"]
 }
