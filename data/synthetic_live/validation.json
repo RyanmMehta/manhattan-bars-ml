@@ -1,11 +1,6 @@
 {
-  "ok": false,
-  "failed": [
-    "report_peak_22_to_01",
-    "gamer_shill_mae>=1.2",
-    "churn_label21_vs_latent>=80%",
-    "week4_retention_35_60%"
-  ],
+  "ok": true,
+  "failed": [],
   "n_checks": 52,
   "checks": [
     {
@@ -204,17 +199,17 @@
       "check": "status_values",
       "ok": true,
       "value": {
-        "accepted": 10533,
-        "flagged": 168,
-        "removed": 75,
-        "disputed": 11
+        "accepted": 7965,
+        "flagged": 110,
+        "removed": 59,
+        "disputed": 13
       },
       "target": null
     },
     {
       "check": "report_peak_22_to_01",
-      "ok": false,
-      "value": 0.667,
+      "ok": true,
+      "value": 0.944,
       "target": ">=0.9 of nights"
     },
     {
@@ -248,37 +243,37 @@
     {
       "check": "honest_mae<=0.6",
       "ok": true,
-      "value": 0.211,
+      "value": 0.21,
       "target": 0.6
     },
     {
       "check": "gamer_shill_mae>=1.2",
-      "ok": false,
+      "ok": true,
       "value": {
-        "casual": 0.39,
-        "gamer": 2.17,
-        "honest": 0.211,
-        "shill": 1.19,
-        "sloppy": 0.618
+        "casual": 0.396,
+        "gamer": 1.968,
+        "honest": 0.21,
+        "shill": 1.319,
+        "sloppy": 0.655
       },
       "target": 1.2
     },
     {
       "check": "empty_venue_slots>=20%",
       "ok": true,
-      "value": 0.519,
+      "value": 0.569,
       "target": 0.2
     },
     {
       "check": "null_rate:cover_usd~0.6",
       "ok": true,
-      "value": 0.657,
+      "value": 0.664,
       "target": 0.6
     },
     {
       "check": "null_rate:music_genre~0.4",
       "ok": true,
-      "value": 0.443,
+      "value": 0.442,
       "target": 0.4
     },
     {
@@ -290,7 +285,7 @@
     {
       "check": "demo_now_fresh_venues>=25",
       "ok": true,
-      "value": 30,
+      "value": 31,
       "target": 25
     },
     {
@@ -302,7 +297,7 @@
     {
       "check": "demo_now_pending_reports",
       "ok": true,
-      "value": 36,
+      "value": 48,
       "target": null
     },
     {
@@ -314,7 +309,7 @@
     {
       "check": "churn_share_40_60%",
       "ok": true,
-      "value": 0.416,
+      "value": 0.555,
       "target": [
         0.4,
         0.6
@@ -322,14 +317,14 @@
     },
     {
       "check": "churn_label21_vs_latent>=80%",
-      "ok": false,
-      "value": 0.748,
+      "ok": true,
+      "value": 0.883,
       "target": 0.8
     },
     {
       "check": "week4_retention_35_60%",
-      "ok": false,
-      "value": 0.792,
+      "ok": true,
+      "value": 0.564,
       "target": [
         0.35,
         0.6
@@ -338,15 +333,15 @@
     {
       "check": "csv_total_mb<=30",
       "ok": true,
-      "value": 11.43,
+      "value": 10.61,
       "target": 30
     },
     {
       "check": "build_seconds<60",
       "ok": true,
-      "value": 7.74,
+      "value": 6.97,
       "target": 60
     }
   ],
-  "build_seconds": 7.74
+  "build_seconds": 6.97
 }

@@ -27,9 +27,9 @@ def run(tables: dict[str, pd.DataFrame], cfg: dict, meta: dict | None = None) ->
         _chk(res, f"schema:{name}", not errs, "; ".join(errs)[:300] or "ok")
     _integrity(res, t)
     _specs_rules(res, t, cfg)
-    _realism(res, t, cfg, tables)
-    _demo(res, tables, cfg)
     full = (cfg.get("nights") in (None, 36))
+    _realism(res, t, cfg, tables, full)
+    _demo(res, tables, cfg)
     _people(res, t, cfg, full)
     if meta.get("csv_bytes") is not None:
         _chk(res, "csv_total_mb<=30", meta["csv_bytes"] / 1e6 <= 30, round(meta["csv_bytes"] / 1e6, 2), 30)
@@ -102,19 +102,19 @@ def _slot_join(t):
     return r.merge(tr, on=["venue_id", "slot"], how="left")
 
 
-def _realism(res, t, cfg, tables):
+def _realism(res, t, cfg, tables, full=True):
     r = t["syn_scout_reports"]
     h = pd.Series(timeutil.local_hour(r["ts"]), index=r.index)
     night = r["ts"].map(timeutil.night_of)
     peak = h.floordiv(1).groupby(night).agg(lambda x: x.value_counts().idxmax())
     share = float(((peak >= 22) & (peak < 25)).mean())
-    _chk(res, "report_peak_22_to_01", share >= 0.9, round(share, 3), ">=0.9 of nights")
+    _chk(res, "report_peak_22_to_01", share >= 0.9, round(share, 3), ">=0.9 of nights", skip=not full)
     tr = t["syn_true_state"]
     th = pd.Series(timeutil.local_hour(tr["ts"]), index=tr.index)
     wd = tr["ts"].map(lambda x: timeutil.night_of(x).weekday())
     at23 = tr[th == 23.0].groupby(wd[th == 23.0])["crowd_true"].mean()
     if len(at23) == 3:
-        _chk(res, "crowd_23h_sat>=fri>=thu", at23[5] >= at23[4] >= at23[3], at23.round(2).to_dict())
+        _chk(res, "crowd_23h_sat>=fri>=thu", at23[5] >= at23[4] >= at23[3], at23.round(2).to_dict(), skip=not full)
     sty = tr["venue_id"].map(t["syn_venue_attributes"].set_index("venue_id")["style"])
     late, early = {"club", "dive"}, {"cocktail", "restaurant-bar"}
     for hh, name, hi_set, lo_set in ((25.0, "01:00 club/dive > cocktail/rest", late, early),

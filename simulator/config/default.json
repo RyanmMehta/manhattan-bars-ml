@@ -199,12 +199,12 @@
       "shill": 0.04
     },
     "engagement_beta": [
-      4,
-      3
+      2.5,
+      3.5
     ],
     "engagement_decay": 0.85,
     "engagement_floor": 0.0,
-    "bump_per_50_points": 0.004,
+    "bump_per_50_points": 0.006,
     "bump_bounty": 0.01,
     "bump_streak": 0.005,
     "penalty_flag": 0.05,
@@ -316,8 +316,8 @@
       "4": 1.0,
       "5": 2.0
     },
-    "shill_home_p": 0.9,
-    "arrival_mean_min": 205,
+    "shill_home_p": 0.95,
+    "arrival_mean_min": 160,
     "arrival_sd_min": 60,
     "bump_cap": 0.05
   },

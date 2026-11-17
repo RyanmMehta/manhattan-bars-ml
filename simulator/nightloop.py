@@ -124,7 +124,7 @@ def _observe(w: World, rng, s, vi, slot, tr) -> dict:
         crowd, dance, line = 5, 2, int(rng.choice(CHIPS))
     else:
         bias = ob["bias"] if home else 0.0
-        crowd = int(np.clip(round(tc + bias + rng.normal(0, sig)), 1, 5))
+        crowd = int(np.clip(round(tc + bias + rng.normal(0, sig)), 4 if home else 1, 5))  # shills inflate home
         dance = int(np.clip(round(td + (1 if home else 0) + rng.normal(0, 0.5 * sig)), 0, 2))
         lv = max(0.0, tl + (15 if home else 0) + rng.normal(0, 3 + 5 * sig))
         line = int(CHIPS[np.abs(CHIPS - lv).argmin()])

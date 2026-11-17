@@ -11,3 +11,4 @@ data/synthetic_live/extracts/
 data/synthetic_live/shifted/
 __pycache__/
 .pytest_cache/
+*.egg-info/
