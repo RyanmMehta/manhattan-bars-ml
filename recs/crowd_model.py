@@ -33,9 +33,13 @@ SLOT_HOURS = [20, 21, 22, 23, 0, 1, 2]
 WEEK0 = date(2026, 8, 27)
 STATIC = ["style", "has_dance_floor", "capacity", "price_level", "typical_cover_usd"]
 PUBLIC = ["density_100m", "osm_closes_late", "years_licensed", "liquor_tier"]
-CATS = ["style", "liquor_tier", "cluster_id", "weekday"]
-FEATURES = ["slot", "weekday", "week", *STATIC, *PUBLIC, "cluster_id", "venue_te"]
-HGB = dict(max_iter=300, learning_rate=0.05, max_leaf_nodes=31, random_state=C.SEED)
+CATS = ["style", "cluster_id", "weekday"]
+# `week` is deliberately not a feature: on live-sim data it extrapolates badly into the holdout weeks
+# (holdout MAE 0.81 with it vs 0.70 without). price_level / typical_cover_usd / liquor_tier added noise.
+FEATURES = ["slot", "weekday", "style", "has_dance_floor", "capacity", "density_100m", "osm_closes_late",
+            "cluster_id", "venue_te", "venue_slot_te", "venue_weekday_te"]
+HGB = dict(max_iter=200, learning_rate=0.03, max_leaf_nodes=15, min_samples_leaf=50, l2_regularization=1.0,
+           random_state=C.SEED)
 
 
 def slot_of(dt) -> int | None:
@@ -143,8 +147,15 @@ class SlotMean:
 
 
 def _X(df: pd.DataFrame, te: dict, gmean: float) -> pd.DataFrame:
+    """te: {"venue": {...}, "venue_slot": {...}, "venue_weekday": {...}} (train nights only)."""
     X = df.copy()
-    X["venue_te"] = X["venue_id"].map(te).fillna(gmean)
+    X["venue_te"] = X["venue_id"].map(te.get("venue", {})).fillna(gmean)
+    vs, vw = te.get("venue_slot", {}), te.get("venue_weekday", {})
+    X["venue_slot_te"] = [vs.get((v, int(s)), np.nan) for v, s in zip(X["venue_id"], X["slot"])]
+    X["venue_weekday_te"] = [vw.get((v, int(w)), np.nan) for v, w in zip(X["venue_id"], X["weekday"])]
+    for c in FEATURES:
+        if c not in X:
+            X[c] = np.nan
     X = X[FEATURES].copy()
     for c in CATS:
         X[c] = X[c].astype("string").fillna("na").astype("category")
@@ -157,7 +168,11 @@ def _X(df: pd.DataFrame, te: dict, gmean: float) -> pd.DataFrame:
 class GBModel:
     def fit(self, df):
         from sklearn.ensemble import HistGradientBoostingRegressor
-        self.te = df.groupby("venue_id")["crowd"].mean().to_dict()  # train-night target encoding only
+        self.te = {  # train-night target encodings only
+            "venue": df.groupby("venue_id")["crowd"].mean().to_dict(),
+            "venue_slot": df.groupby(["venue_id", "slot"])["crowd"].mean().to_dict(),
+            "venue_weekday": df.groupby(["venue_id", "weekday"])["crowd"].mean().to_dict(),
+        }
         self.gmean = float(df["crowd"].mean())
         X = _X(df, self.te, self.gmean)
         self.cats = {c: list(X[c].cat.categories) for c in CATS}

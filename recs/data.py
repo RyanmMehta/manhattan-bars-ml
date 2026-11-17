@@ -8,6 +8,7 @@ All DB connections are opened read-only.
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 from functools import lru_cache
 from pathlib import Path
@@ -19,7 +20,7 @@ log = logging.getLogger("recs")
 REPO = Path(__file__).resolve().parent.parent
 DATA = REPO / "data"
 BARS_DB = DATA / "manhattan_bars.db"
-LIVE_DB = DATA / "live_sim.db"
+LIVE_DB = Path(os.environ.get("LIVE_SIM_DB") or DATA / "live_sim.db")  # env name reserved in CONTRACTS §H
 LAUNCH_CSV = DATA / "launch_venues.csv"
 LAUNCH_FULL_CSV = DATA / "launch_venues_full.csv"
 MANUAL_ATTRS = DATA / "venue_attributes_manual.csv"

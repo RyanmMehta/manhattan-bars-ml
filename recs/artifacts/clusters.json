@@ -1,5 +1,5 @@
 {
- "trained_at": "2026-11-17T05:56:22+00:00",
+ "trained_at": "2026-11-17T06:01:10+00:00",
  "data_source": "data/manhattan_bars.db venue_features JOIN v_bars (real public data)",
  "rows": 1709,
  "with_geo": false,

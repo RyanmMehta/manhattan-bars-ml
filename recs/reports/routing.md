@@ -13,6 +13,6 @@ Solver: greedy best-marginal insertion, then local search (segment reversal, swa
 | greedy | 93% | 1.36% | 10.57% | 42% |
 | greedy + local search (shipped) | 100% | 0.06% | 2.47% | 90% |
 
-Mean solve time (greedy + local search): 1.5 ms. Target: within 5% on ≥ 90% of cases (PRD AC5.3).
+Mean solve time (greedy + local search): 1.6 ms. Target: within 5% on ≥ 90% of cases (PRD AC5.3).
 
 Forecast at arrival: the observed state decays towards the crowd model's prediction (half-life 30 min); confidence only decays, so later stops lean less on stale reports. Without a model artifact the planner uses the current state with decaying confidence.

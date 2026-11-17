@@ -94,6 +94,8 @@ def test_hours_parser():
     assert hours.is_open("24/7", NOW) is True
     assert hours.is_open("Mo-Su 18:00-02:00 || PH off", NOW) is None
     assert hours.is_open(None, NOW) is None
+    oh = "Tu-Th 17:00-24:00, Fr-Sa 17:00-02:00, Su 14:00-22:00"
+    assert hours.is_open(oh, "2026-11-15T01:30:00-05:00") is True and hours.is_open(oh, "2026-11-15T02:30:00-05:00") is False
 
 
 def test_reason_copy():

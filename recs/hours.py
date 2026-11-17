@@ -42,6 +42,7 @@ def parse(s: str | None):
     s = s.strip()
     if s == "24/7":
         return "always"
+    s = re.sub(r"(?<=\d),\s*(?=(?:Mo|Tu|We|Th|Fr|Sa|Su)\b)", ";", s)  # "Tu-Th 17:00-24:00, Fr-Sa ..." rule groups
     table: dict[int, list[tuple[int, int]]] = {d: [] for d in range(7)}
     for rule in [r.strip() for r in s.split(";") if r.strip()]:
         m = _RULE.match(rule)

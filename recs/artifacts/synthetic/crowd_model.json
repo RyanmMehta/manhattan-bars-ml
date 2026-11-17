@@ -1,7 +1,7 @@
 {
- "trained_at": "2026-11-17T05:56:31+00:00",
- "data_source": "stub",
- "rows": 5038,
+ "trained_at": "2026-11-17T06:01:17+00:00",
+ "data_source": "live_sim",
+ "rows": 4153,
  "train_nights": 34,
  "holdout_nights": [
   "2026-11-13",
@@ -10,23 +10,22 @@
  "features": [
   "slot",
   "weekday",
-  "week",
   "style",
   "has_dance_floor",
   "capacity",
-  "price_level",
-  "typical_cover_usd",
   "density_100m",
   "osm_closes_late",
-  "years_licensed",
-  "liquor_tier",
   "cluster_id",
-  "venue_te"
+  "venue_te",
+  "venue_slot_te",
+  "venue_weekday_te"
  ],
  "params": {
-  "max_iter": 300,
-  "learning_rate": 0.05,
-  "max_leaf_nodes": 31,
+  "max_iter": 200,
+  "learning_rate": 0.03,
+  "max_leaf_nodes": 15,
+  "min_samples_leaf": 50,
+  "l2_regularization": 1.0,
   "random_state": 42
  },
  "is_synthetic": true,
@@ -39,51 +38,51 @@
    ],
    "vs_reported": {
     "model": {
-     "mae": 0.6085669551449034,
-     "rmse": 0.7676253933199818,
-     "spearman": 0.7512213562149536,
-     "n": 318
+     "mae": 0.695119505371488,
+     "rmse": 0.8925360127792017,
+     "spearman": 0.7419547506648924,
+     "n": 326
     },
     "baseline": {
-     "mae": 0.6268313440654837,
-     "rmse": 0.7676219218222642,
-     "spearman": 0.770166466364272,
-     "n": 318
+     "mae": 0.7239217218496339,
+     "rmse": 0.930212435102739,
+     "spearman": 0.7207411447741265,
+     "n": 326
     },
     "slot_mean": {
-     "mae": 0.7775471004167652,
-     "rmse": 0.9700555574772344,
-     "spearman": 0.5924261503188305,
-     "n": 318
+     "mae": 1.0683751127252987,
+     "rmse": 1.2498713187831567,
+     "spearman": 0.37252983131060885,
+     "n": 326
     }
    },
    "vs_true": {
     "model": {
-     "mae": 0.357896071604016,
-     "rmse": 0.451164228721154,
-     "spearman": 0.9123688190373508,
-     "n": 318
+     "mae": 0.5680893203963143,
+     "rmse": 0.7192223520357094,
+     "spearman": 0.8512890695142443,
+     "n": 326
     },
     "baseline": {
-     "mae": 0.3531334660181722,
-     "rmse": 0.4336742034878969,
-     "spearman": 0.9257952254170279,
-     "n": 318
+     "mae": 0.6032764020953597,
+     "rmse": 0.770517286132738,
+     "spearman": 0.8289980726559387,
+     "n": 326
     },
     "slot_mean": {
-     "mae": 0.6302489746517123,
-     "rmse": 0.7913646155824459,
-     "spearman": 0.7105993538553547,
-     "n": 318
+     "mae": 1.04918204251027,
+     "rmse": 1.2287161223179923,
+     "spearman": 0.4504559509904521,
+     "n": 326
     }
    }
   },
   "summary": {
-   "model_mae": 0.6085669551449034,
-   "baseline_mae": 0.6268313440654837,
-   "ratio": 0.9708623554110718,
+   "model_mae": 0.695119505371488,
+   "baseline_mae": 0.7239217218496339,
+   "ratio": 0.9602136313791557,
    "target_ratio": 0.9,
-   "rows": 5356,
+   "rows": 4479,
    "nights": 36
   }
  }

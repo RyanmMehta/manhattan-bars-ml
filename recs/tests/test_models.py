@@ -57,7 +57,8 @@ def test_model_beats_baseline_on_holdout(tables):
     assert mae(m) < mae(b) < mae(s)
     # test nights never in the venue target encoding
     gb = crowd_model.GBModel().fit(tr)
-    assert gb.te == tr.groupby("venue_id")["crowd"].mean().to_dict()
+    assert gb.te["venue"] == tr.groupby("venue_id")["crowd"].mean().to_dict()
+    assert {n for n in hold} & set(tr["night"]) == set()
 
 
 def test_predict_unknown_and_missing_artifact(monkeypatch):

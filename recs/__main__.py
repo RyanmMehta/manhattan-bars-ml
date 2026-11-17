@@ -38,7 +38,8 @@ def report_crowd(meta: dict) -> str:
          f"{ev['summary']['nights']} Thu–Sat nights). Target: reputation-weighted mean reported crowd (1–5); "
          "report weights use reputation **as of the report night** (`syn_scout_reputation_history`).\n",
          "Model: `HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_leaf_nodes=31, random_state=42)`; "
-         f"features: {', '.join(meta['features'])}. `venue_te` is a train-nights-only venue mean. "
+         f"features: {', '.join(meta['features'])}. The `*_te` features are train-nights-only target means "
+         "(venue, venue×slot, venue×weekday). `week` was dropped: it extrapolated badly into the holdout weeks. "
          "`syn_true_state` / `syn_scout_truth` are never features.\n",
          "Split: train Aug 27 → Nov 12, **hold out Nov 13–14** (CONTRACTS §B) + 3 rolling-origin folds of 2 nights.\n",
          "## Results (MAE / RMSE / Spearman)\n",
@@ -58,7 +59,7 @@ def report_crowd(meta: dict) -> str:
     verdict = "meets" if s["ratio"] <= s["target_ratio"] else "does **not** meet"
     L += ["", f"Holdout MAE ratio model / baseline = **{s['ratio']:.3f}** (target ≤ {s['target_ratio']}, placeholder): "
           f"the model {verdict} the target. The baseline is strong because the generator's crowd is mostly venue × hour; "
-          "the model's edge comes from weekday/week effects and pooling across similar venues for thin venue-slots.",
+          "the model's edge comes from pooling across similar venues and slots where a venue's own history is thin.",
           "", "Against `crowd_true` (evaluation only) errors are lower than against reports, because reports add "
           "scout noise the model cannot predict.", "",
           "Artifact: `recs/artifacts/synthetic/crowd_model.joblib` (+ `.json`), trained on all nights before the holdout. "
