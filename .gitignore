@@ -8,3 +8,10 @@ data/live_sim.db
 node_modules/
 frontend/dist/
 .pytest_cache/
+*.egg-info/
+
+# live-sim generated outputs (rebuild: python -m simulator --seed 42 --out data/live_sim.db)
+data/synthetic_live/*.csv
+!data/synthetic_live/demo_night_snapshots.csv
+data/synthetic_live/extracts/
+data/synthetic_live/shifted/

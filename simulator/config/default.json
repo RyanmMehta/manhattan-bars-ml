@@ -1,0 +1,562 @@
+{
+  "_note": "Every number here is a SYNTHETIC placeholder unless it cites specs/CONTRACTS. Real replacement per section in its _note.",
+  "venues": {
+    "_note": "SYNTHETIC: replace with data/venue_attributes_manual.csv (team-labelled) and claimed operator profiles.",
+    "style_prior": {
+      "dive": 0.35,
+      "cocktail": 0.25,
+      "lounge": 0.15,
+      "pub": 0.1,
+      "restaurant-bar": 0.1,
+      "club": 0.05
+    },
+    "dance_floor_p": {
+      "club": 0.8,
+      "lounge": 0.25,
+      "dive": 0.15,
+      "cocktail": 0.05,
+      "pub": 0.05,
+      "restaurant-bar": 0.05
+    },
+    "capacity": {
+      "club": [
+        150,
+        400
+      ],
+      "other": [
+        40,
+        150
+      ]
+    },
+    "cover_range": [
+      10,
+      30
+    ],
+    "claimed_p": 0.5,
+    "genre_menu": {
+      "dive": [
+        "rock",
+        "punk",
+        "throwbacks",
+        "indie"
+      ],
+      "pub": [
+        "rock",
+        "throwbacks",
+        "pop",
+        "indie"
+      ],
+      "club": [
+        "hip-hop",
+        "house",
+        "techno",
+        "reggaeton",
+        "afrobeats",
+        "top-40",
+        "edm"
+      ],
+      "cocktail": [
+        "jazz",
+        "soul-funk",
+        "disco"
+      ],
+      "lounge": [
+        "jazz",
+        "soul-funk",
+        "disco",
+        "r&b",
+        "house"
+      ],
+      "restaurant-bar": [
+        "latin",
+        "pop",
+        "r&b",
+        "jazz"
+      ]
+    },
+    "price_base": {
+      "dive": 1,
+      "pub": 2,
+      "restaurant-bar": 2,
+      "lounge": 3,
+      "cocktail": 3,
+      "club": 3
+    },
+    "popularity_sigma": 0.25
+  },
+  "truth": {
+    "_note": "SYNTHETIC: replace with hourly occupancy from real Scout reports / door counts (Spring 2027 pilot).",
+    "style_peak_hour": {
+      "dive": 24.0,
+      "cocktail": 22.0,
+      "club": 25.0,
+      "lounge": 23.0,
+      "pub": 22.0,
+      "restaurant-bar": 21.0
+    },
+    "style_peak_width": {
+      "dive": 1.8,
+      "cocktail": 1.5,
+      "club": 1.5,
+      "lounge": 1.6,
+      "pub": 1.7,
+      "restaurant-bar": 1.4
+    },
+    "style_peak_level": {
+      "dive": 0.85,
+      "cocktail": 0.85,
+      "club": 0.95,
+      "lounge": 0.8,
+      "pub": 0.8,
+      "restaurant-bar": 0.7
+    },
+    "base_level": 0.08,
+    "weekday": {
+      "3": 0.7,
+      "4": 0.95,
+      "5": 1.0
+    },
+    "night_sigma": 0.15,
+    "venue_night_sigma": 0.2,
+    "holidays": {
+      "2026-09-05": 1.15,
+      "2026-10-31": 1.3
+    },
+    "ar1_rho": 0.7,
+    "ar1_sigma": 0.08,
+    "crowd_bins": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+    ],
+    "line_threshold": 0.85,
+    "line_max_minutes": 40,
+    "dance_bins_floor": [
+      0.35,
+      0.6
+    ],
+    "dance_no_floor_p": 0.08,
+    "dance_min_hour": 22.0,
+    "cover_from_hour": 22.0,
+    "event_boost": 1.25
+  },
+  "updates": {
+    "_note": "SYNTHETIC: replace with POST /api/owner/{id}/updates from claimed venues.",
+    "per_night_p": [
+      0.35,
+      0.45,
+      0.2
+    ],
+    "post_hour_range": [
+      17.0,
+      22.0
+    ],
+    "event_p": 0.35,
+    "offer_p": 0.5,
+    "dj_p": 0.4,
+    "offer_hours": [
+      1,
+      3
+    ],
+    "disagree_p": 0.1,
+    "events": [
+      "Trivia night",
+      "Live band",
+      "Guest DJ set",
+      "Karaoke",
+      "Album release party",
+      "Comedy pop-up"
+    ],
+    "offers": [
+      "2-for-1 well drinks until 22:00",
+      "$5 off cover before 23:00",
+      "Free shot with first round",
+      "Half-price punch bowls",
+      "$6 drafts"
+    ],
+    "djs": [
+      "DJ Syn Lune",
+      "DJ Placeholder",
+      "Night Shift (syn)",
+      "Sample Rate",
+      "DJ Fictive",
+      "Low End Theory (syn)"
+    ]
+  },
+  "scouts": {
+    "_note": "SYNTHETIC: replace with real Scout accounts and their activity (backend scouts table).",
+    "week1": 60,
+    "per_week": [
+      8,
+      18
+    ],
+    "archetype_share": {
+      "honest": 0.55,
+      "casual": 0.25,
+      "sloppy": 0.1,
+      "gamer": 0.06,
+      "shill": 0.04
+    },
+    "engagement_beta": [
+      2.5,
+      3.5
+    ],
+    "engagement_decay": 0.85,
+    "engagement_floor": 0.0,
+    "bump_per_50_points": 0.006,
+    "bump_bounty": 0.01,
+    "bump_streak": 0.005,
+    "penalty_flag": 0.05,
+    "churn_threshold": 0.25,
+    "return_p": 0.05,
+    "return_min_weeks": 3,
+    "nights_per_week_rate": 5.0,
+    "visits_per_night": [
+      2,
+      5
+    ],
+    "stay_minutes": [
+      30,
+      90
+    ],
+    "second_report_p": 0.6,
+    "obs": {
+      "honest": {
+        "sigma": 0.45,
+        "bias": 0.0,
+        "presence_p": 0.9,
+        "null_scale": 1.0
+      },
+      "casual": {
+        "sigma": 0.7,
+        "bias": 0.0,
+        "presence_p": 0.7,
+        "null_scale": 1.2
+      },
+      "sloppy": {
+        "sigma": 1.1,
+        "bias": 0.0,
+        "presence_p": 0.6,
+        "null_scale": 1.3
+      },
+      "gamer": {
+        "sigma": 0.5,
+        "bias": 0.0,
+        "presence_p": 0.3,
+        "null_scale": 1.0
+      },
+      "shill": {
+        "sigma": 0.6,
+        "bias": 2.0,
+        "presence_p": 0.5,
+        "null_scale": 1.0
+      }
+    },
+    "gps_denied_p": 0.15,
+    "far_distance_m": [
+      151,
+      3000
+    ],
+    "gamer_burst": [
+      3,
+      6
+    ],
+    "bounty_redirect_p": 0.6,
+    "cover_null_p": 0.6,
+    "genre_null_p": 0.4,
+    "dance_null_p": 0.05,
+    "line_null_p": 0.08,
+    "names_a": [
+      "Neon",
+      "Velvet",
+      "Midnight",
+      "Copper",
+      "Lucky",
+      "Static",
+      "Echo",
+      "Amber",
+      "Indigo",
+      "Rusty",
+      "Silver",
+      "Cosmic",
+      "Quiet",
+      "Loud",
+      "Hazy",
+      "Electric",
+      "Golden",
+      "Sly",
+      "Rapid",
+      "Mellow"
+    ],
+    "names_b": [
+      "Owl",
+      "Fox",
+      "Lantern",
+      "Comet",
+      "Moth",
+      "Raven",
+      "Otter",
+      "Tiger",
+      "Falcon",
+      "Badger",
+      "Heron",
+      "Lynx",
+      "Sparrow",
+      "Coyote",
+      "Gecko",
+      "Panda",
+      "Wolf",
+      "Koi",
+      "Bat",
+      "Hare"
+    ],
+    "night_weight": {
+      "3": 0.5,
+      "4": 1.0,
+      "5": 2.0
+    },
+    "shill_home_p": 0.95,
+    "arrival_mean_min": 160,
+    "arrival_sd_min": 60,
+    "bump_cap": 0.05
+  },
+  "specs": {
+    "_note": "Constants from specs PRD \u00a75-\u00a77 / CONTRACTS v2 \u00a7A. Do not change here unless specs changes.",
+    "half_life_crowd": 30,
+    "half_life_scout_cover_genre": 60,
+    "half_life_operator": 120,
+    "cutoff_minutes": 180,
+    "skew_minutes": 2,
+    "w_rep_a": 0.25,
+    "w_rep_b": 0.75,
+    "w_unverified": 0.6,
+    "w_disputed": 0.5,
+    "w_operator": 0.8,
+    "conf_k": 1.5,
+    "min_field_weight": 0.3,
+    "genre_share": 0.3,
+    "vibe_weights": {
+      "crowd": 0.5,
+      "dance": 0.35,
+      "line": 0.15
+    },
+    "presence_radius_m": 150,
+    "rate_per_venue_minutes": 20,
+    "rate_per_hour": 6,
+    "velocity_kmh": 15,
+    "outlier_delta": 2.5,
+    "outlier_min_others": 3,
+    "consensus_window_min": 20,
+    "consensus_min_others": 2,
+    "rep_start": 0.5,
+    "rep_step": 0.05,
+    "rep_target": 0.7,
+    "rep_verified": 0.005,
+    "rep_dispute": 0.1,
+    "rep_clip": [
+      0.05,
+      0.98
+    ],
+    "points_accepted": 10,
+    "points_verified": 5,
+    "points_first": 5,
+    "points_penalty": 10,
+    "hold_minutes": 30,
+    "levels": [
+      [
+        "Rookie",
+        0
+      ],
+      [
+        "Regular",
+        100
+      ],
+      [
+        "Insider",
+        500
+      ],
+      [
+        "Legend",
+        1500
+      ]
+    ],
+    "bounty_check_hours": [
+      21.0,
+      26.0
+    ],
+    "bounty_conf": 0.3,
+    "bounty_base": 20,
+    "bounty_step": 10,
+    "bounty_null_points": 50,
+    "bounty_expire_min": 60,
+    "bounty_max_open": 8,
+    "bounty_conflict_agree": 0.6,
+    "dispute_auto_reject_h": 48
+  },
+  "disputes": {
+    "_note": "SYNTHETIC: replace with real dispute endpoint + moderator decisions.",
+    "rate": 0.03,
+    "unflattering_mult": 3.0,
+    "uphold_p": 0.3,
+    "open_delay_h": [
+      0.5,
+      20
+    ],
+    "resolve_delay_h": [
+      2,
+      60
+    ],
+    "reasons": [
+      "crowd number is wrong",
+      "we had no line tonight",
+      "wrong cover price",
+      "reporter was not here",
+      "music genre is wrong"
+    ]
+  },
+  "users": {
+    "_note": "SYNTHETIC: replace with onboarding answers from real users.",
+    "n": 300,
+    "home_mix": [
+      [
+        40.7203,
+        -73.9881,
+        0.01,
+        0.45
+      ],
+      [
+        40.729,
+        -73.987,
+        0.012,
+        0.2
+      ],
+      [
+        40.713,
+        -73.957,
+        0.015,
+        0.15
+      ],
+      [
+        40.748,
+        -73.986,
+        0.02,
+        0.2
+      ]
+    ],
+    "personas": {
+      "dancers": {
+        "p": 0.25,
+        "genres": [
+          "hip-hop",
+          "r&b",
+          "afrobeats",
+          "reggaeton",
+          "house",
+          "top-40"
+        ],
+        "want_dancing": true,
+        "crowd_pref": [
+          4,
+          5
+        ],
+        "max_cover": [
+          15,
+          40
+        ]
+      },
+      "cocktail-chill": {
+        "p": 0.25,
+        "genres": [
+          "jazz",
+          "soul-funk",
+          "disco"
+        ],
+        "want_dancing": false,
+        "crowd_pref": [
+          2,
+          3
+        ],
+        "max_cover": [
+          0,
+          10
+        ]
+      },
+      "cheap-dive": {
+        "p": 0.2,
+        "genres": [
+          "rock",
+          "punk",
+          "indie",
+          "throwbacks"
+        ],
+        "want_dancing": false,
+        "crowd_pref": [
+          3,
+          4
+        ],
+        "max_cover": [
+          0,
+          5
+        ]
+      },
+      "live-music": {
+        "p": 0.15,
+        "genres": [
+          "rock",
+          "indie",
+          "jazz",
+          "soul-funk"
+        ],
+        "want_dancing": false,
+        "crowd_pref": [
+          3,
+          4
+        ],
+        "max_cover": [
+          10,
+          25
+        ]
+      },
+      "big-group": {
+        "p": 0.15,
+        "genres": [
+          "top-40",
+          "pop",
+          "throwbacks",
+          "hip-hop"
+        ],
+        "want_dancing": true,
+        "crowd_pref": [
+          3,
+          5
+        ],
+        "max_cover": [
+          10,
+          20
+        ]
+      }
+    }
+  },
+  "events": {
+    "_note": "SYNTHETIC: replace with frontend/backend event logging (venue_events).",
+    "sessions_per_night": 220,
+    "impressions_per_session": [
+      3,
+      8
+    ],
+    "tap_p": 0.25,
+    "save_p": 0.1,
+    "view_per_tap": 1.0,
+    "anon_p": 0.3,
+    "max_rows": 150000
+  },
+  "feedback": {
+    "_note": "SYNTHETIC: placeholder chooser over true state; replace with POST /api/feedback outcomes.",
+    "per_night": 40,
+    "top_k": 5,
+    "visited_p": 0.6,
+    "fit_noise": 0.15,
+    "rating_noise": 0.6
+  }
+}
