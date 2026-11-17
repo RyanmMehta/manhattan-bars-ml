@@ -1,0 +1,6 @@
+venue_id,name,lat,lon,genres,style,has_dance_floor,typical_cover_usd,capacity,price_level,opening_hours,is_synthetic
+syn-v-001,Syn Ludlow Club,40.721,-73.9875,hip-hop|r&b,club,1,20,200,3,Mo-Su 18:00-04:00,1
+syn-v-002,Syn Orchard Dive,40.7195,-73.989,rock|punk,dive,0,0,60,1,Mo-Su 16:00-04:00,1
+syn-v-003,Syn Rivington Lounge,40.7202,-73.986,house|disco,lounge,1,10,120,3,,1
+syn-v-004,Syn Essex Cocktail,40.7185,-73.9878,jazz|soul-funk,cocktail,0,0,50,4,Mo-Su 17:00-23:00,1
+syn-v-005,Syn Delancey Pub,40.718,-73.99,top-40|throwbacks,pub,0,5,150,2,24/7,1

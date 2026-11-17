@@ -1,0 +1,125 @@
+{
+ "id": "G6",
+ "description": "exclusion on known cover 25 > 20; unknown cover never excludes and is listed in missing",
+ "reports": [
+  {
+   "report_id": "syn-r-000201",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0001",
+   "ts": "2026-11-14T23:25:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": 25,
+   "music_genre": "hip-hop",
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000202",
+   "venue_id": "0370-24-138636",
+   "scout_id": "syn-s-0002",
+   "ts": "2026-11-14T23:20:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": 25,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000203",
+   "venue_id": "syn-v-unknown-cover",
+   "scout_id": "syn-s-0001",
+   "ts": "2026-11-14T23:25:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": null,
+   "music_genre": "hip-hop",
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  },
+  {
+   "report_id": "syn-r-000204",
+   "venue_id": "syn-v-unknown-cover",
+   "scout_id": "syn-s-0002",
+   "ts": "2026-11-14T23:20:00-05:00",
+   "crowd": 4,
+   "dancing": 2,
+   "line_minutes": 10,
+   "cover_usd": null,
+   "music_genre": null,
+   "verified_presence": 1,
+   "distance_m": 40,
+   "status": "accepted",
+   "reputation": 0.8,
+   "is_synthetic": 1
+  }
+ ],
+ "updates": [],
+ "prefs": {
+  "genres": [
+   "hip-hop",
+   "r&b"
+  ],
+  "want_dancing": true,
+  "crowd_pref": 4,
+  "max_cover_usd": 20,
+  "max_line_minutes": 15,
+  "max_distance_km": 1.5,
+  "lat": 40.7203,
+  "lon": -73.9881,
+  "group_size": 4
+ },
+ "venues": [
+  {
+   "venue_id": "0370-24-138636",
+   "name": "ATTABOY COCKTAILS LLC",
+   "lat": 40.723897284050544,
+   "lon": -73.9881,
+   "genres": "hip-hop",
+   "capacity": 120,
+   "is_synthetic": 1
+  },
+  {
+   "venue_id": "syn-v-unknown-cover",
+   "name": "Unknown cover bar",
+   "lat": 40.723897284050544,
+   "lon": -73.9881,
+   "genres": "hip-hop",
+   "capacity": 120,
+   "is_synthetic": 1
+  }
+ ],
+ "expected": {
+  "recommendations": {
+   "0370-24-138636": {
+    "excluded": true,
+    "excluded_reason": "cover $25 over your $20",
+    "rank": null,
+    "reasons_0": "Excluded: cover $25 over your $20"
+   },
+   "syn-v-unknown-cover": {
+    "excluded": false,
+    "rank": 1,
+    "missing_contains": "cover not reported tonight"
+   }
+  }
+ },
+ "is_synthetic": 1,
+ "now": "2026-11-14T23:30:00-05:00",
+ "venue_id": "0370-24-138636",
+ "source": "Hand-derived by ml-recs from docs/prd/specs/PRD.md \u00a75 (origin/nightlife/specs) because specs has not pushed docs/specs/golden_synthetic/ yet. Replace with specs' files when they land.",
+ "venue": null
+}
