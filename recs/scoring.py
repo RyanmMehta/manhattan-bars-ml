@@ -23,7 +23,7 @@ from .timeutil import to_dt
 
 REC_KEYS = (
     "venue_id", "name", "match_score", "vibe_score", "confidence", "distance_km", "reasons", "missing",
-    "excluded", "excluded_reason", "rank_score", "rank", "cluster_label", "complaint_risk", "is_synthetic",
+    "excluded", "excluded_reason", "rank_score", "rank", "cluster_label", "cluster_description", "complaint_risk", "is_synthetic",
 )
 
 
@@ -142,9 +142,21 @@ def match_raw(comps: dict) -> float:
     return 100 * sum(w * s for w, s, *_ in comps.values()) / tw
 
 
-def rank_value(match: float, conf) -> float:
+def rank_value(match: float, conf, energy: float = 1.0) -> float:
+    """rank_score = match · (0.75 + 0.25·confidence) · energy_penalty (energy_penalty = 1 unless demoted)."""
     conf = num(conf) or 0.0
-    return match * (C.RANK_BASE + C.RANK_CONF * conf)
+    return match * (C.RANK_BASE + C.RANK_CONF * conf) * energy
+
+
+def energy_penalty(comps: dict) -> float:
+    """1.0 unless the venue's KNOWN crowd/dancing contradict the request (e.g. a confirmed-empty bar for a
+    'crowd 4, want dancing' group). Unknown values never trigger it, so missing data is never punished twice."""
+    known = [(comps[k][0], comps[k][1]) for k in ("crowd", "dancing")
+             if comps[k][0] > 0 and comps[k][3] is None]  # weight > 0 and value known
+    if not known:
+        return 1.0
+    fit = sum(w * s for w, s in known) / sum(w for w, _ in known)
+    return 1.0 if fit >= C.ENERGY_FIT_MIN else C.ENERGY_PENALTY_FLOOR + fit
 
 
 def _lookup(venue: dict, key: str):
@@ -155,6 +167,9 @@ def _lookup(venue: dict, key: str):
         if key == "cluster_label":
             from . import clustering
             return clustering.label_for(venue.get("venue_id"))
+        if key == "cluster_description":
+            from . import clustering
+            return clustering.description_for(venue.get("venue_id"))
         if key == "complaint_risk":
             from . import complaint_risk
             return complaint_risk.score_for(venue.get("venue_id"))
@@ -170,7 +185,8 @@ def score_one(prefs: dict, st: dict, venue: dict, now) -> dict:
     comps = components(prefs, st, venue, dist)
     m = match_raw(comps)
     match = int(round_half_up(m))
-    rs = rank_value(match, st.get("confidence"))
+    energy = energy_penalty(comps)
+    rs = rank_value(match, st.get("confidence"), energy)
     excl = _exclusion(prefs, st, venue, dist, now)
     reasons = R.reasons(comps)
     missing = R.missing(comps)
@@ -189,9 +205,11 @@ def score_one(prefs: dict, st: dict, venue: dict, now) -> dict:
         "rank_score": round_half_up(rs, 1),
         "rank": None,
         "cluster_label": _lookup(venue, "cluster_label"),
+        "cluster_description": _lookup(venue, "cluster_description"),
         "complaint_risk": None if cr is None else round_half_up(float(cr), 3),
         "is_synthetic": bool(st.get("is_synthetic") or truthy(venue.get("is_synthetic"))),
         "_rs": rs,
+        "_energy": energy,
         "_dist": dist if dist is not None else 1e9,
     }
 
@@ -220,4 +238,5 @@ def recommend(prefs: dict, states, venues, now) -> list[dict]:
         r["rank"] = i
         r.pop("_rs")
         r.pop("_dist")
+        r.pop("_energy")
     return out

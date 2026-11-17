@@ -1,5 +1,5 @@
 {
- "trained_at": "2026-11-17T06:01:10+00:00",
+ "trained_at": "2026-11-17T06:18:07+00:00",
  "data_source": "data/manhattan_bars.db venue_features JOIN v_bars (real public data)",
  "rows": 1709,
  "with_geo": false,
@@ -44,6 +44,13 @@
   }
  ],
  "labels": {
+  "0": "Drinks-first bar",
+  "1": "Late-night restaurant bar",
+  "2": "Low-key local bar",
+  "3": "Restaurant bar with outdoor seating",
+  "4": "Bar & kitchen"
+ },
+ "descriptions": {
   "0": "drinks-only, rarely inspected",
   "1": "web presence, late-closing, restaurant",
   "2": "no web presence, early-closing, grade A",
@@ -75,7 +82,8 @@
    "mode_cuisine": "Not matched",
    "mode_latest_grade": "None",
    "mode_osm_amenity": "not_listed",
-   "cluster_label": "drinks-only, rarely inspected"
+   "cluster_label": "Drinks-first bar",
+   "cluster_description": "drinks-only, rarely inspected"
   },
   {
    "cluster_id": 1,
@@ -100,7 +108,8 @@
    "mode_cuisine": "American",
    "mode_latest_grade": "A",
    "mode_osm_amenity": "bar",
-   "cluster_label": "web presence, late-closing, restaurant"
+   "cluster_label": "Late-night restaurant bar",
+   "cluster_description": "web presence, late-closing, restaurant"
   },
   {
    "cluster_id": 2,
@@ -125,7 +134,8 @@
    "mode_cuisine": "American",
    "mode_latest_grade": "A",
    "mode_osm_amenity": "not_listed",
-   "cluster_label": "no web presence, early-closing, grade A"
+   "cluster_label": "Low-key local bar",
+   "cluster_description": "no web presence, early-closing, grade A"
   },
   {
    "cluster_id": 3,
@@ -150,7 +160,8 @@
    "mode_cuisine": "American",
    "mode_latest_grade": "A",
    "mode_osm_amenity": "bar",
-   "cluster_label": "outdoor seating, web presence, restaurant"
+   "cluster_label": "Restaurant bar with outdoor seating",
+   "cluster_description": "outdoor seating, web presence, restaurant"
   },
   {
    "cluster_id": 4,
@@ -175,7 +186,8 @@
    "mode_cuisine": "American",
    "mode_latest_grade": "A",
    "mode_osm_amenity": "not_listed",
-   "cluster_label": "critical violations, more violations"
+   "cluster_label": "Bar & kitchen",
+   "cluster_description": "critical violations, more violations"
   }
  ]
 }

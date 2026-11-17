@@ -23,7 +23,7 @@ Formulas: specs `docs/specs/SCORING.md` / `PARAMETERS.md` / `tools/reference_sco
 
 ```bash
 pip install -r requirements.txt -r recs/requirements-dev.txt
-python -m pytest recs/tests -q                    # 64 pass, 1 skip (genres.json not on this branch), ~8 s
+python -m pytest recs/tests -q                    # 68 pass, 1 skip (genres.json not on this branch), ~8 s
 python -m recs demo                               # DEMO_NOW 2026-11-14T23:30 ET: top 5 + Run My Night
 python -m recs demo --now 2026-11-14T21:00:00-05:00
 python -m recs plan                               # plan + greedy / local / exhaustive objective
@@ -88,6 +88,20 @@ cluster_label, complaint_risk`. Missing `cluster_label` / `complaint_risk` are f
 12. Specs' golden vectors and oracle are copied to `recs/tests/specs_copy/` so tests run on this branch. After
     integration the tests use `docs/specs/` automatically.
 
+## Fixes after live testing (Nov 17)
+
+- **Brick ranked #1 with vibe 0 for a crowd-4 / dancing group.** Not a data bug: live-sim's 5 fresh reports really
+  say crowd 1, dancing 0, R&B, no line, no cover. Cause: in the spec formula, genre + line + cover + distance + group
+  carry 65% of the match weight, and an empty bar scores 1.0 on "no line" and "no cover", so match stayed 65. Then its
+  high confidence (0.75) lifted rank_score (60.9) above livelier but less certain venues. Fix (recs addition,
+  CCR-D): `rank_score` is multiplied by an energy penalty when the **known** crowd/dancing contradict the request
+  (fit = weighted crowd+dancing component score < 0.5 → × (0.5 + fit)). `match_score` is unchanged and still equals
+  specs' oracle. Unknown values never trigger it. Brick drops to ~37 and out of the top 5. Regression test:
+  `recs/tests/test_regressions.py`.
+- **cluster_label is now a short human label** ("Late-night restaurant bar", "Drinks-first bar", "Low-key local bar",
+  "Restaurant bar with outdoor seating", "Bar & kitchen"). The raw feature description moved to a new
+  `cluster_description` field on recommendations and in `clusters.csv`.
+
 ## Open issues / notes for integration
 
 - **demo_night_snapshots.csv:** live-sim's `simulator/snapshots.py` uses `recs.live_state` when importable, else its
@@ -110,3 +124,7 @@ cluster_label, complaint_risk`. Missing `cluster_label` / `complaint_risk` are f
 - CCR-B (to specs): state in SCORING.md that rounding happens only at output and that `match` uses the rounded state
   fields from `live_state` (G5 is identical either way).
 - CCR-C (to specs): recommendation `is_synthetic` should include venue-attribute provenance (PRD F5).
+- CCR-D (to specs): adopt the energy penalty on `rank_score` (`config.ENERGY_FIT_MIN = 0.5`,
+  `ENERGY_PENALTY_FLOOR = 0.5`) or a better fix, e.g. making vibe/energy part of match. Until then, recs' rank_score
+  differs from `reference_scoring.py` only for demoted venues (the differential test skips rank checks in those cases).
+- CCR-E (to backend/frontend): new Recommendation key `cluster_description` (raw); `cluster_label` is short and user-facing.
