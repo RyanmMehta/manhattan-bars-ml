@@ -1,5 +1,5 @@
 {
-  "build_seconds": 6.97,
+  "build_seconds": 6.72,
   "config_hash": "0bc75aa9406016c7",
   "db": "data/live_sim.db",
   "db_rows": {
@@ -18,7 +18,7 @@
     "syn_venue_updates": 662
   },
   "generator": "simulator",
-  "git_commit": "e9d66e5",
+  "git_commit": "0d2a26c",
   "is_synthetic": true,
   "nights": 36.0,
   "preset": "default",
@@ -41,7 +41,7 @@
   },
   "seed": 42,
   "sha256": {
-    "demo_night_snapshots.csv": "d245ceaae5d338323bbe4a7caf20347631b5247f8a7402058b43ed0b698d0fda",
+    "demo_night_snapshots.csv": "f80159af2772f6a1d2f01956ba840f0b2fbee5bf3960a416f96257344e1ff4eb",
     "extracts/hourly_by_style.csv": "f4d1a767954226122e28637fcba450553190aa2277e4f8a26defe98d72814946",
     "syn_bounties.csv": "8a5c73af545bdc80ff8b2560c6dcee998897afcabc0eedfff6969d8e23fe842c",
     "syn_disputes.csv": "519845996f18b05fe5fe6517d376a205333fcbe27b9ef0e60749e8fcbc87ffa7",
@@ -57,7 +57,7 @@
     "syn_venue_events.csv": "a88372e83fee1bded408176016d9e8774deaf13e6a42eb80ea05fa0884b4058b",
     "syn_venue_updates.csv": "815a8cb9b3ccf8e3414b03382569bcb55728b8035b38b8d8775ddd42d8feba5e"
   },
-  "snapshot_source": "fallback",
+  "snapshot_source": "recs",
   "validation_failed": [],
   "validation_ok": true,
   "version": "1.0.0"

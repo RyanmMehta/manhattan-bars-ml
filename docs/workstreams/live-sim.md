@@ -28,8 +28,13 @@ synthetic flags, ledger, presence rule, churn ordering); realism misses are repo
 - Stages, each with its own seeded RNG (sha256 of the stage name): `venues` → `updates` → `truth` →
   `nightloop` (scouts + reports + bounties, slot by slot) → `trust` (status, disputes, reputation, points,
   history) → `users` → `events` → `feedback`.
-- `_live_state.py`: specs §5.1–5.7 mirror (passes golden vector G1: vibe 65, conf 0.67). `replay.live_states`
-  prefers `recs.live_state.compute_all` when importable and falls back otherwise; manifest says which.
+- `_live_state.py`: specs §5.1–5.7 mirror (passes golden vector G1: vibe 65, conf 0.67).
+- `demo_night_snapshots.csv` = **the API's view** (master decision, Nov 17): stored report `status` + CURRENT
+  `syn_scouts.reputation` (what backend passes recs). `snapshots.py` calls `recs.chain.snapshots(...)` when
+  `recs` is importable (`snapshot_source=recs` in the manifest) and otherwise the mirror on the same inputs.
+  Checked against ml-recs' `recs/` (integration branch): all 525 rows agree (vibe ±1, confidence ±0.01).
+  The committed file was built with `recs` importable. `replay` CLI still shows the as-of view (derived
+  `pending`/`disputed`, reputation as of the last completed night).
 - `replay.visible(tables, now)`: rows with `ts ≤ now + 2 min`; status derived at `now` (`pending` if < 30 min
   and not flagged, `disputed` while a dispute is open, `removed` once upheld); expired offers blanked; bounties
   claimed after `now` shown as open; `open_bounties`; reputation history only for completed nights.
@@ -78,7 +83,6 @@ updates 662, disputes 250, feedback 1,440, users 300, true state 35,420, snapsho
 
 ## Known limits / open issues
 - Circularity: models trained on this data learn the simulator's rules. Say so in any write-up.
-- `snapshot_source` is `fallback` until `recs` is importable from the build; re-run the build after recs merges.
 - Week-4 retention is 0.56–0.67 depending on seed (target 35–60%); seed 42 passes.
 - `stream` mode (post to `POST /api/reports`) and feedback via `recs.scoring.recommend` are not built (later).
 

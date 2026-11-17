@@ -339,9 +339,9 @@
     {
       "check": "build_seconds<60",
       "ok": true,
-      "value": 6.97,
+      "value": 6.72,
       "target": 60
     }
   ],
-  "build_seconds": 6.97
+  "build_seconds": 6.72
 }

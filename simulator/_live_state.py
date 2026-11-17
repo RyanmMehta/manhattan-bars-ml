@@ -83,7 +83,19 @@ def compute(venue_id: str, reports: pd.DataFrame, updates: pd.DataFrame | None, 
         raw = {"crowd": _wmean(cx, cw), "dance": _wmean(dx, dw) if dx is not None else None}
         _vibe_conf(st, raw, crowd, w_fast, r["scout_id"].to_numpy(), sp)
         st["trend"] = _trend(crowd, w_base, age, sp)
+    elif (~np.isnan(crowd) & (w_fast > 0)).any():  # crowd too thin to state, but confidence still counts it (§5.6)
+        _conf_only(st, crowd, w_fast, r["scout_id"].to_numpy(), sp)
     return st
+
+
+def _conf_only(st: dict, crowd, w, scouts, sp) -> None:
+    x, ww = _nn(crowd, w)
+    W = ww.sum()
+    mu = _wmean(x, ww)
+    sd = math.sqrt(float(np.sum(ww * (x - mu) ** 2) / W))
+    agree = 1 - 0.5 * min(1.0, sd / 1.5)
+    diverse = 1.0 if len(set(scouts[~np.isnan(crowd) & (w > 0)])) >= 2 else 0.6
+    st["confidence"] = round((1 - math.exp(-W / sp["conf_k"])) * agree * diverse, 2)
 
 
 def _vibe_conf(st: dict, raw: dict, crowd, w, scouts, sp) -> None:
