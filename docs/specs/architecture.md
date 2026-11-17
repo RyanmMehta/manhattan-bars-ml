@@ -38,7 +38,7 @@ flowchart LR
 |---|---|---|---|
 | Public-data pipeline | existing | `src/`, `data/manhattan_bars.db` | venues, licences, inspections, 311, OSM; read-only |
 | Specs | specs | `docs/specs/` | formulas, parameters, golden vectors, requirements, trust, metrics |
-| Simulator | live-sim | `simulator/`, `data/synthetic_live/` | all `syn_` tables, Thu–Sat Aug 27 → Nov 14 2026, `python -I -m simulator --seed 42 --out data/live_sim.db` |
+| Simulator | live-sim | `simulator/`, `data/synthetic_live/` | all `syn_` tables, Thu–Sat Aug 27 → Nov 14 2026, `python -m simulator --seed 42 --out data/live_sim.db` |
 | `recs` package | ml-recs | `recs/` | `live_state.compute[_all]`, `scoring.recommend`, `routing.plan_night`, crowd model, clustering |
 | Backend API | backend | `backend/` | endpoints (Contracts + v2 §G), demo-login auth, write-time trust rules ([scout-trust.md](scout-trust.md)), points ledger |
 | Frontend | frontend | `frontend/` | screens, mock-API mode, "demo data" badge, MapLibre map |
@@ -91,7 +91,7 @@ sequenceDiagram
 
 No Render/Vercel accounts exist yet (Nov 17): configs (`backend/render.yaml`, Vercel project
 settings) and deploy steps are prepared but nothing is deployed. Deploy steps when accounts exist:
-1. Render → New Blueprint → repo → `render.yaml`; build runs `pip install -r backend/requirements.txt && python -I -m simulator --seed 42 --out data/live_sim.db`.
+1. Render → New Blueprint → repo → `render.yaml`; build runs `pip install -r backend/requirements.txt && python -m simulator --seed 42 --out data/live_sim.db`.
 2. Set `DEMO_NOW`, `CORS_ORIGINS` (Vercel URL), `INCLUDE_SYNTHETIC=1`, optional `DATABASE_URL`.
 3. Vercel → import `frontend/`, set `VITE_API_BASE` (Render URL), `VITE_API_MODE=live`, `VITE_DEMO_NOW`.
 4. Warm-up ping `/api/health` 2 min before the demo (free tier sleeps).

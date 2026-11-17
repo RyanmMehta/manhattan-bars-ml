@@ -1,4 +1,4 @@
-"""Build golden vectors G1–G8 (synthetic test fixtures) from hand-written inputs.
+"""Build golden vectors G1–G9 (synthetic test fixtures) from hand-written inputs.
 
 Inputs are defined here; `expected` blocks are computed by reference_scoring.py.
 G1 and G5 were also checked by hand against PRD §5.8 / §5.10.
@@ -44,6 +44,10 @@ VENUES = {
             "lat": 40.7215, "lon": -73.98479, "capacity": 80, "genres": "hip-hop"},
     "MAY": {"venue_id": "0370-23-138427", "name": "MAYFLY",
             "lat": 40.72162, "lon": -73.98457, "capacity": 70, "genres": None},
+    "BRK": {"venue_id": "0267-23-159615", "name": "Brick Wine Bar",
+            "lat": 40.7207, "lon": -73.98425, "capacity": 50, "genres": "hip-hop"},
+    "ARL": {"venue_id": "0370-23-131130", "name": "ARLENE'S GROCERY",
+            "lat": 40.72141, "lon": -73.98834, "capacity": 120, "genres": "rock"},
 }
 
 
@@ -95,7 +99,7 @@ def g1_reports(ids: Ids, shift: float = 0.0) -> list[dict]:
 
 
 def vector_inputs() -> list[dict]:
-    """Hand-written inputs for G1–G8."""
+    """Hand-written inputs for G1–G9."""
     v = []
     i = Ids()
     v.append(dict(id="G1", name="G1_normal_four_scouts", venues=["HSH"], prefs=None,
@@ -150,6 +154,15 @@ def vector_inputs() -> list[dict]:
     v.append(dict(id="G8", name="G8_trend_rising_falling", venues=["DON", "SUB", "MAY"], prefs=None,
                   description="Crowd 2→4 (rising), 4→2 (falling), thin prior window (null).",
                   reports=rising + falling + thin, updates=[], hand_checked=False))
+    i = Ids()
+    empty = [report(i, "BRK", 61 + k, a, 1, 0, 0, genre="hip-hop", cover=0, rep=0.7)
+             for k, a in enumerate((5, 10, 20, 30))]
+    busy = [report(i, "ARL", 71, 20, 4, 2, 10, genre="rock", cover=15, rep=0.5),
+            report(i, "ARL", 72, 30, 5, 2, 10, rep=0.5)]
+    v.append(dict(id="G9", name="G9_energy_contradiction", venues=["BRK", "ARL"],
+                  prefs=CONTRACT_PREFS,
+                  description="Empty bar (crowd 1, no dancing, hip-hop, line 0, no cover, conf 0.77) vs busy dancing bar (match 65, conf 0.31). Without the energy penalty BRK ranks #1 (61.3 vs 53.8); with it fit = 0.125 → rank_score × 0.625 = 38.3, so ARL is #1. match_score unchanged.",
+                  reports=empty + busy, updates=[], hand_checked=False))
     return v
 
 
@@ -197,7 +210,7 @@ def dump(obj: object) -> str:
 
 def bundle(vectors: list[dict]) -> dict:
     """golden_vectors.json content."""
-    return {"description": "Golden vectors G1–G8 for docs/specs/SCORING.md (synthetic test fixtures).",
+    return {"description": "Golden vectors G1–G9 for docs/specs/SCORING.md (synthetic test fixtures).",
             "is_synthetic": 1, "now": NOW, "parameters": R.P,
             "tolerance": {"vibe_score": 1, "confidence": 0.01, "match_score": 0,
                           "crowd": 0.05, "dancing": 0.05, "rank_score": 0.15},

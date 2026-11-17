@@ -48,7 +48,7 @@ GROUP BY s.scout_id;
 ```
 
 ## 3. Offline protocol
-1. Data: `python -I -m simulator --seed 42 --out data/live_sim.db` — 36 Thu–Sat nights,
+1. Data: `python -m simulator --seed 42 --out data/live_sim.db` — 36 Thu–Sat nights,
    Thu Aug 27 → Sat Nov 14 2026, 20:00–03:00 ET.
 2. Split: tune on nights before Nov 13; **test = Nov 13–14** (DEMO_NOW is in test). No tuning on test.
 3. Sampling: each test night, every 15 min 21:00–02:00, 50 users from `syn_users` request recs.

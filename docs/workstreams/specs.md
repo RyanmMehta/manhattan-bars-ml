@@ -11,8 +11,8 @@ Owner: Ryan Mehta. Branch: `nightlife/specs`. Plan: `docs/prd/specs/` (PRD, RULE
 |---|---|
 | `docs/specs/SCORING.md` | exact formulas: eligibility, decay, weights, field estimates, vibe, confidence + display, trend, match, exclusions, ranking, reason/missing copy, Run My Night, golden format + how to test |
 | `docs/specs/PARAMETERS.md` | every constant (table + machine-readable JSON block) |
-| `docs/specs/golden_vectors.json` | bundle of G1–G8 (+ parameters, tolerances) for ml-recs/backend tests |
-| `docs/specs/golden_synthetic/G1…G8_*.json` | same vectors, one file each (path ml-recs' plan expects) |
+| `docs/specs/golden_vectors.json` | bundle of G1–G9 (+ parameters, tolerances) for ml-recs/backend tests |
+| `docs/specs/golden_synthetic/G1…G9_*.json` | same vectors, one file each (path ml-recs' plan expects) |
 | `docs/specs/golden_synthetic/personas_synthetic.json` | 5 synthetic group personas |
 | `docs/specs/architecture.md` | diagram, components, `/api/recommend` sequence, data rules, `now=` replay, environments, deploy steps (not deployed), env vars, stack |
 | `docs/specs/requirements.md` | US-ON/TP/VC/VP/SC/RW/OW/HM/CP/RL/RN/NF stories with Given/When/Then + traceability table |
@@ -37,9 +37,9 @@ Python 3.12+ standard library only.
 ## Test results (2026-11-17, Python 3.13)
 ```
 $ python -I docs/specs/tools/check_golden.py
-check_golden: 8 vectors, 0 errors -> PASS
+check_golden: 9 vectors, 0 errors -> PASS
 $ python -I -m unittest discover -s docs/specs/tools
-Ran 29 tests in 0.012s
+Ran 32 tests in 0.016s
 OK
 $ python -I docs/specs/tools/check_docs.py
 check_docs: 12 docs, 0 errors -> PASS
@@ -76,9 +76,15 @@ check_docs: 12 docs, 0 errors -> PASS
 
 ## Known gaps
 - Mermaid blocks checked for diagram type only; not rendered in GitHub preview yet.
-- Golden G9 (line troll) left as good-first-PR #2. No golden for `plan_night` (Later feature).
+- Line-troll golden (now G10) left as good-first-PR #2. No golden for `plan_night` (Later feature).
 - `opening_hours` coverage for the 35 launch venues not measured (good-first-PR #3).
 - Parameters untuned: tuning needs live-sim training nights and the ml-recs harness.
+
+## Update 2026-11-17 (master request, Contracts c3fd169)
+- Added the energy-contradiction rank penalty (SCORING §9; `energy_fit_min`, `energy_penalty_base`
+  in PARAMETERS) and golden G9. G1–G8 expected outputs are byte-for-byte unchanged.
+- Data build command is now `python -m simulator …` without `-I` (Contracts CR-15) in
+  architecture.md, pilot-metrics.md, CONTRIBUTING.md. Noted CR-18 (API owns final rank).
 
 ## Contract change requests
 CCR-1…8 from planning are resolved by Contracts v2 (PRD §13). No new requests.

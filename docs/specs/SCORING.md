@@ -2,7 +2,7 @@
 
 Purpose: the exact formulas ml-recs (`recs.live_state`, `recs.scoring`, `recs.routing`) and backend implement.
 Status: agreed (Contracts v2 §A + §J; all constants are placeholders, see [PARAMETERS.md](PARAMETERS.md)).
-Last updated: 2026-11-17
+Last updated: 2026-11-17 (energy penalty, G9)
 
 Test oracle: [`tools/reference_scoring.py`](tools/reference_scoring.py) translates every
 formula below line by line (stdlib only, not imported by the app).
@@ -151,8 +151,21 @@ Only **known** values exclude; unknowns go to `missing`.
 ```
 rank_score = round(match_score · (rank_conf_base + rank_conf_slope · confidence), 1)
              (returned integer match_score and 2-dp confidence; confidence null → 0)
+energy-contradiction penalty (Contracts c3fd169, ml-recs CCR-D):
+  fit = mean of the crowd and dancing component scores (§7), using only components whose
+        preference is set AND whose state value is known; neither known → fit = null
+  if fit is not null and fit < energy_fit_min:
+      rank_score = round(match_score · (rank_conf_base + rank_conf_slope · confidence)
+                         · (energy_penalty_base + fit), 1)
+  match_score is unchanged; unknown crowd/dancing (s = 0.4) never trigger the penalty
 sort key   = (excluded, −rank_score, distance_km (null last), venue_id);  rank = 1..n over all rows
 ```
+Why: genre, line, cover, distance and group carry 65% of match weight and line 0 / no cover score
+1.0, so an empty bar (crowd 1, no dancing) could top a busy-dancing request (G9).
+
+The API owns the final `rank` (Contracts CR-18): `recs` may return `rank: null` for excluded
+rows; backend assigns integer ranks 1..n with the same sort key. The oracle and goldens give
+every row a rank.
 Excluded rows come after every non-excluded row (frontend shows "N hidden by your limits").
 
 Reasons: candidates = components with weight > 0, a reason template, and `s_k ≥ reason_min_component`;
@@ -200,6 +213,7 @@ All use `now = DEMO_NOW`, `syn-` ids, real launch `venue_id`s, `is_synthetic: 1`
 | G6 | `G6_exclusion_known_vs_unknown.json` | cover $25 known vs unknown, max $20 | ATT excluded "cover $25 over your $20" and ranked after VER despite higher match; VER `missing` cover |
 | G7 | `G7_disputed_and_flagged.json` | accepted, disputed, flagged, future, pending-unverified, removed | n_reports 3, vibe 46, conf 0.41 |
 | G8 | `G8_trend_rising_falling.json` | 2→4, 4→2, thin prior | rising / falling / null |
+| G9 | `G9_energy_contradiction.json` | empty bar (crowd 1, dancing 0, hip-hop, line 0, cover 0, conf 0.77) vs busy dancing bar (match 65, conf 0.31) | both match 65; BRK fit 0.125 → rank_score 38.3 (61.3 without penalty), ARL 53.8 → ARL rank 1 |
 
 Worked example G1 (synthetic example): weights 0.7573, 0.6442, 0.5355, 0.3373 (W 2.2742);
 crowd 3.7646 → 3.8; dancing 1.4813 → 1.5; line median 10; vibe 65.48 → 65; support 0.7804,
@@ -241,7 +255,7 @@ for v in bundle["vectors"]:
         recs = scoring.recommend(v["prefs"], states, v["venues"], v["now"])
         # compare match_score, excluded, excluded_reason, rank, reasons, missing
 ```
-- ml-recs: all of G1–G8; vibe ±1, confidence ±0.01, match exact, `display`/`trend`/`excluded`
+- ml-recs: all of G1–G9; vibe ±1, confidence ±0.01, match exact, `display`/`trend`/`excluded`
   exact. Reasons/missing strings should match exactly (they are the frontend copy).
 - backend: G1 (vibe 65 / conf 0.67) and G5 (match 83) through the stub and through `recs`.
 - `compute_all` here returns states only for venues with inputs; the golden `states` list covers
