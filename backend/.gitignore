@@ -1,0 +1,6 @@
+app.db
+*.db
+tests/fixtures/synthetic/
+.env
+__pycache__/
+.coverage

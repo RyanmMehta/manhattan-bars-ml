@@ -1,0 +1,13 @@
+from datetime import datetime
+from typing import Any, Protocol
+
+
+class Engine(Protocol):
+    name: str
+
+    def compute(self, venue_id: str, reports: Any, updates: Any, now: datetime) -> dict: ...
+    def compute_all(self, reports_df: Any, updates_df: Any, now: datetime) -> list[dict]: ...
+    def recommend(self, prefs: dict, states: Any, venues: Any, now: datetime) -> list[dict]: ...
+    def plan_night(
+        self, prefs: dict, states: Any, venues: Any, start_time: datetime, n_stops: int = 3
+    ) -> list[dict]: ...
