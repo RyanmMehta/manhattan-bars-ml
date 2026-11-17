@@ -1,0 +1,297 @@
+{
+  "description": "Empty bar (crowd 1, no dancing, hip-hop, line 0, no cover, conf 0.77) vs busy dancing bar (match 65, conf 0.31). Without the energy penalty BRK ranks #1 (61.3 vs 53.8); with it fit = 0.125 → rank_score × 0.625 = 38.3, so ARL is #1. match_score unchanged.",
+  "expected": {
+    "debug": {
+      "0267-23-159615": {
+        "W": 2.1812838210307035,
+        "agree": 1.0,
+        "conf_raw": 0.7664103216197884,
+        "cover_usd_raw": 0,
+        "crowd_raw": 1.0,
+        "dancing_raw": 0.0,
+        "diverse": 1.0,
+        "line_minutes_raw": 0,
+        "match_raw": 65.47507819736789,
+        "sd_w": 0.0,
+        "support": 0.7664103216197884,
+        "vibe_raw": 0.0
+      },
+      "0370-23-131130": {
+        "W": 0.7062253280921479,
+        "agree": 0.8344393419758938,
+        "conf_raw": 0.313338713901945,
+        "cover_usd_raw": 15,
+        "crowd_raw": 4.442493334024442,
+        "dancing_raw": 2.0,
+        "diverse": 1.0,
+        "line_minutes_raw": 10,
+        "match_raw": 65.16594077036993,
+        "sd_w": 0.4966819740723189,
+        "support": 0.3755080784661722,
+        "vibe_raw": 83.03116667530553
+      }
+    },
+    "recommendations": [
+      {
+        "confidence": 0.31,
+        "distance_km": 0.13,
+        "excluded": false,
+        "excluded_reason": null,
+        "is_synthetic": true,
+        "match_score": 65,
+        "missing": [],
+        "name": "ARLENE'S GROCERY",
+        "rank": 1,
+        "rank_score": 53.8,
+        "reasons": [
+          "Dancing reported (2 reports)",
+          "0.1 km away",
+          "Crowd 4.4 of 5, close to your 4"
+        ],
+        "venue_id": "0370-23-131130",
+        "vibe_score": 83
+      },
+      {
+        "confidence": 0.77,
+        "distance_km": 0.33,
+        "excluded": false,
+        "excluded_reason": null,
+        "is_synthetic": true,
+        "match_score": 65,
+        "missing": [],
+        "name": "Brick Wine Bar",
+        "rank": 2,
+        "rank_score": 38.3,
+        "reasons": [
+          "Hip-hop playing (4 reports, 5 min ago)",
+          "0.3 km away",
+          "Line ~0 min, under your 15"
+        ],
+        "venue_id": "0267-23-159615",
+        "vibe_score": 0
+      }
+    ],
+    "states": [
+      {
+        "confidence": 0.77,
+        "cover_usd": 0,
+        "crowd": 1.0,
+        "dancing": 0.0,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 0,
+        "music_genres": [
+          "hip-hop"
+        ],
+        "n_reports": 4,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0267-23-159615",
+        "vibe_score": 0
+      },
+      {
+        "confidence": 0.31,
+        "cover_usd": 15,
+        "crowd": 4.4,
+        "dancing": 2.0,
+        "display": "low",
+        "freshness_minutes": 20,
+        "is_synthetic": true,
+        "line_minutes": 10,
+        "music_genres": [
+          "rock"
+        ],
+        "n_reports": 2,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-23-131130",
+        "vibe_score": 83
+      }
+    ],
+    "ui": {
+      "0267-23-159615": {
+        "stale": false,
+        "vibe_label": "Chill"
+      },
+      "0370-23-131130": {
+        "stale": false,
+        "vibe_label": "Packed"
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G9",
+  "is_synthetic": 1,
+  "name": "G9_energy_contradiction",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": {
+    "crowd_pref": 4,
+    "genres": [
+      "hip-hop",
+      "r&b"
+    ],
+    "group_size": 4,
+    "lat": 40.7203,
+    "lon": -73.9881,
+    "max_cover_usd": 20,
+    "max_distance_km": 1.5,
+    "max_line_minutes": 15,
+    "want_dancing": true
+  },
+  "reports": [
+    {
+      "cover_usd": 0,
+      "crowd": 1,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000001",
+      "reputation": 0.7,
+      "scout_id": "syn-s-0061",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0267-23-159615",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": 0,
+      "crowd": 1,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000002",
+      "reputation": 0.7,
+      "scout_id": "syn-s-0062",
+      "status": "accepted",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0267-23-159615",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": 0,
+      "crowd": 1,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000003",
+      "reputation": 0.7,
+      "scout_id": "syn-s-0063",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0267-23-159615",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": 0,
+      "crowd": 1,
+      "dancing": 0,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 0,
+      "music_genre": "hip-hop",
+      "report_id": "syn-r-000004",
+      "reputation": 0.7,
+      "scout_id": "syn-s-0064",
+      "status": "accepted",
+      "ts": "2026-11-14T23:00:00-05:00",
+      "venue_id": "0267-23-159615",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": 15,
+      "crowd": 4,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "rock",
+      "report_id": "syn-r-000005",
+      "reputation": 0.5,
+      "scout_id": "syn-s-0071",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0370-23-131130",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 5,
+      "dancing": 2,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": null,
+      "report_id": "syn-r-000006",
+      "reputation": 0.5,
+      "scout_id": "syn-s-0072",
+      "status": "accepted",
+      "ts": "2026-11-14T23:00:00-05:00",
+      "venue_id": "0370-23-131130",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.7,
+      "scout_id": "syn-s-0061"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.7,
+      "scout_id": "syn-s-0062"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.7,
+      "scout_id": "syn-s-0063"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.7,
+      "scout_id": "syn-s-0064"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.5,
+      "scout_id": "syn-s-0071"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.5,
+      "scout_id": "syn-s-0072"
+    }
+  ],
+  "updates": [],
+  "venues": [
+    {
+      "capacity": 50,
+      "genres": "hip-hop",
+      "is_synthetic": 1,
+      "lat": 40.7207,
+      "lon": -73.98425,
+      "name": "Brick Wine Bar",
+      "venue_id": "0267-23-159615"
+    },
+    {
+      "capacity": 120,
+      "genres": "rock",
+      "is_synthetic": 1,
+      "lat": 40.72141,
+      "lon": -73.98834,
+      "name": "ARLENE'S GROCERY",
+      "venue_id": "0370-23-131130"
+    }
+  ]
+}

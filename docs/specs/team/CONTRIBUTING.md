@@ -9,10 +9,10 @@ Last updated: 2026-11-17
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt               # pipeline + recs
 pip install -r backend/requirements.txt       # backend (when present)
-python -I -m simulator --seed 42 --out data/live_sim.db   # synthetic data (build-time, not committed)
+python -m simulator --seed 42 --out data/live_sim.db   # synthetic data (build-time, not committed)
 cd frontend && npm ci && npm run dev          # Node 20 LTS
 ```
-Run Python with `python -I` (isolated mode).
+Run scripts with `python -I` (isolated mode), except `python -m simulator` / other `-m` package runs from the repo root, which need the cwd on sys.path (Contracts CR-15).
 
 ## Branches
 - Workstreams: `nightlife/<workstream>` (e.g. `nightlife/backend`), branched from `nightlife/contracts`.

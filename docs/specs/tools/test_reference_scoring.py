@@ -165,6 +165,23 @@ class Match(unittest.TestCase):
         self.assertEqual([r["rank"] for r in out], [1, 2])
 
 
+class EnergyPenalty(unittest.TestCase):
+    def test_penalty_applies_only_below_half(self):
+        self.assertAlmostEqual(R.rank_raw(80, 1.0, 0.125), 80 * 0.625)
+        self.assertAlmostEqual(R.rank_raw(80, 1.0, 0.5), 80.0)
+        self.assertAlmostEqual(R.rank_raw(80, 1.0, None), 80.0)
+
+    def test_unknown_crowd_dancing_never_trigger(self):
+        s = R.compute_state(V, [], [], NOW)
+        comps = R.components(B.CONTRACT_PREFS, s, B.VENUES["HSH"], 0.4)
+        self.assertIsNone(R.energy_fit(B.CONTRACT_PREFS, s, comps))
+
+    def test_g9_reorders(self):
+        g9 = {v["id"]: v for v in B.build_all()}["G9"]["expected"]["recommendations"]
+        self.assertEqual([r["venue_id"] for r in g9], ["0370-23-131130", "0267-23-159615"])
+        self.assertEqual(g9[1]["rank_score"], 38.3)
+
+
 class Golden(unittest.TestCase):
     def test_goldens_pass(self):
         self.assertEqual(C.check(), [])
