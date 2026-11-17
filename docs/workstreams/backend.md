@@ -112,6 +112,14 @@ See `backend/README.md`. Short version:
 18. `/api/recommend` rows also carry `display_name`, `freshness_minutes`, `n_reports` (contracts `b99a592`),
     copied from the venue card / live state so the frontend's /tonight needs one request.
 
+19. **Energy-contradiction penalty** (contracts `c3fd169`) in the stub, mirroring recs `48d4ace`:
+    `rank_score *= 0.5 + fit` when fit < 0.5, fit = match-weighted mean of the KNOWN crowd/dancing
+    component scores; unknown values never trigger it; `match_score` unchanged.
+20. `cluster_label` (short human label) and `cluster_description` (raw feature text) pass through on
+    recommendation rows and venue cards; cards read them from recs' clustering artifacts (null on the stub).
+    Verified on recs `48d4ace` + live-sim `c3edeba`: 115 tests pass; stub and recs give the same order on all
+    35 venues at DEMO_NOW.
+
 ## Optional fields added (all optional, no renames)
 Venue card: `address`, `neighborhood`. Report response: `verified_presence`, `distance_m`.
 Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop: as v2 §F.

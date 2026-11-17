@@ -215,6 +215,9 @@ class StubEngine:
         ids = sorted(set(by_r) | set(by_u))
         return [self.compute(v, by_r.get(v, []), by_u.get(v, []), now) for v in ids]
 
+    def cluster_info(self, venue_id: str) -> tuple[str | None, str | None]:
+        return None, None
+
     # ---------------- recommend ----------------
     def recommend(self, prefs: dict, states: Any, venues: Any, now: datetime) -> list[dict]:
         state_by = {s["venue_id"]: s for s in _rows(states)}
@@ -251,8 +254,11 @@ class StubEngine:
         reasons_by: dict[str, str] = {}
         excluded_reason = None
 
+        unknown_keys: set[str] = set()
+
         def unknown(k: str, msg: str) -> None:
             comps[k] = (W[k], C.UNKNOWN_COMPONENT)
+            unknown_keys.add(k)
             if msg not in missing:
                 missing.append(msg)
 
@@ -356,7 +362,7 @@ class StubEngine:
         wsum = sum(w for w, _ in comps.values())
         match = round(100 * sum(w * x for w, x in comps.values()) / wsum) if wsum else 0
         conf = s.get("confidence") or 0.0
-        rank_score = round(match * (0.75 + 0.25 * conf), 1)
+        rank_score = round(match * (0.75 + 0.25 * conf) * energy_penalty(comps, unknown_keys), 1)
         top = sorted(
             (k for k in reasons_by if comps.get(k, (0, 0))[1] >= 0.6),
             key=lambda k: -comps[k][0] * comps[k][1],
@@ -375,6 +381,7 @@ class StubEngine:
             "rank_score": rank_score,
             "rank": 0,
             "cluster_label": None,
+            "cluster_description": None,
             "is_synthetic": bool(s.get("is_synthetic") or v.get("is_synthetic")),
         }
 
@@ -434,6 +441,17 @@ class StubEngine:
             recs.remove(best)
             pos, t = (v["lat"], v["lon"]), leave
         return stops
+
+
+def energy_penalty(comps: dict, unknown_keys: set[str]) -> float:
+    """contracts c3fd169: rank_score *= (floor + fit) when the KNOWN crowd/dancing fit < 0.5.
+    fit = weighted mean of those component scores (same weights as match, as in recs)."""
+    known = [comps[k] for k in ("crowd", "dancing") if k in comps and k not in unknown_keys]
+    known = [(w, s) for w, s in known if w > 0]
+    if not known:
+        return 1.0
+    fit = sum(w * s for w, s in known) / sum(w for w, _ in known)
+    return 1.0 if fit >= C.ENERGY_FIT_MIN else C.ENERGY_PENALTY_FLOOR + fit
 
 
 def _ev(s: dict) -> str:

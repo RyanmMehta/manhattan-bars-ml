@@ -76,3 +76,25 @@ def test_trend():
     assert e.compute(VENUE, rising, [], NOW)["trend"] == "rising"
     steady = [dict(r, crowd=3) for r in rising]
     assert e.compute(VENUE, steady, [], NOW)["trend"] == "steady"
+
+
+@pytest.mark.parametrize("engine", ENGINES, ids=lambda e: e.name)
+def test_energy_contradiction_penalty(engine):
+    """contracts c3fd169: a confirmed-quiet bar (crowd 1, no dancing) must not outrank a busy one
+    for a 'crowd 4, want dancing' group just because line/cover score 1.0; match_score unchanged."""
+    quiet = [dict(r, crowd=1, dancing=0, line_minutes=0, cover_usd=0) for r in G1_REPORTS]
+    busy = list(G1_REPORTS)
+    v_q = _g5_venue() | {"venue_id": "quiet"}
+    v_b = _g5_venue()
+    s_q = engine.compute("quiet", [dict(r, venue_id="quiet") for r in quiet], [], NOW)
+    s_b = engine.compute(VENUE, busy, [], NOW)
+    rows = {r["venue_id"]: r for r in engine.recommend(PREFS, [s_q, s_b], [v_q, v_b], NOW)}
+    q = rows["quiet"]
+    expected_unpenalised = q["match_score"] * (0.75 + 0.25 * (q["confidence"] or 0))
+    assert q["rank_score"] < expected_unpenalised * 0.75
+    assert rows[VENUE]["rank_score"] > q["rank_score"]
+    # unknown crowd/dancing never trigger it
+    e = StubEngine()
+    empty = e.compute("quiet", [], [], NOW)
+    r = e.recommend(PREFS, [empty], [v_q], NOW)[0]
+    assert abs(r["rank_score"] - r["match_score"] * 0.75) <= 0.1
