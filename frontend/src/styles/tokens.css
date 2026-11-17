@@ -1,0 +1,19 @@
+/* Design tokens (PRD §6). The only place (with tailwind.config.ts) where hex literals live. */
+:root {
+  color-scheme: dark;
+  --c-bg: #0b0b12;
+  --c-surface: #16161f;
+  --c-raised: #20202c;
+  --c-line: #2a2a3a;
+  --c-ink: #f3f3f7;
+  --c-muted: #a3a3b8;
+  --c-accent: #ff3d8b;
+  --c-cyan: #2ee6d6;
+  --c-warn: #ffb020;
+  --c-danger: #ff5a5a;
+  --c-chill: #8a7cf4;
+  --c-lively: #ff3d8b;
+  --c-packed: #ffb020;
+  --c-none: #3a3a55;
+  --c-on-accent: #0b0b12;
+}

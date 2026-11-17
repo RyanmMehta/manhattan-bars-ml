@@ -1,0 +1,8 @@
+{ "venue": { "venue_id": "0370-24-138636", "name": "ATTABOY COCKTAILS LLC", "display_name": null, "style": null,
+  "genres": [], "price_level": null, "typical_cover_usd": null, "lat": 40.71893, "lon": -73.99157,
+  "opening_hours": null, "is_claimed": 0, "state": null, "complaint_risk": null, "is_synthetic": 1 },
+  "state": null,
+  "recent_reports": [{ "report_id": "syn-r-000123", "venue_id": "0370-24-138636", "scout_id": "syn-s-0042",
+    "ts": "2026-11-14T23:10:00-05:00", "crowd": 4, "dancing": 1, "line_minutes": 10, "cover_usd": null,
+    "music_genre": "hip-hop", "verified_presence": 1, "status": "accepted", "is_synthetic": 1 }],
+  "offers": [] }

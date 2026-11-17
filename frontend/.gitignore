@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+test-results/
+playwright-report/
+*.trace.zip
+.vercel
+dist-live/
