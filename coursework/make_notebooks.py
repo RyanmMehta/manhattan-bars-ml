@@ -69,7 +69,7 @@ TRANSFORMER = [
 
 CHURN = [
     md("# Scout churn model (synthetic data)\n\nA walkthrough of `coursework/churn/`, with steps matching "
-       "`NOTES.md` [N1]…[N10]. **All Scouts are synthetic.** Run `bash coursework/run_coursework.sh` first; "
+       "`NOTES.md` [N1]…[N10]. **All Scouts are synthetic** (live-sim's `data/live_sim.db`, seed 42, when present; otherwise the marked stand-in). Run `bash coursework/run_coursework.sh` first; "
        "this notebook reads its outputs and calls the same functions."),
     code(SETUP),
     md("## Load the tables (live_sim.db if present, else the marked stand-in CSVs)"),

@@ -32,21 +32,28 @@ python -I coursework/make_notebooks.py # optional: rebuild/execute notebooks
 | transformer | runtime | 39 s training (full run script ~2.5 min incl. ablation) | ≤ 10 min: met |
 | transformer | novelty at T = 0.8 | 100% (20 saved), 100% of 200 | ≥ 70%: met |
 | transformer | determinism | rerun gave 2.1131 again | within 1e-3: met |
-| churn | snapshots | train Oct 1: 64 Scouts / 19 churned (29.7%); test Oct 22: 86 / 31 (36.0%) | ≥ 60 / ≥ 15: met |
-| churn | selected model (by CV) | logistic regression, C = 0.1 | — |
-| churn | test ROC AUC | 0.826 [0.73, 0.91] (forest 0.787, boosting 0.755, tree 0.719, majority 0.500) | ≥ 0.75: met |
-| churn | test PR AUC | 0.760 vs base 0.36 (2.11×) | ≥ 2×: met |
-| churn | test Brier | 0.170 (best of all models) | ≤ logistic's: met |
-| churn | truth check | label agrees with simulator truth for 90%; AUC vs truth 0.840 | AUC < 0.95 (not too easy): ok |
+| churn | data | live-sim `data/live_sim.db` (origin/nightlife/live-sim @ 0d2a26c, seed 42, 209 Scouts) | — |
+| churn | snapshots | train Oct 1: 86 Scouts / 27 churned (31.4%); test Oct 22: 101 / 41 (40.6%) | ≥ 60 / ≥ 15: met |
+| churn | selected model (by CV) | logistic regression, C = 0.1 (CV AUC 0.887 ± 0.045) | — |
+| churn | test ROC AUC | 0.852 [0.77, 0.92] (forest 0.864, boosting 0.840, tree 0.788, majority 0.500) | ≥ 0.75: met |
+| churn | test PR AUC | 0.780 vs base 0.406 (1.92×; max possible 2.46×) | ≥ 2×: **missed** (forest 2.08×, not selected: the test set doesn't choose) |
+| churn | test Brier | 0.148 (best of all models) | ≤ logistic's: met |
+| churn | targeting | riskiest 10% → 9 of 10 churned | — |
+| churn | truth check | label agrees with simulator truth for 82%; AUC vs truth 0.710 | AUC < 0.95 (not too easy): ok |
+
+The stand-in results (logistic test AUC 0.826, PR AUC 0.760) are kept as an appendix in `coursework/churn/NOTES.md`
+and in full in `coursework/churn/outputs/standin/`.
 
 ## Assumptions and decisions (recorded instead of asking)
 1. **Assignment sheets and AI-use policy were not provided.** I delivered heavily commented `.py` scripts (source of
    truth), plus a matching executed `.ipynb` and a `NOTES.md` for each exercise, and `coursework/AI_USE.md`. Ryan must
    check the rubric (PRD Q1) and the AI policy (Q2) before submitting.
-2. **live-sim not available.** `origin/nightlife/live-sim` (b94468f) holds only plan docs, with no `simulator/`, so
-   `python -I -m simulator --seed 42 --out data/live_sim.db` cannot run. I used the planned stand-in generator (T11).
-   `run_coursework.sh` and `load.py` switch to `data/live_sim.db` automatically once it exists. No live-sim code was copied.
-3. **Stand-in cohort sizes.** With 12 equal cohorts (about 12–13 Scouts each), the Oct 1 snapshot had only about 50 eligible
+2. **live-sim.** At first `origin/nightlife/live-sim` (b94468f) had no `simulator/`, so I built the planned stand-in (T11).
+   live-sim then shipped (0d2a26c). I built `data/live_sim.db` from a separate worktree checkout of that branch with
+   `python -m simulator --seed 42 --out data/live_sim.db` (no `-I`, per master; validation OK, 8.5 s) and reran the churn exercise.
+   Neither `simulator/` nor the DB is committed here. `load.py` uses the DB when present and the stand-in otherwise.
+   The stand-in results are kept as an appendix.
+3. **Stand-in cohort sizes (stand-in only).** With 12 equal cohorts (about 12–13 Scouts each), the Oct 1 snapshot had only about 50 eligible
    Scouts and about 8 churners, which is too few. The stand-in uses a 30-Scout launch week and about 11 a week after that. It still has
    12 weekly cohorts, 150 Scouts, and 43% truth-churned by Nov 14 (contract target 40–60%).
 4. **Removed reports.** OUTLINE T10 said to drop `status='removed'` in `load.py`. That would make `share_flagged_or_removed`
@@ -57,22 +64,23 @@ python -I coursework/make_notebooks.py # optional: rebuild/execute notebooks
    choice (ln 8 = 2.08 nats), which is irreducible. The test excludes that one target. All other positions reach < 0.1.
 7. **Sampling** never emits `<s>` in the middle of a name (found by the sampling test on an untrained model).
 8. **Imports under `python -I`.** Each script adds the repo root to `sys.path` (isolated mode drops the script dir).
-9. **Boosting** has no class weights (the grid only varies the learning rate, per the plan). Its chosen threshold is low (0.22).
-10. The **block_size = 16 ablation** truncates names longer than 15 characters, so it is only roughly comparable.
-11. Deps were installed into the container's system Python. `nbformat`/`nbconvert`/`ipykernel` were added to
+9. **Boosting** has no class weights (the grid only varies the learning rate, per the plan).
+10. **live-sim formats.** `level` is a name (Rookie/Regular/Insider/Legend), so it is mapped to an ordinal 1–4. 47 Scouts signed up
+   Aug 24–26, before the first night, and get cohort_week 0 (not negative). Status `disputed` counts as activity (only `removed` doesn't).
+11. The **block_size = 16 ablation** truncates names longer than 15 characters, so it is only roughly comparable.
+12. Deps were installed into the container's system Python. `nbformat`/`nbconvert`/`ipykernel` were added to
     `coursework/requirements.txt` only to build notebooks. `tabulate` is not used.
-12. Timeline: delivered Nov 17, after the Nov 13 18:00 ET hand-off (CONTRACTS v2 §I).
+13. Timeline: delivered Nov 17, after the Nov 13 18:00 ET hand-off (CONTRACTS v2 §I).
 
 ## Open issues
-- Rerun churn on the real `data/live_sim.db` when live-sim pushes `simulator/`. Numbers will change, and the stand-in launch-cohort
-  tweak goes away.
+- If live-sim changes its seed or parameters, rebuild `data/live_sim.db` and rerun `run_coursework.sh` and `make_notebooks.py churn`.
+- The PR AUC lift target (2×) is missed at 1.92×. With a 41% base rate the ceiling is 2.46×, so the target may need to be lowered.
 - PRD's "≥ 90% plausible by manual read of 50 samples" is not done. Ryan should read `generated_names.csv` himself.
 - Small churn sample: CIs overlap between logistic, forest and boosting. Stacking snapshots with grouped CV (PRD Q7) is a stretch goal.
 - Late-submission deadlines (Q4) unknown.
 
 ## Contract change requests
-None new. Note for live-sim (not a contract change): weekly cohorts of about 12 Scouts give only about 50 Scouts eligible at the
-Oct 1 churn cutoff. A larger launch cohort (as in the stand-in) would make the churn exercise more stable.
+None. (The run script uses the contract build command without `-I`, matching CONTRACTS as updated for live-sim.)
 
 ## Files changed outside `coursework/`
 `docs/workstreams/coursework.md`, `docs/synthetic/coursework.md` only.

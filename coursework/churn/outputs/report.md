@@ -7,29 +7,29 @@ Built by the scripts in `coursework/churn/` (see NOTES.md). All Scouts are SYNTH
 <!-- results -->
 ## Results: 5 models x (CV on train snapshot, out-of-time test) (synthetic data)
 
-Train snapshot cutoff 2026-10-01: 64 Scouts, base rate 29.7%. Test snapshot cutoff 2026-10-22: 86 Scouts, base rate 36.0%.
+Train snapshot cutoff 2026-10-01: 86 Scouts, base rate 31.4%. Test snapshot cutoff 2026-10-22: 101 Scouts, base rate 40.6%.
 
 | model | settings | split | ROC AUC | PR AUC (base) | Brier | threshold | precision | recall | F1 |
 |---|---|---|---|---|---|---|---|---|---|
-| majority | {} | CV (OOF) | 0.500 (15-fold 0.500 ± 0.000) | 0.297 (0.30) | 0.297 | 0.00 | 0.30 | 1.00 | 0.46 |
-| majority | {} | test | 0.500 [0.50, 0.50] | 0.360 (0.36) | 0.360 | 0.00 | 0.36 | 1.00 | 0.53 |
-| logistic **(selected)** | {'C': 0.1} | CV (OOF) | 0.836 (15-fold 0.841 ± 0.134) | 0.648 (0.30) | 0.167 | 0.44 | 0.56 | 0.95 | 0.71 |
-| logistic **(selected)** | {'C': 0.1} | test | 0.826 [0.73, 0.91] | 0.760 (0.36) | 0.170 | 0.44 | 0.62 | 0.77 | 0.69 |
-| tree | {'max_depth': 3} | CV (OOF) | 0.753 (15-fold 0.740 ± 0.097) | 0.580 (0.30) | 0.204 | 0.55 | 0.54 | 0.74 | 0.62 |
-| tree | {'max_depth': 3} | test | 0.719 [0.60, 0.82] | 0.496 (0.36) | 0.228 | 0.55 | 0.60 | 0.84 | 0.70 |
-| forest | {'min_samples_leaf': 5} | CV (OOF) | 0.781 (15-fold 0.804 ± 0.134) | 0.542 (0.30) | 0.182 | 0.43 | 0.59 | 0.84 | 0.70 |
-| forest | {'min_samples_leaf': 5} | test | 0.787 [0.68, 0.88] | 0.651 (0.36) | 0.180 | 0.43 | 0.60 | 0.77 | 0.68 |
-| boosting | {'learning_rate': 0.1} | CV (OOF) | 0.667 (15-fold 0.738 ± 0.134) | 0.424 (0.30) | 0.214 | 0.22 | 0.43 | 0.84 | 0.57 |
-| boosting | {'learning_rate': 0.1} | test | 0.755 [0.64, 0.86] | 0.602 (0.36) | 0.201 | 0.22 | 0.61 | 0.81 | 0.69 |
+| majority | {} | CV (OOF) | 0.500 (15-fold 0.500 ± 0.000) | 0.314 (0.31) | 0.314 | 0.00 | 0.31 | 1.00 | 0.48 |
+| majority | {} | test | 0.500 [0.50, 0.50] | 0.406 (0.41) | 0.406 | 0.00 | 0.41 | 1.00 | 0.58 |
+| logistic **(selected)** | {'C': 0.1} | CV (OOF) | 0.885 (15-fold 0.887 ± 0.045) | 0.706 (0.31) | 0.137 | 0.39 | 0.63 | 0.89 | 0.74 |
+| logistic **(selected)** | {'C': 0.1} | test | 0.852 [0.77, 0.92] | 0.780 (0.41) | 0.148 | 0.39 | 0.70 | 0.78 | 0.74 |
+| tree | {'max_depth': 4} | CV (OOF) | 0.829 (15-fold 0.811 ± 0.087) | 0.626 (0.31) | 0.166 | 0.35 | 0.62 | 0.89 | 0.73 |
+| tree | {'max_depth': 4} | test | 0.788 [0.71, 0.87] | 0.646 (0.41) | 0.204 | 0.35 | 0.64 | 0.83 | 0.72 |
+| forest | {'min_samples_leaf': 20} | CV (OOF) | 0.873 (15-fold 0.883 ± 0.052) | 0.754 (0.31) | 0.171 | 0.55 | 0.77 | 0.74 | 0.75 |
+| forest | {'min_samples_leaf': 20} | test | 0.864 [0.79, 0.93] | 0.846 (0.41) | 0.165 | 0.55 | 0.77 | 0.73 | 0.75 |
+| boosting | {'learning_rate': 0.1} | CV (OOF) | 0.845 (15-fold 0.859 ± 0.064) | 0.634 (0.31) | 0.150 | 0.51 | 0.74 | 0.74 | 0.74 |
+| boosting | {'learning_rate': 0.1} | test | 0.840 [0.76, 0.91] | 0.787 (0.41) | 0.167 | 0.51 | 0.76 | 0.68 | 0.72 |
 
-Threshold = max F1 on out-of-fold train predictions, then applied unchanged to test. Test ROC AUC brackets are bootstrap 95% CIs (1,000 resamples of Scouts). With under 100 Scouts per snapshot the CIs overlap a lot, so the ranking between the non-baseline models is not reliable; only 'better than the majority baseline' is.
+Threshold = max F1 on out-of-fold train predictions, then applied unchanged to test. Test ROC AUC brackets are bootstrap 95% CIs (1,000 resamples of Scouts). With only about 60-100 Scouts per snapshot the CIs overlap a lot, so the ranking between the non-baseline models is not reliable; only 'better than the majority baseline' is.
 
 ### PRD targets (placeholders) vs result
 
-- Selected model test ROC AUC >= 0.75: **0.826** (met)
-- PR AUC lift >= 2x base rate: **2.11x** (met)
-- Best test Brier <= logistic regression's: best is logistic (0.170 vs logistic 0.170)
-- Snapshot sizes: train 64 Scouts / 19 churners (plan wanted >= 60 / >= 15: met)
+- Selected model test ROC AUC >= 0.75: **0.852** (met)
+- PR AUC lift >= 2x base rate: **1.92x** (MISSED; the most any model can reach at this base rate is 1/0.406 = 2.46x)
+- Best test Brier <= logistic regression's: best is logistic (0.148 vs logistic 0.148)
+- Snapshot sizes: train 86 Scouts / 27 churners (plan wanted >= 60 / >= 15: met)
 <!-- /results -->
 
 <!-- interpretation -->
@@ -39,68 +39,71 @@ Threshold = max F1 on out-of-fold train predictions, then applied unchanged to t
 
 | feature | coef_per_sd | odds_ratio_per_sd |
 |---|---|---|
-| mean_gap_days | 0.541 | 1.717 |
-| median_distance_m | -0.336 | 0.714 |
-| active_nights_28d | -0.291 | 0.748 |
-| days_since_last_report | 0.290 | 1.336 |
-| distinct_venues_28d | -0.272 | 0.762 |
-| share_verified_presence | -0.214 | 0.807 |
-| reports_7d | -0.208 | 0.812 |
-| tenure_days | 0.197 | 1.218 |
-| cohort_week | -0.148 | 0.862 |
-| trend | -0.141 | 0.869 |
-| share_saturday_reports | 0.133 | 1.143 |
-| reports_28d | -0.118 | 0.889 |
-| share_flagged_or_removed | -0.113 | 0.894 |
-| bounties_claimed_28d | 0.098 | 1.103 |
-| points_28d | -0.090 | 0.914 |
-| reputation_asof | -0.084 | 0.919 |
-| points_asof | -0.077 | 0.926 |
-| points_total | -0.077 | 0.926 |
-| level_asof | -0.034 | 0.966 |
+| reports_7d | -0.438 | 0.645 |
+| trend | -0.340 | 0.712 |
+| points_28d | -0.273 | 0.761 |
+| bounties_claimed_28d | -0.254 | 0.775 |
+| cohort_week | -0.245 | 0.783 |
+| days_since_last_report | 0.239 | 1.270 |
+| reports_28d | -0.210 | 0.810 |
+| points_total | -0.186 | 0.831 |
+| points_asof | -0.185 | 0.831 |
+| active_nights_28d | -0.134 | 0.874 |
+| tenure_days | 0.120 | 1.128 |
+| mean_gap_days | 0.118 | 1.125 |
+| reputation_asof | 0.101 | 1.106 |
+| distinct_venues_28d | -0.082 | 0.921 |
+| share_flagged_or_removed | 0.082 | 1.085 |
+| share_verified_presence | 0.046 | 1.047 |
+| share_saturday_reports | -0.020 | 0.980 |
+| level_asof | -0.018 | 0.982 |
+| median_distance_m | 0.003 | 1.003 |
 
-### Decision tree (depth 3), printed
+### Decision tree (depth 4), printed
 
 Each leaf shows the class-weighted counts [stay, churn] and the predicted class (1 = churn). Two sibling leaves can both say 1: the split still made one of them purer.
 
 ```
-|--- mean_gap_days <= 4.8
-|   |--- distinct_venues_28d <= 1.5
-|   |   |--- weights: [1.4, 8.4] class: 1
-|   |--- distinct_venues_28d >  1.5
-|   |   |--- reports_7d <= 0.5
-|   |   |   |--- weights: [4.3, 6.7] class: 1
-|   |   |--- reports_7d >  0.5
-|   |   |   |--- weights: [24.9, 0.0] class: 0
-|--- mean_gap_days >  4.8
-|   |--- days_since_last_report <= 6.5
-|   |   |--- weights: [0.0, 11.8] class: 1
-|   |--- days_since_last_report >  6.5
-|   |   |--- weights: [1.4, 5.1] class: 1
+|--- reports_7d <= 6.5
+|   |--- reports_28d <= 35.5
+|   |   |--- share_saturday_reports <= 0.7
+|   |   |   |--- points_28d <= 615.0
+|   |   |   |   |--- weights: [1.5, 31.9] class: 1
+|   |   |   |--- points_28d >  615.0
+|   |   |   |   |--- weights: [2.2, 3.2] class: 1
+|   |   |--- share_saturday_reports >  0.7
+|   |   |   |--- weights: [2.9, 3.2] class: 1
+|   |--- reports_28d >  35.5
+|   |   |--- weights: [4.4, 1.6] class: 0
+|--- reports_7d >  6.5
+|   |--- share_saturday_reports <= 0.5
+|   |   |--- weights: [29.9, 0.0] class: 0
+|   |--- share_saturday_reports >  0.5
+|   |   |--- weights: [2.2, 3.2] class: 1
 ```
 
 ### Permutation importance on the test snapshot (logistic, 30 shuffles)
 
 | feature | auc_drop_mean | auc_drop_sd |
 |---|---|---|
-| days_since_last_report | 0.040 | 0.013 |
-| mean_gap_days | 0.017 | 0.020 |
-| distinct_venues_28d | 0.016 | 0.009 |
-| reports_7d | 0.015 | 0.006 |
-| active_nights_28d | 0.013 | 0.010 |
-| trend | 0.010 | 0.004 |
-| median_distance_m | 0.010 | 0.011 |
-| share_flagged_or_removed | 0.007 | 0.003 |
-| tenure_days | 0.006 | 0.012 |
-| share_saturday_reports | 0.006 | 0.003 |
+| reports_7d | 0.017 | 0.018 |
+| cohort_week | 0.015 | 0.013 |
+| trend | 0.009 | 0.010 |
+| points_asof | 0.008 | 0.005 |
+| points_total | 0.008 | 0.005 |
+| bounties_claimed_28d | 0.007 | 0.006 |
+| points_28d | 0.007 | 0.007 |
+| days_since_last_report | 0.006 | 0.008 |
+| reports_28d | 0.003 | 0.007 |
+| distinct_venues_28d | 0.002 | 0.003 |
 
 ### Targeting view: churn rate among the riskiest Scouts (test snapshot, logistic)
 
 | riskiest share | scouts | churned | churn rate | lift vs base |
 |---|---|---|---|---|
-| 10% | 9 | 8 | 0.889 | 2.466 |
-| 25% | 22 | 16 | 0.727 | 2.018 |
-| 50% | 43 | 26 | 0.605 | 1.677 |
+| 10% | 10 | 9 | 0.900 | 2.217 |
+| 25% | 25 | 21 | 0.840 | 2.069 |
+| 50% | 50 | 33 | 0.660 | 1.626 |
 
 Plots: `timeline.png`, `roc_pr_test.png`, `calibration_test.png`, `permutation_importance.png`.
 <!-- /interpretation -->
@@ -108,33 +111,33 @@ Plots: `timeline.png`, `roc_pr_test.png`, `calibration_test.png`, `permutation_i
 <!-- truth -->
 ## Sanity check against the simulator's truth table (evaluation only, synthetic data)
 
-Test snapshot (cutoff 2026-10-22), 86 Scouts.
+Test snapshot (cutoff 2026-10-22), 101 Scouts.
 
-- Our report-based label (0 reports in 21 days) agrees with the truth 'quit for good before 2026-11-12' for **90%** of Scouts. Disagreements: 1 Scouts were silent for 21 days but had not quit (label 1, truth 0); 8 reported in the window and then quit (label 0, truth 1).
-- ROC AUC of the risk score vs our label: 0.826; vs the truth quit flag: 0.840.
-- Spearman correlation of risk with `true_accuracy`: -0.15 (accuracy is not a churn driver in the simulator, so a value near 0 is expected).
+- Our report-based label (0 reports in 21 days) agrees with the truth 'quit for good before 2026-11-12' for **82%** of Scouts. Disagreements: 6 Scouts were silent for 21 days but had not quit (label 1, truth 0); 12 reported in the window and then quit (label 0, truth 1).
+- ROC AUC of the risk score vs our label: 0.852; vs the truth quit flag: 0.710.
+- Spearman correlation of risk with `true_accuracy`: +0.07 (near 0 means the risk score is not just tracking how accurate a Scout's reports are).
 - AUC is below 0.95, so there is no sign of a 'too easy' leak.
 
 ### By archetype
 
 | archetype | n | churn_rate | roc_auc |
 |---|---|---|---|
-| casual | 32 | 0.312 | 0.823 |
-| gamer | 13 | 0.308 | 0.889 |
-| honest | 26 | 0.462 | 0.780 |
-| shill | 6 | 0.333 | 0.875 |
-| sloppy | 9 | 0.333 | 1.000 |
+| casual | 28 | 0.429 | 0.802 |
+| gamer | 2 | 0.500 | n/a |
+| honest | 60 | 0.417 | 0.893 |
+| shill | 3 | 0.333 | n/a |
+| sloppy | 8 | 0.250 | 0.917 |
 
 ### By cohort week
 
 | cohort_week | n | churn_rate | roc_auc |
 |---|---|---|---|
-| 0 | 22 | 0.318 | 0.867 |
-| 1 | 9 | 0.667 | 0.889 |
-| 2 | 9 | 0.556 | 0.900 |
-| 3 | 11 | 0.364 | 0.964 |
-| 4 | 11 | 0.364 | 0.857 |
-| 5 | 10 | 0.200 | 0.750 |
-| 6 | 10 | 0.200 | 0.250 |
-| 7 | 4 | 0.250 | n/a |
+| 1 | 34 | 0.382 | 0.857 |
+| 2 | 10 | 0.600 | 0.792 |
+| 3 | 8 | 0.375 | 0.933 |
+| 4 | 7 | 0.429 | 0.917 |
+| 5 | 10 | 0.500 | 1.000 |
+| 6 | 7 | 0.571 | 1.000 |
+| 7 | 11 | 0.182 | 0.889 |
+| 8 | 14 | 0.357 | 0.733 |
 <!-- /truth -->

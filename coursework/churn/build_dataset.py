@@ -34,6 +34,11 @@ FEATURES = ["tenure_days", "cohort_week", "reports_28d", "reports_7d", "days_sin
             "reputation_asof", "points_asof", "level_asof"]
 
 
+# live-sim stores level as a name; the order comes from its points bands (Rookie < 100 <= Regular
+# < 500 <= Insider < 1500 <= Legend). Numbers (the stand-in) pass through unchanged.
+LEVEL_ORDER = {"Rookie": 1, "Regular": 2, "Insider": 3, "Legend": 4}
+
+
 def cutoff_ts(date: str) -> pd.Timestamp:
     return pd.Timestamp(f"{date} 12:00", tz=NY)
 
@@ -72,7 +77,8 @@ def asof_reputation(history: pd.DataFrame, cutoff: pd.Timestamp) -> dict:
     if before.empty:
         return {"reputation_asof": 0.5, "points_asof": 0, "level_asof": 1}  # contract default r = 0.5
     last = before.sort_values("as_of_date").iloc[-1]
-    return {"reputation_asof": last["reputation"], "points_asof": last["points"], "level_asof": last["level"]}
+    level = LEVEL_ORDER.get(last["level"], last["level"])  # name -> ordinal 1-4
+    return {"reputation_asof": last["reputation"], "points_asof": last["points"], "level_asof": int(level)}
 
 
 def build(data: dict, cutoff_date: str, lookback: int = 28, horizon: int = 21) -> pd.DataFrame:
@@ -94,7 +100,7 @@ def build(data: dict, cutoff_date: str, lookback: int = 28, horizon: int = 21) -
         my_claims = claims[(claims["claimed_by"] == sid) & (claims["claimed_at"] < cutoff)]
         row = {"scout_id": sid, "cutoff": cutoff_date,
                "tenure_days": (cutoff - joined) / pd.Timedelta(days=1),
-               "cohort_week": int((joined - FIRST_DAY).days // 7),
+               "cohort_week": max(0, int((joined - FIRST_DAY).days // 7)),  # pre-launch sign-ups = week 0
                "points_28d": pts.loc[pts["ts"] >= cutoff - pd.Timedelta(days=lookback), "points"].sum(),
                "points_total": pts["points"].sum(),
                "bounties_claimed_28d": int((my_claims["claimed_at"] >= cutoff - pd.Timedelta(days=lookback)).sum())}
