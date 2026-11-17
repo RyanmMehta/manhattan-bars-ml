@@ -1,0 +1,14 @@
+# Keep the Render image small (v2 §D): no 39 MB pipeline DB, no raw scrapes.
+.git
+**/node_modules
+frontend
+data/manhattan_bars.db
+data/raw
+data/synthetic
+data/live_sim.db
+reports
+coursework
+research
+analytics
+**/__pycache__
+.venv

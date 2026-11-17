@@ -1,0 +1,30 @@
+# Render Blueprint (integration, v2 §C). Backend only; the frontend goes to Vercel.
+# Placeholder until nightlife/backend merges: if backend ships backend/render.yaml or a
+# Dockerfile with a different start command, integration reconciles it here.
+services:
+  - type: web
+    name: nightlife-autopilot-api
+    runtime: python
+    plan: free
+    rootDir: .
+    buildCommand: >-
+      pip install -r backend/requirements.txt &&
+      python -I -m simulator --seed 42 --out data/live_sim.db
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: LIVE_SIM_DB
+        value: data/live_sim.db
+      - key: DEMO_NOW
+        value: "2026-11-14T23:30:00-05:00"
+      - key: INCLUDE_SYNTHETIC
+        value: "1"
+      - key: FEATURE_ROUTING
+        value: "0"
+      - key: FEATURE_HEATMAP
+        value: "0"
+      - key: CORS_ORIGINS
+        sync: false   # set in dashboard: https://<frontend>.vercel.app,http://localhost:5173

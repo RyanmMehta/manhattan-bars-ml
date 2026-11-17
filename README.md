@@ -1,4 +1,31 @@
-# Manhattan bars: database, synthetic data simulator, ML test bench
+# Nightlife Autopilot (on the Manhattan bars public-data pipeline)
+
+Help a group choose where to go **right now** by matching their preferences with fresh
+information about nearby nightlife venues. Launch area: 35 bars in Manhattan's Lower East Side
+(zip 10002). Built for the Nov 17, 2026 class demo.
+
+> **Synthetic data warning.** Everything about "tonight" (scout reports, venue updates,
+> crowds, users, points, owner analytics) is simulated (seed 42) and shown with a
+> **demo data** badge. See [`SYNTHETIC_DATA.md`](SYNTHETIC_DATA.md) for what is fake and how
+> each piece is swapped for real data. The public-data pipeline below is real.
+
+<!-- integration:app-start -->
+## Run the app locally
+```
+make setup        # python deps (+ frontend npm ci)
+make data         # python -I -m simulator --seed 42 --out data/live_sim.db
+make test         # pipeline smoke, workstream tests, contract tests, browser e2e
+make demo         # backend :8000 + frontend :5173 pinned to Sat Nov 14, 11:30 PM
+```
+Demo script and deploy steps: [`DEMO.md`](DEMO.md). Shared contracts: [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
+Integration notes and merge log: [`docs/workstreams/integration.md`](docs/workstreams/integration.md).
+<!-- integration:app-end -->
+
+---
+
+# Public-data pipeline
+
+## Manhattan bars: database, synthetic data simulator, ML test bench
 
 Scrapes public data on every licensed drinking venue in Manhattan, builds a
 SQLite database, generates synthetic training data with three simulators, and

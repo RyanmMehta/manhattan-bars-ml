@@ -1,0 +1,4 @@
+# Test tools only (integration). Runtime deps live in requirements.txt / backend/ / recs/.
+pytest>=8
+httpx>=0.27
+jsonschema>=4.20

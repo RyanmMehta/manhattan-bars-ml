@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 .DS_Store
+# integration (v2 §D): generated, never committed
+data/live_sim.db
+*.db-journal
+node_modules/
+frontend/dist/
+.pytest_cache/
