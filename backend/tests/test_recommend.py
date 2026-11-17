@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-from tests.conftest import login
+from tests.conftest import VENUE, login
 from tests.fixtures.golden import PREFS
 
 REC_KEYS = {
@@ -134,3 +134,27 @@ def test_null_rank_from_engine_is_assigned(client, monkeypatch):
     assert [x["rank"] for x in rows] == list(range(1, len(rows) + 1))
     flags = [x["excluded"] for x in rows]
     assert flags == sorted(flags)
+
+
+def test_numeric_complaint_risk_from_engine(client, monkeypatch):
+    """Final recs returns complaint_risk as a float; it must not knock /recommend onto the stub."""
+    eng = client.app.state.ctx.engine
+    real = eng.recommend
+
+    def with_float(*a):
+        rows = real(*a)
+        for r in rows:
+            r["complaint_risk"] = 0.6
+            r["reasons"] = ["engine-marker"]
+        return rows
+
+    monkeypatch.setattr(eng, "recommend", with_float)
+    rows = client.post("/api/recommend", json=PREFS).json()
+    assert rows[0]["reasons"] == ["engine-marker"]  # engine output used, not the stub's
+    cr = rows[0]["complaint_risk"]
+    assert cr["label"] == "311 noise-complaint risk" and cr["score"] == 0.6
+
+
+def test_exclude_venue_ids_dropped(client):
+    rows = client.post("/api/recommend", json=PREFS | {"exclude_venue_ids": [VENUE]}).json()
+    assert len(rows) == 34 and VENUE not in {r["venue_id"] for r in rows}

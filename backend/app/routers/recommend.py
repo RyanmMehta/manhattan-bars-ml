@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, Response
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
@@ -13,6 +15,7 @@ from ..services.auth import Principal
 from ..timeutil import NaiveTimeError, parse_ts
 from .common import set_list_headers
 
+log = logging.getLogger("app")
 router = APIRouter(tags=["recommend"])
 
 
@@ -44,8 +47,23 @@ def order_and_rank(rows: list) -> list:
 def _validated(model, rows: list, fallback):
     try:
         return [model.model_validate(r).model_dump() for r in rows]
-    except (ValidationError, TypeError, AttributeError):
+    except (ValidationError, TypeError, AttributeError) as exc:
+        log.warning("engine output failed %s validation, using stub: %s", model.__name__, exc)
         return [model.model_validate(r).model_dump() for r in fallback()]
+
+
+def split_complaint_risk(rows: list) -> dict[str, float]:
+    """recs returns complaint_risk as a number; the API's complaint_risk is an object the
+    backend builds from public data. Keep recs' number as complaint_risk.score."""
+    scores: dict[str, float] = {}
+    if not isinstance(rows, list):
+        return scores
+    for r in rows:
+        if isinstance(r, dict) and "complaint_risk" in r:
+            v = r.pop("complaint_risk")
+            if isinstance(v, int | float) and not isinstance(v, bool):
+                scores[r.get("venue_id")] = float(v)
+    return scores
 
 
 @router.post("/api/recommend", response_model=list[Recommendation])
@@ -59,13 +77,15 @@ def recommend(
 ) -> list[dict]:
     user_id = who.subject_id if who and who.role == "user" else None
     p, states, venues = _inputs(s, ctx, now, prefs)
-    raw = order_and_rank(ctx.engine.recommend(p, states, venues, now))
+    raw = ctx.engine.recommend(p, states, venues, now)
+    risk_scores = split_complaint_risk(raw)
+    raw = order_and_rank(raw)
     rows = _validated(
         Recommendation, raw, lambda: order_and_rank(StubEngine().recommend(p, states, venues, now))
     )
     for r in rows:
         v = ctx.catalog.by_id.get(r["venue_id"]) or {}
-        r["complaint_risk"] = complaint_risk(v)
+        r["complaint_risk"] = complaint_risk(v) | {"score": risk_scores.get(r["venue_id"])}
         if not r["excluded"]:
             svc.log_event(s, ctx, r["venue_id"], "recommend_impression", user_id)
     s.commit()

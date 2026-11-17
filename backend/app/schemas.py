@@ -40,6 +40,7 @@ class ComplaintRisk(Out):
     label: str
     noise_complaints_3y: int | None
     level: Literal["low", "medium", "high"] | None
+    score: float | None = None  # recs' modelled risk (0-1) when recs supplies it
 
 
 class VenueCard(Out):

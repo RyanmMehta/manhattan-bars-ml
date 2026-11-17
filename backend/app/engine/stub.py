@@ -219,7 +219,10 @@ class StubEngine:
     def recommend(self, prefs: dict, states: Any, venues: Any, now: datetime) -> list[dict]:
         state_by = {s["venue_id"]: s for s in _rows(states)}
         out = []
+        skip = set(prefs.get("exclude_venue_ids") or [])  # dropped, as in recs
         for v in _rows(venues):
+            if v["venue_id"] in skip:
+                continue
             s = state_by.get(v["venue_id"]) or self.compute(v["venue_id"], [], [], now)
             out.append(self._score(prefs, s, v))
         ok = sorted(
