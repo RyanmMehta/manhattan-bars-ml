@@ -1,0 +1,10 @@
+# Extra dependencies for coursework/ only (the root requirements.txt is not touched).
+# Install torch from the CPU-only index so no CUDA wheels are downloaded:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r coursework/requirements.txt
+torch>=2.5
+matplotlib>=3.9
+pytest>=8
+nbformat>=5.9      # only used to build the .ipynb notebooks (make_notebooks.py)
+nbconvert>=7.0     # only used to execute the notebooks once to check they run
+ipykernel>=6.0
