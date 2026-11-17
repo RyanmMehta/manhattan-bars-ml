@@ -1,0 +1,124 @@
+{
+  "description": "3 reports from one scout: diverse = 0.6 caps confidence.",
+  "expected": {
+    "debug": {
+      "0370-24-119240": {
+        "W": 1.8353510449593375,
+        "agree": 1.0,
+        "conf_raw": 0.4234926900064228,
+        "cover_usd_raw": null,
+        "crowd_raw": 4.0,
+        "dancing_raw": 1.0,
+        "diverse": 0.6,
+        "line_minutes_raw": 10,
+        "sd_w": 0.0,
+        "support": 0.7058211500107047,
+        "vibe_raw": 60.0
+      }
+    },
+    "recommendations": null,
+    "states": [
+      {
+        "confidence": 0.42,
+        "cover_usd": null,
+        "crowd": 4.0,
+        "dancing": 1.0,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 10,
+        "music_genres": [
+          "house"
+        ],
+        "n_reports": 3,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-24-119240",
+        "vibe_score": 60
+      }
+    ],
+    "ui": {
+      "0370-24-119240": {
+        "stale": false,
+        "vibe_label": "Lively"
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G3",
+  "is_synthetic": 1,
+  "name": "G3_single_scout",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": null,
+  "reports": [
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "house",
+      "report_id": "syn-r-000001",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0007",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "house",
+      "report_id": "syn-r-000002",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0007",
+      "status": "accepted",
+      "ts": "2026-11-14T23:15:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 10,
+      "music_genre": "house",
+      "report_id": "syn-r-000003",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0007",
+      "status": "accepted",
+      "ts": "2026-11-14T23:05:00-05:00",
+      "venue_id": "0370-24-119240",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0007"
+    }
+  ],
+  "updates": [],
+  "venues": [
+    {
+      "capacity": 120,
+      "genres": "hip-hop|house",
+      "is_synthetic": 1,
+      "lat": 40.7194,
+      "lon": -73.99319,
+      "name": "HOME SWEET HOME, FIG19",
+      "venue_id": "0370-24-119240"
+    }
+  ]
+}
