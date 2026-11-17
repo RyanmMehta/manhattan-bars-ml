@@ -25,6 +25,8 @@ def fixture_sim() -> str:
 
 @pytest.fixture
 def make_client(tmp_path, fixture_sim):
+    made: list[TestClient] = []
+
     def _make(**overrides) -> TestClient:
         base = dict(
             database_url=f"sqlite:///{tmp_path}/app_{len(list(tmp_path.iterdir()))}.db",
@@ -43,9 +45,13 @@ def make_client(tmp_path, fixture_sim):
         settings = Settings(**base)
         app = create_app(settings)
         Base.metadata.create_all(app.state.ctx.db.engine)
-        return TestClient(app)
+        c = TestClient(app)
+        made.append(c)
+        return c
 
-    return _make
+    yield _make
+    for c in made:
+        c.app.state.ctx.db.engine.dispose()
 
 
 @pytest.fixture

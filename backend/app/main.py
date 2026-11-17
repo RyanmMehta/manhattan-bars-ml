@@ -28,26 +28,47 @@ def build_ctx(settings: Settings) -> Ctx:
         from sqlalchemy import inspect
 
         insp = inspect(db.engine)
-        schema = {t: {c["name"] for c in insp.get_columns(t)}
-                  for t in insp.get_table_names() if t.startswith("syn_")}
+        schema = {
+            t: {c["name"] for c in insp.get_columns(t)}
+            for t in insp.get_table_names()
+            if t.startswith("syn_")
+        }
     else:
         schema = {}
     src = Sources(settings.include_synthetic, db.sim_prefix, schema)
-    catalog = load_catalog(settings.launch_venues_full_csv, settings.launch_venues_csv,
-                           settings.public_db_path)
-    return Ctx(settings=settings, db=db, src=src, engine=get_engine(settings.recs_mode),
-               catalog=catalog, genres=load_genres(settings.genres_json), sim_problems=problems)
+    catalog = load_catalog(
+        settings.launch_venues_full_csv, settings.launch_venues_csv, settings.public_db_path
+    )
+    return Ctx(
+        settings=settings,
+        db=db,
+        src=src,
+        engine=get_engine(settings.recs_mode),
+        catalog=catalog,
+        genres=load_genres(settings.genres_json),
+        sim_problems=problems,
+    )
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     setup_logging(settings.log_level)
-    app = FastAPI(title="Nightlife Autopilot API", version="0.1.0", docs_url="/api/docs",
-                  redoc_url=None, openapi_url="/openapi.json")
+    app = FastAPI(
+        title="Nightlife Autopilot API",
+        version="0.1.0",
+        docs_url="/api/docs",
+        redoc_url=None,
+        openapi_url="/openapi.json",
+    )
     app.state.ctx = build_ctx(settings)
-    app.add_middleware(CORSMiddleware, allow_origins=settings.cors_list, allow_credentials=False,
-                       allow_methods=["*"], allow_headers=["*"],
-                       expose_headers=["X-Data", "X-Total-Count"])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_list,
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Data", "X-Total-Count"],
+    )
     errors.install(app)
 
     @app.middleware("http")
@@ -55,17 +76,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         t0 = time.perf_counter()
         response = await call_next(request)
         ctx = request.app.state.ctx
-        log.info("request", extra={"fields": {
-            "method": request.method, "path": request.url.path, "status": response.status_code,
-            "ms": round((time.perf_counter() - t0) * 1000, 1),
-            "engine": getattr(ctx.engine, "last_served", ctx.engine_label)}})
+        log.info(
+            "request",
+            extra={
+                "fields": {
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status": response.status_code,
+                    "ms": round((time.perf_counter() - t0) * 1000, 1),
+                    "engine": getattr(ctx.engine, "last_served", ctx.engine_label),
+                }
+            },
+        )
         return response
 
     for r in (health, venues, heatmap, auth, reports, scouts, recommend, owner, feedback):
         app.include_router(r.router)
-    log.info("startup", extra={"fields": {
-        "recs": app.state.ctx.engine_label, "sim": app.state.ctx.db.sim_path,
-        "catalog": app.state.ctx.catalog.source, "include_synthetic": settings.include_synthetic}})
+    log.info(
+        "startup",
+        extra={
+            "fields": {
+                "recs": app.state.ctx.engine_label,
+                "sim": app.state.ctx.db.sim_path,
+                "catalog": app.state.ctx.catalog.source,
+                "include_synthetic": settings.include_synthetic,
+            }
+        },
+    )
     return app
 
 

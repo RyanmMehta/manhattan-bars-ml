@@ -40,14 +40,24 @@ def dashboard(s: Session, ctx: Ctx, venue_id: str, now) -> dict:
         h = t.astimezone(NY).hour
         hours.append({"hour": h, "value": by_hour.get(h, 0)})
         t += timedelta(hours=1)
-    synth = any(e.get("is_synthetic") for e in events) or any(r.get("is_synthetic") for r in reports)
-    return {"venue_id": venue_id, "views": counts["view"], "taps": counts["tap"],
-            "saves": counts["save"], "reports_tonight": len(reports),
-            "rec_appearances": counts["recommend_impression"], "demand_by_hour": hours,
-            "is_synthetic": synth}
+    synth = any(e.get("is_synthetic") for e in events) or any(
+        r.get("is_synthetic") for r in reports
+    )
+    return {
+        "venue_id": venue_id,
+        "views": counts["view"],
+        "taps": counts["tap"],
+        "saves": counts["save"],
+        "reports_tonight": len(reports),
+        "rec_appearances": counts["recommend_impression"],
+        "demand_by_hour": hours,
+        "is_synthetic": synth,
+    }
 
 
-def create_update(s: Session, ctx: Ctx, venue_id: str, body: OwnerUpdateIn, now_q: str | None) -> dict:
+def create_update(
+    s: Session, ctx: Ctx, venue_id: str, body: OwnerUpdateIn, now_q: str | None
+) -> dict:
     now = ctx.write_now(now_q)
     genres = body.genres
     if isinstance(genres, list):
@@ -63,10 +73,31 @@ def create_update(s: Session, ctx: Ctx, venue_id: str, body: OwnerUpdateIn, now_
             raise ApiError(422, "validation_error", f"bad offer_expires_at: {exc}") from exc
     elif body.offer:
         expires = to_ny_iso(now + timedelta(hours=2))  # SPEC(specs §5.2): offer else 120 min
-    row = VenueUpdate(update_id=str(uuid.uuid4()), venue_id=venue_id, ts=to_ny_iso(now),
-                      cover_usd=body.cover_usd, dj=body.dj, genres=genres or None,
-                      event=body.event, offer=body.offer, offer_expires_at=expires, is_synthetic=0)
+    row = VenueUpdate(
+        update_id=str(uuid.uuid4()),
+        venue_id=venue_id,
+        ts=to_ny_iso(now),
+        cover_usd=body.cover_usd,
+        dj=body.dj,
+        genres=genres or None,
+        event=body.event,
+        offer=body.offer,
+        offer_expires_at=expires,
+        is_synthetic=0,
+    )
     s.add(row)
     s.commit()
-    return {c: getattr(row, c) for c in ("update_id", "venue_id", "ts", "cover_usd", "dj", "genres",
-                                         "event", "offer", "offer_expires_at")} | {"is_synthetic": False}
+    return {
+        c: getattr(row, c)
+        for c in (
+            "update_id",
+            "venue_id",
+            "ts",
+            "cover_usd",
+            "dj",
+            "genres",
+            "event",
+            "offer",
+            "offer_expires_at",
+        )
+    } | {"is_synthetic": False}

@@ -5,8 +5,23 @@ from functools import lru_cache
 from pathlib import Path
 
 VENDORED_GENRES = [
-    "hip-hop", "r&b", "afrobeats", "latin", "reggaeton", "house", "techno", "edm", "disco",
-    "pop", "top-40", "throwbacks", "indie", "rock", "punk", "jazz", "soul-funk",
+    "hip-hop",
+    "r&b",
+    "afrobeats",
+    "latin",
+    "reggaeton",
+    "house",
+    "techno",
+    "edm",
+    "disco",
+    "pop",
+    "top-40",
+    "throwbacks",
+    "indie",
+    "rock",
+    "punk",
+    "jazz",
+    "soul-funk",
 ]
 
 

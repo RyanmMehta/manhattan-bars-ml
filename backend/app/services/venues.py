@@ -16,7 +16,9 @@ from ..schemas import LiveState
 from ..timeutil import parse_ts, to_ny_iso
 
 
-def validate_state(ctx: Ctx, raw: dict, venue_id: str, reports: list, updates: list, now: datetime) -> dict:
+def validate_state(
+    ctx: Ctx, raw: dict, venue_id: str, reports: list, updates: list, now: datetime
+) -> dict:
     """recs output is validated; a malformed state falls back to the stub (RULES §4)."""
     try:
         return LiveState.model_validate(raw).model_dump()
@@ -79,10 +81,27 @@ def engine_venues(ctx: Ctx, attrs: dict, venues: list[dict]) -> list[dict]:
     out = []
     for v in venues:
         a = attrs.get(v["venue_id"]) or {}
-        row = {k: a.get(k) for k in ("genres", "style", "has_dance_floor", "typical_cover_usd",
-                                      "capacity", "price_level", "is_claimed", "opening_hours")}
-        row.update(venue_id=v["venue_id"], name=v["name"], display_name=v["display_name"],
-                   lat=v["lat"], lon=v["lon"], is_synthetic=bool(a.get("is_synthetic")))
+        row = {
+            k: a.get(k)
+            for k in (
+                "genres",
+                "style",
+                "has_dance_floor",
+                "typical_cover_usd",
+                "capacity",
+                "price_level",
+                "is_claimed",
+                "opening_hours",
+            )
+        }
+        row.update(
+            venue_id=v["venue_id"],
+            name=v["name"],
+            display_name=v["display_name"],
+            lat=v["lat"],
+            lon=v["lon"],
+            is_synthetic=bool(a.get("is_synthetic")),
+        )
         if v.get("osm_opening_hours"):
             row["opening_hours"] = v["osm_opening_hours"]
         out.append(row)
@@ -90,22 +109,41 @@ def engine_venues(ctx: Ctx, attrs: dict, venues: list[dict]) -> list[dict]:
 
 
 def list_cards(
-    s: Session, ctx: Ctx, now: datetime, *, q: str | None, neighborhood: str | None,
-    style: str | None, genre: str | None, launch_only: bool, lat: float | None, lon: float | None,
+    s: Session,
+    ctx: Ctx,
+    now: datetime,
+    *,
+    q: str | None,
+    neighborhood: str | None,
+    style: str | None,
+    genre: str | None,
+    launch_only: bool,
+    lat: float | None,
+    lon: float | None,
 ) -> list[dict]:
     venues = ctx.catalog.launch if launch_only else ctx.catalog.all_bars
     attrs = load_attributes(s, ctx.src, ctx.settings.manual_attributes_csv)
     if q:
         ql = q.lower()
-        venues = [v for v in venues if ql in v["display_name"].lower() or ql in v["name"].lower()
-                  or ql in (v.get("address") or "").lower()]
+        venues = [
+            v
+            for v in venues
+            if ql in v["display_name"].lower()
+            or ql in v["name"].lower()
+            or ql in (v.get("address") or "").lower()
+        ]
     if neighborhood:
-        venues = [v for v in venues if (v.get("neighborhood") or "").lower() == neighborhood.lower()]
+        venues = [
+            v for v in venues if (v.get("neighborhood") or "").lower() == neighborhood.lower()
+        ]
     if style:
         venues = [v for v in venues if (attrs.get(v["venue_id"]) or {}).get("style") == style]
     if genre:
-        venues = [v for v in venues
-                  if genre in str((attrs.get(v["venue_id"]) or {}).get("genres") or "").split("|")]
+        venues = [
+            v
+            for v in venues
+            if genre in str((attrs.get(v["venue_id"]) or {}).get("genres") or "").split("|")
+        ]
     ids = [v["venue_id"] for v in venues]
     states = states_for(s, ctx, now, ids) if len(ids) <= 300 else _bulk_states(s, ctx, now, ids)
     cards = [card(v, attrs.get(v["venue_id"]), states[v["venue_id"]], (lat, lon)) for v in venues]
@@ -135,28 +173,70 @@ def state_one(s: Session, ctx: Ctx, now: datetime, venue_id: str) -> dict:
 def detail(s: Session, ctx: Ctx, now: datetime, v: dict) -> dict:
     attrs = load_attributes(s, ctx.src, ctx.settings.manual_attributes_csv)
     st = state_one(s, ctx, now, v["venue_id"])
-    reps = live.reports_window(s, ctx.src, now - timedelta(minutes=C.INPUT_CUTOFF_MIN), now,
-                               [v["venue_id"]])
+    reps = live.reports_window(
+        s, ctx.src, now - timedelta(minutes=C.INPUT_CUTOFF_MIN), now, [v["venue_id"]]
+    )
     reps = [r for r in reps if r["status"] in ("accepted", "pending")]
     reps.sort(key=lambda r: parse_ts(r["ts"]), reverse=True)
-    recent = [{k: r.get(k) for k in ("report_id", "venue_id", "scout_id", "scout_display_name",
-                                     "reputation", "ts", "crowd", "dancing", "line_minutes",
-                                     "cover_usd", "music_genre", "verified_presence", "status")}
-              | {"is_synthetic": bool(r.get("is_synthetic"))} for r in reps[:10]]
-    offers = [dict(o, is_synthetic=bool(o.get("is_synthetic")))
-              for o in live.active_offers(s, ctx.src, v["venue_id"], now)]
+    recent = [
+        {
+            k: r.get(k)
+            for k in (
+                "report_id",
+                "venue_id",
+                "scout_id",
+                "scout_display_name",
+                "reputation",
+                "ts",
+                "crowd",
+                "dancing",
+                "line_minutes",
+                "cover_usd",
+                "music_genre",
+                "verified_presence",
+                "status",
+            )
+        }
+        | {"is_synthetic": bool(r.get("is_synthetic"))}
+        for r in reps[:10]
+    ]
+    offers = [
+        dict(o, is_synthetic=bool(o.get("is_synthetic")))
+        for o in live.active_offers(s, ctx.src, v["venue_id"], now)
+    ]
     c = card(v, attrs.get(v["venue_id"]), st)
-    synth = c["is_synthetic"] or any(r["is_synthetic"] for r in recent) or any(
-        o["is_synthetic"] for o in offers)
-    return {"venue": c, "state": st, "recent_reports": recent, "offers": offers,
-            "is_synthetic": synth}
+    synth = (
+        c["is_synthetic"]
+        or any(r["is_synthetic"] for r in recent)
+        or any(o["is_synthetic"] for o in offers)
+    )
+    return {
+        "venue": c,
+        "state": st,
+        "recent_reports": recent,
+        "offers": offers,
+        "is_synthetic": synth,
+    }
 
 
-def log_event(s: Session, ctx: Ctx, venue_id: str, event_type: str, user_id: str | None = None,
-              when: datetime | None = None) -> None:
-    s.add(VenueEvent(event_id=str(uuid.uuid4()), venue_id=venue_id,
-                     ts=to_ny_iso(when or ctx.write_now()), event_type=event_type,
-                     user_id=user_id, is_synthetic=0))
+def log_event(
+    s: Session,
+    ctx: Ctx,
+    venue_id: str,
+    event_type: str,
+    user_id: str | None = None,
+    when: datetime | None = None,
+) -> None:
+    s.add(
+        VenueEvent(
+            event_id=str(uuid.uuid4()),
+            venue_id=venue_id,
+            ts=to_ny_iso(when or ctx.write_now()),
+            event_type=event_type,
+            user_id=user_id,
+            is_synthetic=0,
+        )
+    )
 
 
 def heatmap(s: Session, ctx: Ctx, now: datetime, by_hour: bool) -> list[dict]:
@@ -182,9 +262,16 @@ def heatmap(s: Session, ctx: Ctx, now: datetime, by_hour: bool) -> list[dict]:
 
 
 def _cell(v: dict, st: dict, hour: int | None) -> dict:
-    return {"venue_id": v["venue_id"], "lat": v["lat"], "lon": v["lon"], "hour": hour,
-            "vibe_score": st.get("vibe_score"), "confidence": st.get("confidence"),
-            "n_reports": st.get("n_reports") or 0, "is_synthetic": bool(st.get("is_synthetic"))}
+    return {
+        "venue_id": v["venue_id"],
+        "lat": v["lat"],
+        "lon": v["lon"],
+        "hour": hour,
+        "vibe_score": st.get("vibe_score"),
+        "confidence": st.get("confidence"),
+        "n_reports": st.get("n_reports") or 0,
+        "is_synthetic": bool(st.get("is_synthetic")),
+    }
 
 
 def parse_iso_or_none(v: str | None) -> datetime | None:

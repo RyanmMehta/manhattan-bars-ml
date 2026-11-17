@@ -53,5 +53,11 @@ class RecsEngine:
         self, prefs: dict, states: Any, venues: Any, start_time: datetime, n_stops: int = 3
     ) -> list[dict]:
         return self._call(
-            "plan_night", self.routing.plan_night, prefs, states, venues, self._ny(start_time), n_stops
+            "plan_night",
+            self.routing.plan_night,
+            prefs,
+            states,
+            venues,
+            self._ny(start_time),
+            n_stops,
         )

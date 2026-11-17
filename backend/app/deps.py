@@ -18,7 +18,9 @@ def get_session(ctx: Ctx = Depends(get_ctx)) -> Iterator[Session]:
 
 
 def get_now(
-    now: str | None = Query(default=None, description="ISO 8601 replay time, e.g. 2026-11-14T23:30:00-05:00"),
+    now: str | None = Query(
+        default=None, description="ISO 8601 replay time, e.g. 2026-11-14T23:30:00-05:00"
+    ),
     ctx: Ctx = Depends(get_ctx),
 ):
     try:

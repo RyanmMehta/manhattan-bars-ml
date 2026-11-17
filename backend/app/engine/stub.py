@@ -224,11 +224,17 @@ class StubEngine:
             out.append(self._score(prefs, s, v))
         ok = sorted(
             (r for r in out if not r["excluded"]),
-            key=lambda r: (-r["rank_score"], r["distance_km"] if r["distance_km"] is not None else 1e9),
+            key=lambda r: (
+                -r["rank_score"],
+                r["distance_km"] if r["distance_km"] is not None else 1e9,
+            ),
         )
         bad = sorted(
             (r for r in out if r["excluded"]),
-            key=lambda r: (-r["rank_score"], r["distance_km"] if r["distance_km"] is not None else 1e9),
+            key=lambda r: (
+                -r["rank_score"],
+                r["distance_km"] if r["distance_km"] is not None else 1e9,
+            ),
         )
         ranked = ok + bad
         for i, r in enumerate(ranked, 1):
@@ -300,7 +306,7 @@ class StubEngine:
                 unknown("crowd", "crowd not reported tonight")
             else:
                 comps["crowd"] = (W["crowd"], max(0.0, 1 - abs(c - cp) / 4))
-                reasons_by["crowd"] = f"Crowd {c:.1f}/5, near your {cp}"
+                reasons_by["crowd"] = f"Crowd {c:.1f}/5, near your {cp:g}"
 
         # line
         ml = prefs.get("max_line_minutes")
@@ -323,10 +329,12 @@ class StubEngine:
                 unknown("cover", "cover not reported tonight")
             elif cv > mc:
                 comps["cover"] = (W["cover"], 0.0)
-                excluded_reason = excluded_reason or f"cover ${cv} over your ${mc:g}"
+                excluded_reason = excluded_reason or f"cover ${cv:g} over your ${mc:g}"
             else:
                 comps["cover"] = (W["cover"], 1.0 if cv == 0 or not mc else 1 - 0.5 * cv / mc)
-                reasons_by["cover"] = "No cover" if cv == 0 else f"Cover ${cv}, under your ${mc:g}"
+                reasons_by["cover"] = (
+                    "No cover" if cv == 0 else f"Cover ${cv:g}, under your ${mc:g}"
+                )
 
         # group
         gsz = prefs.get("group_size")

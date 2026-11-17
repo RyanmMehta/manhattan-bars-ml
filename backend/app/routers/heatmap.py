@@ -14,8 +14,13 @@ router = APIRouter(tags=["heatmap"])
 
 
 @router.get("/api/heatmap", response_model=list[HeatCell])
-def heatmap(response: Response, by: Literal["hour"] | None = None, now=Depends(get_now),
-            ctx: Ctx = Depends(get_ctx), s: Session = Depends(get_session)) -> list[dict]:
+def heatmap(
+    response: Response,
+    by: Literal["hour"] | None = None,
+    now=Depends(get_now),
+    ctx: Ctx = Depends(get_ctx),
+    s: Session = Depends(get_session),
+) -> list[dict]:
     if not ctx.settings.feature_heatmap:
         raise ApiError(404, "not_found", "Heatmap is disabled (FEATURE_HEATMAP=0)")
     rows = svc.heatmap(s, ctx, now, by_hour=by == "hour")

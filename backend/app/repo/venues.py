@@ -119,8 +119,18 @@ def complaint_risk(v: dict) -> dict:
     return {"label": "311 noise-complaint risk", "noise_complaints_3y": n, "level": level}
 
 
-ATTR_COLS = ["venue_id", "genres", "style", "has_dance_floor", "typical_cover_usd", "capacity",
-             "price_level", "is_claimed", "opening_hours", "is_synthetic"]
+ATTR_COLS = [
+    "venue_id",
+    "genres",
+    "style",
+    "has_dance_floor",
+    "typical_cover_usd",
+    "capacity",
+    "price_level",
+    "is_claimed",
+    "opening_hours",
+    "is_synthetic",
+]
 
 
 @lru_cache

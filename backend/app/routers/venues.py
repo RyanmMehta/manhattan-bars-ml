@@ -34,16 +34,30 @@ def list_venues(
     ctx: Ctx = Depends(get_ctx),
     s: Session = Depends(get_session),
 ) -> list[dict]:
-    cards = svc.list_cards(s, ctx, now, q=q, neighborhood=neighborhood, style=style, genre=genre,
-                           launch_only=launch_only, lat=lat, lon=lon)
+    cards = svc.list_cards(
+        s,
+        ctx,
+        now,
+        q=q,
+        neighborhood=neighborhood,
+        style=style,
+        genre=genre,
+        launch_only=launch_only,
+        lat=lat,
+        lon=lon,
+    )
     page = cards[offset : offset + limit]
     set_list_headers(response, page, total=len(cards))
     return page
 
 
 @router.get("/api/venues/{venue_id}", response_model=VenueDetail)
-def venue_detail(venue_id: str, now=Depends(get_now), ctx: Ctx = Depends(get_ctx),
-                 s: Session = Depends(get_session)) -> dict:
+def venue_detail(
+    venue_id: str,
+    now=Depends(get_now),
+    ctx: Ctx = Depends(get_ctx),
+    s: Session = Depends(get_session),
+) -> dict:
     out = svc.detail(s, ctx, now, _venue(ctx, venue_id))
     svc.log_event(s, ctx, venue_id, "view")
     s.commit()
@@ -51,8 +65,12 @@ def venue_detail(venue_id: str, now=Depends(get_now), ctx: Ctx = Depends(get_ctx
 
 
 @router.get("/api/venues/{venue_id}/state", response_model=LiveState)
-def venue_state(venue_id: str, now=Depends(get_now), ctx: Ctx = Depends(get_ctx),
-                s: Session = Depends(get_session)) -> dict:
+def venue_state(
+    venue_id: str,
+    now=Depends(get_now),
+    ctx: Ctx = Depends(get_ctx),
+    s: Session = Depends(get_session),
+) -> dict:
     _venue(ctx, venue_id)
     st = svc.state_one(s, ctx, now, venue_id)
     svc.log_event(s, ctx, venue_id, "tap")

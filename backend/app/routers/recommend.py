@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 
 from ..context import Ctx
 from ..deps import get_ctx, get_now, get_optional_principal, get_session
-from ..services.auth import Principal
 from ..engine.stub import StubEngine
 from ..errors import ApiError
 from ..repo.venues import complaint_risk, load_attributes
 from ..schemas import PlanNightIn, Preferences, Recommendation, Stop
 from ..services import venues as svc
+from ..services.auth import Principal
 from ..timeutil import NaiveTimeError, parse_ts
 from .common import set_list_headers
 
@@ -33,9 +33,14 @@ def _validated(model, rows: list, fallback):
 
 
 @router.post("/api/recommend", response_model=list[Recommendation])
-def recommend(prefs: Preferences, response: Response, now=Depends(get_now),
-              ctx: Ctx = Depends(get_ctx), s: Session = Depends(get_session),
-              who: Principal | None = Depends(get_optional_principal)) -> list[dict]:
+def recommend(
+    prefs: Preferences,
+    response: Response,
+    now=Depends(get_now),
+    ctx: Ctx = Depends(get_ctx),
+    s: Session = Depends(get_session),
+    who: Principal | None = Depends(get_optional_principal),
+) -> list[dict]:
     user_id = who.subject_id if who and who.role == "user" else None
     p, states, venues = _inputs(s, ctx, now, prefs)
     raw = ctx.engine.recommend(p, states, venues, now)
@@ -52,8 +57,13 @@ def recommend(prefs: Preferences, response: Response, now=Depends(get_now),
 
 
 @router.post("/api/plan-night", response_model=list[Stop])
-def plan_night(body: PlanNightIn, response: Response, now=Depends(get_now),
-               ctx: Ctx = Depends(get_ctx), s: Session = Depends(get_session)) -> list[dict]:
+def plan_night(
+    body: PlanNightIn,
+    response: Response,
+    now=Depends(get_now),
+    ctx: Ctx = Depends(get_ctx),
+    s: Session = Depends(get_session),
+) -> list[dict]:
     if not ctx.settings.feature_routing:
         raise ApiError(404, "not_found", "Run My Night is disabled (FEATURE_ROUTING=0)")
     try:
@@ -63,7 +73,8 @@ def plan_night(body: PlanNightIn, response: Response, now=Depends(get_now),
     p, states, venues = _inputs(s, ctx, start, body)
     p.pop("n_stops", None)
     raw = ctx.engine.plan_night(p, states, venues, start, body.n_stops)
-    rows = _validated(Stop, raw,
-                      lambda: StubEngine().plan_night(p, states, venues, start, body.n_stops))
+    rows = _validated(
+        Stop, raw, lambda: StubEngine().plan_night(p, states, venues, start, body.n_stops)
+    )
     set_list_headers(response, rows)
     return rows

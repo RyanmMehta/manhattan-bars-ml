@@ -60,13 +60,16 @@ def reports_window(
     s: Session, src: Sources, start: datetime, end: datetime, venue_ids: list[str] | None = None
 ) -> list[dict]:
     """Scout reports with ts in [start, end], each carrying the scout's CURRENT reputation
-    (v2 §F; never syn_scout_reputation_history) and display name."""
+    (v2 §F; never the reputation-history table, which is eval-only) and display name."""
     params = _bounds(start, end)
     where = "ts >= :lo AND ts <= :hi" + _venue_filter(venue_ids, params)
     # SYNTHETIC: syn_scout_reports until real scout_reports accumulate
-    rows = [dict(r) for r in s.execute(
-        text(f"SELECT * FROM {src.union('scout_reports', where)} r"), params
-    ).mappings()]
+    rows = [
+        dict(r)
+        for r in s.execute(
+            text(f"SELECT * FROM {src.union('scout_reports', where)} r"), params
+        ).mappings()
+    ]
     rows = _in(rows, start, end)
     reps = reputations(s, src, {r["scout_id"] for r in rows})
     for r in rows:
@@ -94,18 +97,24 @@ def updates_window(
     params = _bounds(start, end)
     where = "ts >= :lo AND ts <= :hi" + _venue_filter(venue_ids, params)
     # SYNTHETIC: syn_venue_updates until owners post real venue_updates
-    rows = [dict(r) for r in s.execute(
-        text(f"SELECT * FROM {src.union('venue_updates', where)} u"), params
-    ).mappings()]
+    rows = [
+        dict(r)
+        for r in s.execute(
+            text(f"SELECT * FROM {src.union('venue_updates', where)} u"), params
+        ).mappings()
+    ]
     return _in(rows, start, end)
 
 
 def active_offers(s: Session, src: Sources, venue_id: str, now: datetime) -> list[dict]:
     params = {"vid": venue_id, "now": to_ny_iso(now - SLACK)}
     where = "venue_id = :vid AND offer IS NOT NULL AND offer_expires_at >= :now"
-    rows = [dict(r) for r in s.execute(
-        text(f"SELECT * FROM {src.union('venue_updates', where)} u"), params
-    ).mappings()]
+    rows = [
+        dict(r)
+        for r in s.execute(
+            text(f"SELECT * FROM {src.union('venue_updates', where)} u"), params
+        ).mappings()
+    ]
     out = []
     for r in rows:
         if parse_ts(r["ts"]) <= now < parse_ts(r["offer_expires_at"]):
@@ -119,9 +128,12 @@ def events_window(
     params = _bounds(start, end) | {"vid": venue_id}
     where = "venue_id = :vid AND ts >= :lo AND ts <= :hi"
     # SYNTHETIC: syn_venue_events until the API's own venue_events build up
-    rows = [dict(r) for r in s.execute(
-        text(f"SELECT * FROM {src.union('venue_events', where)} e"), params
-    ).mappings()]
+    rows = [
+        dict(r)
+        for r in s.execute(
+            text(f"SELECT * FROM {src.union('venue_events', where)} e"), params
+        ).mappings()
+    ]
     return _in(rows, start, end)
 
 
@@ -133,9 +145,12 @@ def all_scouts(s: Session, src: Sources) -> list[dict]:
 def ledger_window(s: Session, src: Sources, start: datetime, end: datetime) -> list[dict]:
     params = _bounds(start, end)
     # SYNTHETIC: syn_points_ledger until real points_ledger entries accumulate
-    rows = [dict(r) for r in s.execute(
-        text(f"SELECT * FROM {src.union('points_ledger', 'ts >= :lo AND ts <= :hi')} p"), params
-    ).mappings()]
+    rows = [
+        dict(r)
+        for r in s.execute(
+            text(f"SELECT * FROM {src.union('points_ledger', 'ts >= :lo AND ts <= :hi')} p"), params
+        ).mappings()
+    ]
     return _in(rows, start, end)
 
 
@@ -148,8 +163,7 @@ def bounties(s: Session, src: Sources) -> list[dict]:
     # SYNTHETIC: syn_bounties until a real bounty-creation job writes `bounties`
     rows = [dict(r) for r in s.execute(text(f"SELECT * FROM {src.union('bounties')} b")).mappings()]
     claims = {
-        r["bounty_id"]: dict(r)
-        for r in s.execute(text("SELECT * FROM bounty_claims")).mappings()
+        r["bounty_id"]: dict(r) for r in s.execute(text("SELECT * FROM bounty_claims")).mappings()
     }
     for r in rows:
         c = claims.get(r["bounty_id"])

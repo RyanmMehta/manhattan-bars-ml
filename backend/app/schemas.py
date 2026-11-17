@@ -1,4 +1,4 @@
-"""Pydantic models: exact CONTRACTS.md field names (+ v2 §F/§G). /openapi.json is built from these."""
+"""Pydantic models with exact CONTRACTS.md field names (+ v2 §F/§G); feed /openapi.json."""
 
 from typing import Literal
 

@@ -29,6 +29,8 @@ def test_error_envelope_404(client):
 
 
 def test_cors(client):
-    r = client.options("/api/health", headers={"Origin": "http://localhost:5173",
-                                               "Access-Control-Request-Method": "GET"})
+    r = client.options(
+        "/api/health",
+        headers={"Origin": "http://localhost:5173", "Access-Control-Request-Method": "GET"},
+    )
     assert r.headers["access-control-allow-origin"] == "http://localhost:5173"

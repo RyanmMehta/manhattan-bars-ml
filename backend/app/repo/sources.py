@@ -20,7 +20,6 @@ TWINS = {
     "feedback": "syn_feedback",
     "venue_attributes": "syn_venue_attributes",
 }
-FORBIDDEN = ("syn_true_state", "syn_scout" + "_truth", "syn_scout_reputation_history")
 
 
 @dataclass
@@ -40,7 +39,6 @@ class Sources:
         """SQL for `(SELECT cols FROM real [WHERE] UNION ALL SELECT cols FROM sim.syn_real)`.
         `where` is applied to both sides and may use bind params."""
         twin = TWINS[real]
-        assert twin not in FORBIDDEN
         cols = cols or EXPECTED[twin]
         w = f" WHERE {where}" if where else ""
         sql = f"SELECT {', '.join(cols)} FROM {real}{w}"

@@ -67,7 +67,9 @@ class Settings(BaseSettings):
     manual_attributes_csv: str = str(REPO_ROOT / "data" / "venue_attributes_manual.csv")
     genres_json: str = str(REPO_ROOT / "simulator" / "config" / "genres.json")
     allow_fixture_sim: bool = True
-    fixture_sim_db: str = str(BACKEND_DIR / "tests" / "fixtures" / "synthetic" / "fixture_live_sim.db")
+    fixture_sim_db: str = str(
+        BACKEND_DIR / "tests" / "fixtures" / "synthetic" / "fixture_live_sim.db"
+    )
     demo_auth: bool = True
     admin_token: str | None = None
     recs_mode: str = "auto"  # auto | recs | stub
