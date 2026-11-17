@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "_note": "Shared genre vocabulary (CONTRACTS v2.1 §E), owned by live-sim. Changing it needs a contract change.",
+  "genres": ["hip-hop", "r&b", "afrobeats", "latin", "reggaeton", "house", "techno", "edm", "disco", "pop", "top-40", "throwbacks", "indie", "rock", "punk", "jazz", "soul-funk"]
+}

@@ -2,3 +2,12 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# live-sim generated outputs (rebuild: python -I -m simulator --seed 42 --out data/live_sim.db)
+data/live_sim.db
+data/synthetic_live/*.csv
+!data/synthetic_live/demo_night_snapshots.csv
+data/synthetic_live/extracts/
+data/synthetic_live/shifted/
+__pycache__/
+.pytest_cache/

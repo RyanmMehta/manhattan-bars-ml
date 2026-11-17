@@ -1,0 +1,352 @@
+{
+  "ok": false,
+  "failed": [
+    "report_peak_22_to_01",
+    "gamer_shill_mae>=1.2",
+    "churn_label21_vs_latent>=80%",
+    "week4_retention_35_60%"
+  ],
+  "n_checks": 52,
+  "checks": [
+    {
+      "check": "schema:syn_venue_attributes",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_scouts",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_users",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_scout_reports",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_venue_updates",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_feedback",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_bounties",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_venue_events",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_disputes",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_points_ledger",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_scout_reputation_history",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_true_state",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "schema:syn_scout_truth",
+      "ok": true,
+      "value": "ok",
+      "target": null
+    },
+    {
+      "check": "fk:syn_scout_reports.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:syn_venue_updates.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:syn_feedback.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:syn_bounties.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:syn_venue_events.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:syn_true_state.venue_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:reports.scout_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:ledger.scout_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:disputes.report_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:feedback.user_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "fk:events.user_id",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "genres_in_vocabulary",
+      "ok": true,
+      "value": [],
+      "target": null
+    },
+    {
+      "check": "genres_json_17",
+      "ok": true,
+      "value": 17,
+      "target": 17
+    },
+    {
+      "check": "all_rows_is_synthetic",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "verified_iff_distance<=150",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "ledger_sums_to_points",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "bounty_expiry_60min",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "bounties_max_open<=8",
+      "ok": true,
+      "value": 8,
+      "target": 8
+    },
+    {
+      "check": "rate_limit_per_venue_20min",
+      "ok": true,
+      "value": null,
+      "target": null
+    },
+    {
+      "check": "status_values",
+      "ok": true,
+      "value": {
+        "accepted": 10533,
+        "flagged": 168,
+        "removed": 75,
+        "disputed": 11
+      },
+      "target": null
+    },
+    {
+      "check": "report_peak_22_to_01",
+      "ok": false,
+      "value": 0.667,
+      "target": ">=0.9 of nights"
+    },
+    {
+      "check": "crowd_23h_sat>=fri>=thu",
+      "ok": true,
+      "value": {
+        "3": 2.85,
+        "4": 3.41,
+        "5": 3.66
+      },
+      "target": null
+    },
+    {
+      "check": "01:00 club/dive > cocktail/rest",
+      "ok": true,
+      "value": [
+        3.75,
+        1.31
+      ],
+      "target": null
+    },
+    {
+      "check": "20:30 cocktail/rest > club/dive",
+      "ok": true,
+      "value": [
+        3.19,
+        1.28
+      ],
+      "target": null
+    },
+    {
+      "check": "honest_mae<=0.6",
+      "ok": true,
+      "value": 0.211,
+      "target": 0.6
+    },
+    {
+      "check": "gamer_shill_mae>=1.2",
+      "ok": false,
+      "value": {
+        "casual": 0.39,
+        "gamer": 2.17,
+        "honest": 0.211,
+        "shill": 1.19,
+        "sloppy": 0.618
+      },
+      "target": 1.2
+    },
+    {
+      "check": "empty_venue_slots>=20%",
+      "ok": true,
+      "value": 0.519,
+      "target": 0.2
+    },
+    {
+      "check": "null_rate:cover_usd~0.6",
+      "ok": true,
+      "value": 0.657,
+      "target": 0.6
+    },
+    {
+      "check": "null_rate:music_genre~0.4",
+      "ok": true,
+      "value": 0.443,
+      "target": 0.4
+    },
+    {
+      "check": "feedback_spearman>=0.3",
+      "ok": true,
+      "value": 0.761,
+      "target": 0.3
+    },
+    {
+      "check": "demo_now_fresh_venues>=25",
+      "ok": true,
+      "value": 30,
+      "target": 25
+    },
+    {
+      "check": "demo_now_open_bounties>=3",
+      "ok": true,
+      "value": 8,
+      "target": 3
+    },
+    {
+      "check": "demo_now_pending_reports",
+      "ok": true,
+      "value": 36,
+      "target": null
+    },
+    {
+      "check": "no_reports_after_churned_at",
+      "ok": true,
+      "value": 0,
+      "target": null
+    },
+    {
+      "check": "churn_share_40_60%",
+      "ok": true,
+      "value": 0.416,
+      "target": [
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "check": "churn_label21_vs_latent>=80%",
+      "ok": false,
+      "value": 0.748,
+      "target": 0.8
+    },
+    {
+      "check": "week4_retention_35_60%",
+      "ok": false,
+      "value": 0.792,
+      "target": [
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "check": "csv_total_mb<=30",
+      "ok": true,
+      "value": 11.43,
+      "target": 30
+    },
+    {
+      "check": "build_seconds<60",
+      "ok": true,
+      "value": 7.74,
+      "target": 60
+    }
+  ],
+  "build_seconds": 7.74
+}
