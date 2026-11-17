@@ -7,31 +7,31 @@ research is merged 2nd (after specs). Phase E continues after the deadline.
 ## 1. Ordered tasks
 
 ### Phase A — desk research (real data)
-- [ ] A1 (S) Create `research/README.md`, `docs/workstreams/research.md` skeleton, `docs/synthetic/research.md` skeleton.
-- [ ] A2 (M) Re-check legacy apps: BarHop, Buzzd, nYtevibe, What's Playin, BarHopper — app store listing, website, last update, press; status live/dead/pivoted/unknown.
-- [ ] A3 (M) Current substitutes: Google Maps popular times/live busyness, Instagram (stories, location tags), Snap Map, TikTok, Partiful, Resy, DICE, Posh, Eventbrite, Yelp, Beli, Fever; plus group chats (qualitative).
-- [ ] A4 (S) Write `research/competitors.csv` (schema §4.1); every row sourced + `retrieved_at`.
-- [ ] A5 (M) `research/competitive_matrix.md`: 8+ dimensions × competitors, footnotes, gaps we fill, "why legacy apps failed" hypotheses (labelled).
-- [ ] A6 (S) Positioning statement + 2×2 spec (freshness × personalization) in the matrix doc.
+- [x] A1 (S) Create `research/README.md`, `docs/workstreams/research.md` skeleton, `docs/synthetic/research.md` skeleton.
+- [x] A2 (M) Re-check legacy apps: BarHop, Buzzd, nYtevibe, What's Playin, BarHopper — app store listing, website, last update, press; status live/dead/pivoted/unknown.
+- [x] A3 (M) Current substitutes: Google Maps popular times/live busyness, Instagram (stories, location tags), Snap Map, TikTok, Partiful, Resy, DICE, Posh, Eventbrite, Yelp, Beli, Fever; plus group chats (qualitative).
+- [x] A4 (S) Write `research/competitors.csv` (schema §4.1); every row sourced + `retrieved_at`.
+- [x] A5 (M) `research/competitive_matrix.md`: 8+ dimensions × competitors, footnotes, gaps we fill, "why legacy apps failed" hypotheses (labelled).
+- [x] A6 (S) Positioning statement + 2×2 spec (freshness × personalization) in the matrix doc.
 
 ### Phase B — instruments
-- [ ] B1 (S) `research/hypotheses.md`: H1-H12 (pain, frequency, current tools, trust, scouting motivation, operator WTP…), each with metric + threshold placeholder.
-- [ ] B2 (M) `research/interview_guide/consumer.md` (25-30 min), `scout.md` (20 min), `operator.md` (25 min); each: screener, consent, warm-up, past-behavior core, concept test (mockups), wrap-up; questions tagged with H-IDs.
-- [ ] B3 (S) `research/interview_guide/note_template.md` = fields of `interviews` schema; `recruiting_plan.md` (target 10-15: 7 consumers, 3 scouts, 3-5 operators; channels; schedule).
-- [ ] B4 (M) `research/survey/questions.md` (≤ 22 Q, ≤ 5 min) + `research/survey/codebook.csv`.
+- [x] B1 (S) `research/hypotheses.md`: H1-H12 (pain, frequency, current tools, trust, scouting motivation, operator WTP…), each with metric + threshold placeholder.
+- [x] B2 (M) `research/interview_guide/consumer.md` (25-30 min), `scout.md` (20 min), `operator.md` (25 min); each: screener, consent, warm-up, past-behavior core, concept test (mockups), wrap-up; questions tagged with H-IDs.
+- [x] B3 (S) `research/interview_guide/note_template.md` = fields of `interviews` schema; `recruiting_plan.md` (target 10-15: 7 consumers, 3 scouts, 3-5 operators; channels; schedule).
+- [x] B4 (M) `research/survey/questions.md` (≤ 22 Q, ≤ 5 min) + `research/survey/codebook.csv`.
 
 ### Phase C — synthetic data
-- [ ] C1 (M) `research/gen_synthetic.py` producing the three datasets (§5) from `PRIORS`, seeded.
-- [ ] C2 (S) Confirm CSV-only output (v2 §E: research `syn_` tables are not loaded into any DB); `GENRES` constant matches the 17 slugs in `simulator/config/genres.json` (v2.1 §E).
-- [ ] C3 (M) `research/validate.py` (codebook, `is_synthetic`, venue_ids, PII scan, competitor sourcing).
-- [ ] C4 (M) `research/tests/` per RULES §7.
-- [ ] C5 (S) Fill `docs/synthetic/research.md` registry.
+- [x] C1 (M) `research/gen_synthetic.py` producing the three datasets (§5) from `PRIORS`, seeded.
+- [x] C2 (S) Confirm CSV-only output (v2 §E: research `syn_` tables are not loaded into any DB); `GENRES` constant matches the 17 slugs in `simulator/config/genres.json` (v2.1 §E).
+- [x] C3 (M) `research/validate.py` (codebook, `is_synthetic`, venue_ids, PII scan, competitor sourcing).
+- [x] C4 (M) `research/tests/` per RULES §7.
+- [x] C5 (S) Fill `docs/synthetic/research.md` registry.
 
 ### Phase D — business model and synthesis
-- [ ] D1 (M) `research/business_model.md`: tiers, placeholder prices, unit economics, falsification tests.
-- [ ] D2 (S) `research/analysis.py` → `research/synthetic/summary_tables.csv` (aggregates for tableau, `is_synthetic=1`).
-- [ ] D3 (M) `research/summary.md`: ≤ 10 tagged findings + hand-offs per workstream.
-- [ ] D4 (S) Slide-ready bullets in `research/presentation_notes.md` for integration.
+- [x] D1 (M) `research/business_model.md`: tiers, placeholder prices, unit economics, falsification tests.
+- [x] D2 (S) `research/analysis.py` → `research/synthetic/summary_tables.csv` (aggregates for tableau, `is_synthetic=1`).
+- [x] D3 (M) `research/summary.md`: ≤ 10 tagged findings + hand-offs per workstream.
+- [x] D4 (S) Slide-ready bullets in `research/presentation_notes.md` for integration.
 
 ### Phase E — real data (stretch / later)
 - [ ] E1 (L) Run ≥ 3 real interviews; log to `research/interviews/interviews.csv` (`is_synthetic=0`).
