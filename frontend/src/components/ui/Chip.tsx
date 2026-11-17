@@ -4,7 +4,7 @@ export function Chip({ selected = false, className = '', ...p }: ButtonHTMLAttri
   return (
     <button
       type="button"
-      aria-pressed={selected}
+      aria-pressed={p.role ? undefined : selected}
       {...p}
       className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm transition ${
         selected ? 'border-accent bg-accent/15 text-ink' : 'border-line bg-surface text-muted hover:text-ink'

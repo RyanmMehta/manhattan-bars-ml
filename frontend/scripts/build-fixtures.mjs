@@ -232,7 +232,7 @@ for (const [key, p] of Object.entries(PRESETS)) {
       if (p.genres.length) {
         const live = st.music_genres.filter((x) => p.genres.includes(x));
         if (live.length) { add(1, 3); reasons.push(`${label(live[0])} playing (${st.n_reports} reports, ${st.freshness_minutes} min ago)`); }
-        else if (g.length) { add(0.7, 3); reasons.push(`Usually plays ${g.join(' & ')}`); }
+        else if (g.length) { add(0.7, 3); reasons.push(`Usually plays ${g.map(label).join(' & ')}`); }
         else if (!st.music_genres.length) { add(0.4, 3); missing.push('music not reported tonight'); }
         else add(0.1, 3);
       }

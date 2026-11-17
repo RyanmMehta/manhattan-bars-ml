@@ -54,7 +54,7 @@ export function Providers({
 
 export function App({ mode, health, notice }: { mode: ApiMode; health: Health | null; notice?: ReactNode }) {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Providers mode={mode} health={health}>
         <AppShell notice={notice}>
           <AppRoutes />

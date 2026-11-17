@@ -1,0 +1,3 @@
+[{ "order": 1, "venue_id": "0370-24-138636", "name": "Attaboy", "lat": 40.71893, "lon": -73.99157,
+  "arrive_at": "2026-11-14T23:30:00-05:00", "leave_at": "2026-11-15T00:30:00-05:00", "walk_minutes_from_prev": null,
+  "distance_km": null, "expected_vibe": 78, "match_score": 91, "confidence": 0.71, "reasons": ["Hip-hop playing"] }]

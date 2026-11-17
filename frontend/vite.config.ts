@@ -23,6 +23,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    env: { VITE_FEATURE_ROUTING: '1', VITE_FEATURE_HEATMAP: '1' },
     include: ['tests/unit/**/*.test.ts?(x)', 'tests/component/**/*.test.ts?(x)'],
     coverage: {
       provider: 'v8',

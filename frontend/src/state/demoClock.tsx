@@ -20,7 +20,7 @@ function readStored(): string | null {
 
 /** `now` precedence (OUTLINE §4): URL ?now= > demo panel > VITE_DEMO_NOW > health.demo_now. */
 export function DemoClockProvider({ children, healthNow }: { children: ReactNode; healthNow?: string | null }) {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const urlNow = params.get('now');
   const [panelNow, setPanelNow] = useState<string | null>(readStored);
   const now = urlNow ?? panelNow ?? env.demoNow ?? healthNow ?? null;
@@ -39,7 +39,18 @@ export function DemoClockProvider({ children, healthNow }: { children: ReactNode
       /* ignore */
     }
     setPanelNow(iso);
-  }, []);
+    // A URL ?now= outranks the panel, so keep it in step when the presenter time-travels.
+    setParams(
+      (p) => {
+        if (!p.has('now')) return p;
+        const n = new URLSearchParams(p);
+        if (iso) n.set('now', iso);
+        else n.delete('now');
+        return n;
+      },
+      { replace: true },
+    );
+  }, [setParams]);
   const value = useMemo(() => ({ now, setNow }), [now, setNow]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,0 +1,12 @@
+{
+  "venue_id": "0370-24-138636",
+  "crowd": 3.8, "dancing": 1.4, "line_minutes": 10, "cover_usd": 15,
+  "music_genres": ["hip-hop"],
+  "vibe_score": 78,
+  "confidence": 0.71,
+  "freshness_minutes": 12,
+  "n_reports": 4,
+  "trend": "rising",
+  "sources": ["scout", "venue_update"],
+  "is_synthetic": true
+}
