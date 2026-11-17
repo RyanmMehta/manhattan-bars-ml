@@ -1,0 +1,8 @@
+# Model checkpoints are rebuilt by train.py; never commit them.
+**/*.pt
+# Large synthetic CSVs are rebuilt by the scripts. Small samples are allowed back in below.
+**/outputs/synthetic/*.csv
+!tiny_transformer/outputs/synthetic/generated_names.csv
+!churn/outputs/synthetic/scout_churn_risk.csv
+.pytest_cache/
+.ipynb_checkpoints/
