@@ -1,0 +1,14 @@
+@import './tokens.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { min-height: 100%; background: var(--c-bg); color: var(--c-ink); }
+body { font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--c-cyan); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.syn-outline [data-testid='demo-badge'] { outline: 2px dashed var(--c-warn); outline-offset: 3px; }
