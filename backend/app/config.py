@@ -35,6 +35,8 @@ MATCH_WEIGHTS = {  # SPEC(specs §5.10)
     "distance": 0.15,
     "group": 0.05,
 }
+ENERGY_FIT_MIN = 0.5  # SPEC(contracts c3fd169) energy-contradiction penalty threshold
+ENERGY_PENALTY_FLOOR = 0.5  # SPEC(contracts c3fd169) rank_score *= floor + fit
 TREND_DELTA = 0.4  # SPEC(v2 §A)
 TREND_MIN_WEIGHT = 0.5  # SPEC(specs §5.7)
 WALK_KMH = 4.5  # SPEC(specs §5.12)

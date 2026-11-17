@@ -38,7 +38,8 @@ def test_recommend_shape_and_order(client):
         assert x["excluded_reason"] is None
         assert x["complaint_risk"]["label"] == "311 noise-complaint risk"
         exp = round(x["match_score"] * (0.75 + 0.25 * (x["confidence"] or 0)), 1)
-        assert abs(x["rank_score"] - exp) < 0.11
+        assert x["rank_score"] <= exp + 0.11  # energy penalty may only lower it (c3fd169)
+        assert x["rank_score"] >= exp * 0.5 - 0.11
 
 
 def test_unknowns_go_to_missing(client):

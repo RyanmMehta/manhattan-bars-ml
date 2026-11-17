@@ -32,6 +32,15 @@ class RecsEngine:
             self.last_served = "stub"
             return getattr(self.stub, fn_name)(*args)
 
+    def cluster_info(self, venue_id: str) -> tuple[str | None, str | None]:
+        """Short label + raw description from recs' committed clustering artifacts (optional)."""
+        try:
+            from recs import clustering
+
+            return clustering.label_for(venue_id), clustering.description_for(venue_id)
+        except Exception:  # artifacts or module missing: fields stay null
+            return None, None
+
     @staticmethod
     def _ny(now: datetime) -> datetime:
         return now.astimezone(NY)

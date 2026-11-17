@@ -2320,6 +2320,17 @@
             ],
             "title": "Cluster Label"
           },
+          "cluster_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Description"
+          },
           "complaint_risk": {
             "anyOf": [
               {
@@ -2973,6 +2984,28 @@
               }
             ],
             "title": "Is Claimed"
+          },
+          "cluster_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Label"
+          },
+          "cluster_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Description"
           },
           "state": {
             "$ref": "#/components/schemas/LiveState"

@@ -49,7 +49,13 @@ def states_for(s: Session, ctx: Ctx, now: datetime, venue_ids: list[str]) -> dic
     return out
 
 
-def card(v: dict, attrs: dict | None, state: dict, origin: tuple | None = None) -> dict:
+def card(
+    v: dict,
+    attrs: dict | None,
+    state: dict,
+    origin: tuple | None = None,
+    cluster: tuple[str | None, str | None] = (None, None),
+) -> dict:
     a = attrs or {}
     dist = None
     if origin and origin[0] is not None and origin[1] is not None:
@@ -70,6 +76,8 @@ def card(v: dict, attrs: dict | None, state: dict, origin: tuple | None = None) 
         "distance_km": dist,
         "opening_hours": v.get("osm_opening_hours") or a.get("opening_hours"),
         "is_claimed": None if claimed is None else bool(claimed),
+        "cluster_label": cluster[0],
+        "cluster_description": cluster[1],
         "state": state,
         "complaint_risk": complaint_risk(v),
         "is_synthetic": bool(state.get("is_synthetic") or a.get("is_synthetic")),
@@ -146,12 +154,26 @@ def list_cards(
         ]
     ids = [v["venue_id"] for v in venues]
     states = states_for(s, ctx, now, ids) if len(ids) <= 300 else _bulk_states(s, ctx, now, ids)
-    cards = [card(v, attrs.get(v["venue_id"]), states[v["venue_id"]], (lat, lon)) for v in venues]
+    cards = [
+        card(
+            v,
+            attrs.get(v["venue_id"]),
+            states[v["venue_id"]],
+            (lat, lon),
+            _cluster(ctx, v["venue_id"]),
+        )
+        for v in venues
+    ]
     if lat is not None and lon is not None:
         cards.sort(key=lambda c: (c["distance_km"], c["display_name"]))
     else:
         cards.sort(key=lambda c: (c["display_name"].lower(), c["venue_id"]))
     return cards
+
+
+def _cluster(ctx: Ctx, venue_id: str) -> tuple[str | None, str | None]:
+    fn = getattr(ctx.engine, "cluster_info", None)
+    return fn(venue_id) if fn else (None, None)
 
 
 def _bulk_states(s: Session, ctx: Ctx, now: datetime, ids: list[str]) -> dict[str, dict]:
@@ -204,7 +226,7 @@ def detail(s: Session, ctx: Ctx, now: datetime, v: dict) -> dict:
         dict(o, is_synthetic=bool(o.get("is_synthetic")))
         for o in live.active_offers(s, ctx.src, v["venue_id"], now)
     ]
-    c = card(v, attrs.get(v["venue_id"]), st)
+    c = card(v, attrs.get(v["venue_id"]), st, cluster=_cluster(ctx, v["venue_id"]))
     synth = (
         c["is_synthetic"]
         or any(r["is_synthetic"] for r in recent)

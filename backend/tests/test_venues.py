@@ -122,3 +122,10 @@ def test_manual_attributes_override(make_client, tmp_path):
     c = make_client(manual_attributes_csv=str(p))
     card = c.get("/api/venues?q=attaboy").json()[0]
     assert card["style"] == "lounge" and card["genres"] == ["jazz"] and card["is_claimed"] is True
+
+
+def test_cluster_fields_present(client):
+    c = client.get("/api/venues").json()[0]
+    assert "cluster_label" in c and "cluster_description" in c
+    rows = client.post("/api/recommend", json={}).json()
+    assert "cluster_description" in rows[0]

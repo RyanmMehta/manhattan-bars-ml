@@ -58,6 +58,8 @@ class VenueCard(Out):
     distance_km: float | None = None
     opening_hours: str | None
     is_claimed: bool | None
+    cluster_label: str | None = None
+    cluster_description: str | None = None
     state: LiveState
     complaint_risk: ComplaintRisk
     is_synthetic: bool
@@ -165,6 +167,7 @@ class Recommendation(Out):
     rank_score: float
     rank: int
     cluster_label: str | None = None
+    cluster_description: str | None = None
     complaint_risk: ComplaintRisk | None = None
     is_synthetic: bool
 
