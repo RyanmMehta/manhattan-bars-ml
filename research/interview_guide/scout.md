@@ -84,8 +84,8 @@ Scenario: "It's Saturday, Nov 14, 11:30 pm. You're at a bar on Ludlow St with
 3 friends. Your phone buzzes: the app asks for a vibe check."
 
 1. What do you do with that prompt? Which reward, if any, would make you tap
-   it: skip the line, a free drink, a cover waiver, or a status badge? `[H8]
-   [H7]`
+   it: skip the line, a free drink, a cover waiver, or a status badge?
+   `[H8] [H7]`
    - Probe: Why that one over the others? Would the badge alone do it?
    - Probe: Would helping friends be enough without any reward?
 2. On a typical night out, how many vibe checks do you think you'd actually
