@@ -109,6 +109,7 @@ export interface VenueDetail {
 export interface Recommendation {
   venue_id: string;
   name: string;
+  display_name?: string | null;
   match_score: number;
   vibe_score: number | null;
   confidence: number | null;

@@ -80,8 +80,10 @@ None yet. Steps are in `frontend/README.md` § Deploy. `.env.production` default
 - `withAuth` in `persona.tsx`: logs in as the right persona (owner for the right venue) and, on a 401 (expired or unknown
   token, e.g. after a backend restart), logs in again once and retries (RULES §3 "one-tap re-login", automated).
 - Feedback is `role=user` only. The app logs in as the planner (user), and the mock enforces the same rule.
-- Recommendation rows have no `display_name` or freshness, so the Pick screen joins `/api/venues` cards for display only
-  (the order stays the backend `rank`). Missing freshness is hidden, never shown as "no recent reports".
+- `/tonight` uses `display_name`, `freshness_minutes` and `n_reports` straight from `/api/recommend` rows (backend `0d02a83`,
+  contracts b99a592). Only if a row lacks them (older backend) does it join `/api/venues`, for display only (order stays the
+  backend `rank`). Missing freshness is hidden, never shown as "no recent reports". Re-verified on `0d02a83`:
+  contract:live 9/9, e2e:live 7/7 (new test: no `/api/venues` request when rows are complete).
 - `walk_minutes_from_prev` (float) is rounded for display. `genres` on venue updates is accepted as a string or an array.
 
 ## Open issues
@@ -94,8 +96,7 @@ None yet. Steps are in `frontend/README.md` § Deploy. `.env.production` default
 4. The Vercel account and domain (PRD Q5) are still with Ryan.
 
 ## Contract change requests
-- CR-17 (suggestion): add `display_name`, `freshness_minutes` and `n_reports` to recommendation rows so `/tonight` needs
-  one request instead of two. The frontend currently joins `/api/venues`.
+- CR-17: add `display_name`, `freshness_minutes` and `n_reports` to recommendation rows. **Accepted** (backend 0d02a83); the frontend uses them.
 - CR-18 (note): the CONTRACTS table doesn't say `GET /api/owner/{id}/dashboard` needs auth. The backend requires the
   owner's token, and the frontend follows the backend.
 

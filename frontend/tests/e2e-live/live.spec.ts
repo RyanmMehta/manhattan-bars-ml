@@ -90,3 +90,15 @@ test('leaderboard, bounties, plan, map, feedback render live data (US-05/07/08)'
   expect((await fb).status()).toBe(201);
   await expect(page.getByText(/Thanks/)).toBeVisible();
 });
+
+test('/tonight uses recommend-row fields directly; no /api/venues join when present', async ({ page }) => {
+  const venueCalls: string[] = [];
+  page.on('request', (r) => r.url().includes('/api/venues') && venueCalls.push(r.url()));
+  const resp = page.waitForResponse((r) => r.url().includes('/api/recommend'));
+  await page.goto(`/tonight?${q}`);
+  const rows = (await (await resp).json()) as { display_name?: string; freshness_minutes?: number | null }[];
+  await expect(page.getByTestId('pick-hero')).toBeVisible();
+  const complete = rows.every((r) => r.display_name !== undefined && r.freshness_minutes !== undefined);
+  await page.waitForTimeout(500);
+  if (complete) expect(venueCalls).toEqual([]);
+});

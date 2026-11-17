@@ -70,6 +70,7 @@ export function makeHandlers(db: Db = createDb(), base = '/api') {
     if (!snap) return [];
     return snap.results.map((r) => {
       const s = stateOf(r.venue_id, now);
+      r = { ...r, display_name: db.venues.find((v) => v.venue_id === r.venue_id)?.display_name ?? r.name };
       return s ? { ...r, vibe_score: s.vibe_score, confidence: s.confidence, freshness_minutes: s.freshness_minutes, display: s.display, n_reports: s.n_reports } : r;
     });
   };
