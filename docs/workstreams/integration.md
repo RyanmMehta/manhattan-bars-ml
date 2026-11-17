@@ -43,6 +43,9 @@ make status                            # which workstreams are done / merged
 | 8 | ml-recs | 5e10061 | none | — | recs 65, backend 96 (recs engine), contract 83/83, tableau 13 | snapshots regenerated with `python -m recs snapshots`; tableau extracts + stand-in PNG/PDF re-rendered (HH:30 rule checked: 245/245 cells match) |
 | 9 | coursework | 9b8fb37 | none | — | coursework 22 pass (needs CPU torch); ownership audit 0 files outside `coursework/` | |
 | 10 | backend (re-merge) | bd463d9 | none | — | backend 98, contract 83/83 | numeric complaint_risk accepted |
+| 11 | frontend | 37fe0e7 | none | — | (pre-merge dry run of 616b593: 13/15; owner-dashboard auth fixed upstream) | ownership audit 0 outside `frontend/` |
+| 12 | contracts, coursework, live-sim, ml-recs, backend, frontend finals | c3fd169, 1835e6f, c3edeba, 48d4ace, 0d02a83, c5caa97 | `demo_night_snapshots.csv` | took live-sim's, then regenerated | see below | `make data` alone now equals the API snapshots (525/525 rows identical) |
+| 13 | specs, ml-recs, backend follow-ups | 008a064, c8f98b7, 7e3a4d3 | none | — | **final:** specs golden 9/9, recs 70, backend 119, simulator 31, frontend 81, coursework 22, research+tableau 35, contract 85, e2e 15/15 ×3, pipeline smoke OK | G9 energy penalty; cluster_description passthrough |
 
 ## Seeded demo data (US-7)
 `make data` run twice from scratch → identical per-table fingerprints (`scripts/integration/db_fingerprint.py`):
@@ -70,9 +73,10 @@ make status                            # which workstreams are done / merged
 | backend | `backend/scripts/build_sim.sh` | run exactly `python -m simulator --seed 42 --out …` (no `-I` attempt first) | contracts f5c95d2 / CR-15 |
 
 ## Open issues
-- **Owner dashboard 401 (frontend ↔ backend).** Backend requires `Authorization: Bearer <owner token>` on `GET /api/owner/{id}/dashboard`; frontend `api.ownerDashboard` sends no auth and only logs in as owner when posting. Result in live mode: "Couldn't load this — Missing bearer token" on the dashboard + a console 401; posting works. Found by a pre-merge e2e dry run against frontend 616b593. Fix belongs to frontend (`auth: true` + `login('owner', venueId)` before the query) — reported to master.
-- **live-sim vs recs snapshots differ.** `make data` (simulator with recs importable) writes `demo_night_snapshots.csv` from `simulator/replay.py`, which derives time-of-view statuses (pending/disputed) and as-of reputation before calling recs. The backend (and `python -m recs snapshots`) use stored status + current reputation (contract: "the live app uses current reputation"). Max diff: vibe 26, conf 0.07 on 193/525 rows. Integration commits the recs-CLI file (matches the API, `test_demo_snapshots` green). **Running `make data` overwrites it — run `make snapshots` afterwards.** Owner: live-sim/ml-recs to agree on one path.
-- Deploy not run (no accounts). Steps in `DEMO.md` §Deploy.
+- **Not deployed** (no Render/Vercel accounts). Root `render.yaml` + `frontend/vercel.json` are ready; steps in `DEMO.md` §Deploy. `make test-deployed` has never run.
+- **Docker image not built locally** (no Docker daemon in this container); backend notes the same.
+- Demo script: onboarding must set **Crowd = 4** — with the UI default (3) the #1 pick at 11:30 PM is a vibe-26 "Chill" venue. e2e sets 4 and asserts the #1 pick is vibe ≥ 35 (The Mayfly, vibe 78).
+- Resolved during the build: snapshot divergence (live-sim c3edeba), owner dashboard 401 (frontend 37fe0e7), vibe-0 #1 ranking (ml-recs 48d4ace / specs G9).
 
 ## Contract change requests
 None open.
