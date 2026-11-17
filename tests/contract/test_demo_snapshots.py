@@ -33,6 +33,8 @@ def _f(x):
 
 
 def test_snapshots_match_api(api, snaps):
+    if api.get("/api/health").json().get("recs") != "real":
+        pytest.xfail("backend on stub engine; snapshots are recs output (regenerated after ml-recs merge)")
     sample = [r for r in snaps if r["snapshot_ts"].startswith("2026-11-14T23:30") or r["snapshot_ts"].startswith("2026-11-14T21:00")]
     assert sample
     for r in sample:
@@ -41,6 +43,6 @@ def test_snapshots_match_api(api, snaps):
         if v is None:
             assert st["vibe_score"] is None, r
         else:
-            assert st["vibe_score"] is not None and abs(st["vibe_score"] - v) <= 1, (r, st)
+            assert st["vibe_score"] is not None and abs(st["vibe_score"] - v) <= 1 + 1e-9, (r, st)
         if c is not None:
-            assert abs((st["confidence"] or 0) - c) <= 0.01, (r, st)
+            assert abs((st["confidence"] or 0) - c) <= 0.01 + 1e-9, (r, st)

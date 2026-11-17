@@ -34,6 +34,8 @@ def probe(root, env):
     if not (root / "backend").is_dir():
         pytest.skip("backend/ not merged yet")
     full = {**os.environ, "DEMO_NOW": DEMO_NOW, **env}
+    subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=root / "backend",
+                   env=full, check=True, capture_output=True)
     p = subprocess.run([sys.executable, "-c", PROBE % {"root": str(root), "now": DEMO_NOW}], cwd=root,
                        env=full, capture_output=True, text=True, timeout=300)
     assert p.returncode == 0, p.stderr[-2000:]

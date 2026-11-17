@@ -34,6 +34,28 @@ make status                            # which workstreams are done / merged
 | 3 | tableau | 2b64854 | none | — | (same run) | extracts refresh after ml-recs |
 | 4 | backend | c478d1b | none | — | backend 82 pass; contract 20 pass / 63 skip (stub engine + fixture sim until live-sim/ml-recs) | merged ahead of live-sim/ml-recs (they hadn't signalled done); root `render.yaml` = backend Docker blueprint on `nightlife/integration` |
 
+| 5 | live-sim | 9921e56 | `.gitignore` | union of both | simulator 27 pass; contract 72 pass / 10 skip / 1 xfail (snapshots vs stub engine) | `make data` 36 nights in ~11 s |
+| 6 | backend (re-merge) | d66cde0 | none | — | backend 94 pass | G1–G8 tests |
+
+## Seeded demo data (US-7)
+`make data` run twice from scratch → identical per-table fingerprints (`scripts/integration/db_fingerprint.py`):
+
+| table | rows | sha256 (first 12) |
+|---|---|---|
+| syn_bounties | 2409 | 22aea4138a05 |
+| syn_disputes | 250 | cc7ca2e73393 |
+| syn_feedback | 1440 | a8f2e9865a4c |
+| syn_points_ledger | 17702 | 362aa4c51519 |
+| syn_scout_reports | 8147 | e4a85c248614 |
+| syn_scout_reputation_history | 1644 | 1e2985d679c9 |
+| syn_scout_truth | 209 | 26b40edaa437 |
+| syn_scouts | 209 | cfe01215078a |
+| syn_true_state | 35420 | de123e78babb |
+| syn_users | 300 | b46e4545ecef |
+| syn_venue_attributes | 35 | e076dce42932 |
+| syn_venue_events | 65973 | 6661064a9441 |
+| syn_venue_updates | 662 | 51f4b76dba2b |
+
 ## Fixes applied to other workstreams
 | workstream | file | change | why |
 |---|---|---|---|
