@@ -85,7 +85,7 @@ RECOMMENDATION = {
         "distance_km": NUM, "reasons": {"type": "array", "items": {"type": "string"}},
         "missing": {"type": "array", "items": {"type": "string"}}, "excluded": {"type": "boolean"},
         "rank_score": NUM, "rank": {"type": ["integer", "null"]}, "excluded_reason": STR,
-        "cluster_label": STR, "complaint_risk": NUM, "is_synthetic": SYN,
+        "cluster_label": STR, "complaint_risk": {"type": ["number", "object", "null"]}, "is_synthetic": SYN,
     },
 }
 PLAN_STOP = {

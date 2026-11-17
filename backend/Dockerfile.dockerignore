@@ -10,3 +10,6 @@ data/raw
 data/live_sim.db
 frontend/node_modules
 **/.env
+# integration (v2 §D): image uses launch_venues_full.csv, not the 39 MB pipeline DB
+data/manhattan_bars.db
+data/synthetic

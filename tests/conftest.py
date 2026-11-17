@@ -75,6 +75,14 @@ def _load_app():
     raise RuntimeError("could not import backend app: " + "; ".join(errors))
 
 
+def _migrate(url: str) -> None:
+    """Create the backend's real twin tables (alembic upgrade head) in a throwaway app DB."""
+    import subprocess
+    if (ROOT / "backend/alembic.ini").exists():
+        subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT / "backend",
+                       env={**os.environ, "DATABASE_URL": url}, check=True, capture_output=True)
+
+
 @pytest.fixture(scope="session")
 def api():
     """httpx-like client: TestClient in-process, or httpx.Client against API_URL."""
@@ -89,6 +97,9 @@ def api():
     os.environ.setdefault("LIVE_SIM_DB", str(LIVE_SIM_DB))
     os.environ.setdefault("DEMO_NOW", DEMO_NOW)
     os.environ.setdefault("INCLUDE_SYNTHETIC", "1")
+    import tempfile
+    os.environ.setdefault("DATABASE_URL", f"sqlite:///{tempfile.mkdtemp(prefix='contract-')}/app.db")
+    _migrate(os.environ["DATABASE_URL"])
     from fastapi.testclient import TestClient
     with TestClient(_load_app()) as c:
         yield c

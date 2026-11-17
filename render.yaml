@@ -1,30 +1,33 @@
-# Render Blueprint (integration, v2 §C). Backend only; the frontend goes to Vercel.
-# Placeholder until nightlife/backend merges: if backend ships backend/render.yaml or a
-# Dockerfile with a different start command, integration reconciles it here.
+# Render Blueprint (integration, v2 §C) — root copy of backend/render.yaml pointed at the
+# merged branch. Not deployed (no Render account yet); steps in DEMO.md §Deploy.
 services:
   - type: web
-    name: nightlife-autopilot-api
-    runtime: python
-    plan: free
-    rootDir: .
-    buildCommand: >-
-      pip install -r backend/requirements.txt &&
-      python -m simulator --seed 42 --out data/live_sim.db
-    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    name: nightlife-backend
+    runtime: docker
+    plan: free                      # ephemeral disk: demo writes reset on restart
+    branch: nightlife/integration
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     autoDeploy: false
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.12.7
-      - key: LIVE_SIM_DB
-        value: data/live_sim.db
       - key: DEMO_NOW
         value: "2026-11-14T23:30:00-05:00"
       - key: INCLUDE_SYNTHETIC
         value: "1"
+      - key: ALLOW_FIXTURE_SIM
+        value: "0"
+      - key: DEMO_AUTH
+        value: "1"
+      - key: RECS_MODE
+        value: auto
       - key: FEATURE_ROUTING
-        value: "0"
+        value: "1"
       - key: FEATURE_HEATMAP
-        value: "0"
+        value: "1"
       - key: CORS_ORIGINS
-        sync: false   # set in dashboard: https://<frontend>.vercel.app,http://localhost:5173
+        value: "https://nightlife-autopilot.vercel.app,http://localhost:5173"  # replace with the real Vercel URL
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: LOG_LEVEL
+        value: INFO
