@@ -24,9 +24,7 @@ def build(seed: int = 42, out: str = "data/live_sim.db", nights: int | None = No
     tables = generate(cfg)
     meta = tables.pop("_meta").iloc[0].to_dict()
     outputs = {n: io.to_output(tables[n], n) for n in schema.TABLES}
-    snaps, source = snapshots.build({k: tables[k] for k in ("syn_venue_attributes", "syn_scout_reports",
-                                                            "syn_venue_updates", "syn_disputes", "syn_bounties",
-                                                            "syn_scout_reputation_history", "syn_scouts")})
+    snaps, source = snapshots.build(tables)
     files = {}
     for n, df in outputs.items():
         files[f"{n}.csv"] = csv_dir_p / f"{n}.csv"
