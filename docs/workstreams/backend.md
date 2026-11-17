@@ -36,6 +36,8 @@ Plan: `docs/prd/backend/` (PRD, RULES, OUTLINE). Contract: `docs/CONTRACTS.md` v
   served by recs, 0 stub fallbacks; `/api/venues` ~10 ms, `/api/recommend` ~16 ms,
   `/api/heatmap?by=hour` ~27 ms.
 - Local boot with `start.sh` + `smoke.py`: all endpoints OK (stub and recs).
+- **Final versions** (ml-recs `5e10061` + live-sim `0d2a26c`): 111 tests pass; smoke 18/18; recommend/plan-night
+  served by recs with 0 engine and 0 validation fallbacks.
 - **Real `live_sim.db`** (live-sim `9921e56`, built with `python -m simulator --seed 42 --out data/live_sim.db`
   in 12 s, 18 MB): schema matches v2 §E with no diffs; with real recs (`ef9717c`) the full suite passes (109,
   incl. `tests/test_real_livesim.py`), smoke 18/18 with 0 stub fallbacks; at DEMO_NOW the 35 launch
@@ -101,6 +103,12 @@ See `backend/README.md`. Short version:
     because recs leaves `rank` null on excluded rows. The stub scores an over-limit cover or line with
     its normal formula (specs G6); the exclusion is a separate flag.
 
+16. **`complaint_risk` shape:** the API keeps the object `{label, noise_complaints_3y, level, score}`
+    built from public data; final recs (`5e10061`) returns a number (out-of-fold model risk, 0–1),
+    which the backend moves into `complaint_risk.score`. Before this fix the number failed response
+    validation and silently sent every `/api/recommend` to the stub; that fallback now logs a warning.
+17. `exclude_venue_ids` is dropped from `/api/recommend` output (as recs does), not only from plan-night.
+
 ## Optional fields added (all optional, no renames)
 Venue card: `address`, `neighborhood`. Report response: `verified_presence`, `distance_m`.
 Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop: as v2 §F.
@@ -119,6 +127,8 @@ Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop:
   `backend/scripts/build_sim.sh` tries the contract command, then falls back to `python -m simulator`.
 - **CR-16 (Stop shape) — accepted:** `walk_minutes_from_prev` is a float in real recs (e.g. 5.3) — the
   backend schema accepts float; please state "number" in the contract.
+- **CR-19 (complaint_risk shape):** contract names the field but not its type; recs returns a
+  float, the backend returns an object with that float as `score`. Please fix the object shape in the contract.
 - **CR-18 (rank) — accepted (contracts `ad2dd2f`, API owns final rank):** recs returns `rank: null` for excluded rows; the contract implies a 1-based
   rank on every row. The backend fills it in; recs or the contract should pick one.
 - **CR-17 (heatmap) — accepted:** document that `by=hour` omits hours that haven't started at `now`.

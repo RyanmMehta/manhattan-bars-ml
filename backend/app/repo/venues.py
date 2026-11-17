@@ -116,7 +116,12 @@ def complaint_risk(v: dict) -> dict:
         level = "medium"
     else:
         level = "high"
-    return {"label": "311 noise-complaint risk", "noise_complaints_3y": n, "level": level}
+    return {
+        "label": "311 noise-complaint risk",
+        "noise_complaints_3y": n,
+        "level": level,
+        "score": None,
+    }
 
 
 ATTR_COLS = [
