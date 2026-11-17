@@ -215,6 +215,16 @@ def test_cli_quick_mode(tmp_path):
     assert (d / "live_sim.db").exists() and (d / "manifest.json").exists()
 
 
+def test_contract_build_command(tmp_path):
+    """CONTRACTS f5c95d2: `python -m simulator ...` from the repo root (no -I)."""
+    d = tmp_path / "synthetic_m"
+    p = subprocess.run([sys.executable, "-m", "simulator", "--seed", "42", "--out", str(d / "live_sim.db"),
+                        "--nights", "1", "--preset", "small", "--csv-dir", str(d)],
+                       capture_output=True, text=True, cwd=REPO, timeout=60)
+    assert p.returncode == 0, p.stderr[-2000:]
+    assert (d / "demo_night_snapshots.csv").exists()
+
+
 def test_refuses_plain_csv_dir(tmp_path):
     from simulator import build
     with pytest.raises(ValueError):

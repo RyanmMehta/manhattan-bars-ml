@@ -1,6 +1,5 @@
-# Makes the fixed build command `python -I -m simulator ...` work: `-I` drops the current directory from
-# sys.path, so the package must be installed. From the repo root:  pip install -e ./simulator
-# (No-install alternative: `python -I simulator --seed 42 --out data/live_sim.db` from the repo root.)
+# Optional. The build command is `python -m simulator --seed 42 --out data/live_sim.db` from the repo root
+# (CONTRACTS f5c95d2). Install (`pip install -e ./simulator`) only to use `python -I -m simulator` from anywhere.
 [build-system]
 requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"

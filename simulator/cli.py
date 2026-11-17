@@ -1,4 +1,4 @@
-"""Argument parsing for `python -I -m simulator` (see __main__.py)."""
+"""Argument parsing for `python -m simulator` (see __main__.py)."""
 from __future__ import annotations
 
 import argparse
@@ -82,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = argv[0] if argv and argv[0] in ("extract-inputs", "validate", "replay", "build") else None
     if sub:
         argv = argv[1:]
-    p = argparse.ArgumentParser(prog="python -I -m simulator", description="live-sim synthetic nightlife simulator")
+    p = argparse.ArgumentParser(prog="python -m simulator", description="live-sim synthetic nightlife simulator")
     p.add_argument("--csv-dir", default="data/synthetic_live")
     if sub in (None, "build"):
         p.add_argument("--seed", type=int, default=42)
