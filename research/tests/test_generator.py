@@ -85,3 +85,11 @@ def test_every_prior_is_marked_synthetic():
     comments = [ln for ln in block.splitlines() if "# SYNTHETIC:" in ln]
     assert keys and len(comments) >= len([k for k in keys if k.strip().endswith(("[", "{"))]) // 2
     assert len(comments) >= 15
+
+
+def test_summary_tables_synthetic_flag_and_columns():
+    import analysis
+    rows = analysis.build("synthetic")
+    assert rows and all(r["is_synthetic"] == 1 for r in rows)
+    assert list(rows[0]) == ["metric", "segment", "value", "n", "is_synthetic"]
+    assert rows == analysis.build("synthetic")
