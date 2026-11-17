@@ -39,8 +39,10 @@ def main() -> int:
     env = {**os.environ, "LIVE_SIM_DB": str(ROOT / "data/live_sim.db"), "DEMO_NOW": a.now,
            "INCLUDE_SYNTHETIC": "1", "FEATURE_ROUTING": "1", "FEATURE_HEATMAP": "1",
            "CORS_ORIGINS": f"{web},http://localhost:{a.web_port}"}
+    if (ROOT / "backend/alembic.ini").exists():
+        subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT / "backend", env=env, check=True)
     api = subprocess.Popen([sys.executable, "-m", "uvicorn", app_spec(), "--port", str(a.api_port)], env=env)
-    fenv = {**os.environ, "VITE_API_BASE": f"http://127.0.0.1:{a.api_port}", "VITE_API_MODE": "live",
+    fenv = {**os.environ, "VITE_API_BASE": f"http://127.0.0.1:{a.api_port}/api", "VITE_API_MODE": "live",
             "VITE_DEMO_NOW": a.now, "VITE_FEATURE_ROUTING": "1", "VITE_FEATURE_HEATMAP": "1"}
     print(f"\n  backend  http://127.0.0.1:{a.api_port}/api/health\n  frontend {web}/\n", flush=True)
     try:

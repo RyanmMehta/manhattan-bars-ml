@@ -57,10 +57,13 @@ def servers(tmp_path_factory):
            "INCLUDE_SYNTHETIC": "1", "CORS_ORIGINS": f"http://127.0.0.1:{WEB_PORT},http://localhost:{WEB_PORT}",
            "FEATURE_ROUTING": "1", "FEATURE_HEATMAP": "1",
            "DATABASE_URL": os.environ.get("E2E_DATABASE_URL", f"sqlite:///{tmp/'app.db'}")}
+    if (ROOT / "backend/alembic.ini").exists():  # real twin tables (alembic upgrade head)
+        subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT / "backend", env=env, check=True,
+                       capture_output=True)
     api = subprocess.Popen([sys.executable, "-m", "uvicorn", app_spec(), "--port", str(API_PORT)],
                            cwd=ROOT, env=env, stdout=open(tmp / "api.log", "w"), stderr=subprocess.STDOUT)
     fe = ROOT / "frontend"
-    fenv = {**os.environ, "VITE_API_BASE": api_url, "VITE_API_MODE": "live", "VITE_DEMO_NOW": DEMO_NOW,
+    fenv = {**os.environ, "VITE_API_BASE": f"{api_url}/api", "VITE_API_MODE": "live", "VITE_DEMO_NOW": DEMO_NOW,
             "VITE_FEATURE_ROUTING": "1", "VITE_FEATURE_HEATMAP": "1"}
     if not (fe / "node_modules").exists():
         subprocess.run(["npm", "ci", "--no-audit", "--no-fund"], cwd=fe, check=True)

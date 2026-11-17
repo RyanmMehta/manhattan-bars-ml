@@ -36,7 +36,7 @@ data is synthetic (seed 42) and shows the **demo data** badge; see `SYNTHETIC_DA
 
 **Frontend (Vercel)**
 1. Vercel → Add New Project → same repo, branch `nightlife/integration`, **Root Directory `frontend`**, framework Vite, build `npm run build`, output `dist`.
-2. Env: `VITE_API_BASE=https://<backend>.onrender.com`, `VITE_API_MODE=live`, `VITE_DEMO_NOW=2026-11-14T23:30:00-05:00`, `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP` (match the backend flags).
+2. Env: `VITE_API_BASE=https://<backend>.onrender.com/api`, `VITE_API_MODE=live`, `VITE_DEMO_NOW=2026-11-14T23:30:00-05:00`, `VITE_FEATURE_ROUTING`, `VITE_FEATURE_HEATMAP` (match the backend flags).
 3. SPA rewrite to `index.html` (`frontend/vercel.json`).
 4. Back on Render, put the Vercel URL in `CORS_ORIGINS`; redeploy.
 5. `make test-deployed BASE_URL=https://<frontend>.vercel.app API_URL=https://<backend>.onrender.com` three times.

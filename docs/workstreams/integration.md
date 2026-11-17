@@ -23,6 +23,8 @@ make status                            # which workstreams are done / merged
 - A3 Backend app import path unknown until merge; tests and scripts auto-detect `backend.app.main:app`, `backend.main:app`, … or `BACKEND_APP`.
 - A5 Backend's complaint_risk is an object `{label, noise_complaints_3y, level}` (label \"311 noise-complaint risk\"); contract tests accept number or object.
 - A7 Truth-table grep test uses a reviewed allowlist (recs eval/CLI/stub files); runtime modules `recs/{live_state,scoring,routing}.py` must not mention them.
+- A8 Frontend `VITE_API_BASE` is the API base **including `/api`** (e.g. `http://127.0.0.1:8000/api`); e2e, `run_demo.py` and DEMO.md use that form.
+- A9 e2e conftest/run_demo run `alembic upgrade head` on the temp app DB first (backend's `start.sh` does the same).
 - A6 `POST` endpoints may return 201; tests accept 200/201.
 - A4 Merge order from OUTLINE §2 is followed where branches are ready at the same time; a branch that signals done early is merged as soon as its dependencies are in.
 
@@ -68,6 +70,7 @@ make status                            # which workstreams are done / merged
 | backend | `backend/scripts/build_sim.sh` | run exactly `python -m simulator --seed 42 --out …` (no `-I` attempt first) | contracts f5c95d2 / CR-15 |
 
 ## Open issues
+- **Owner dashboard 401 (frontend ↔ backend).** Backend requires `Authorization: Bearer <owner token>` on `GET /api/owner/{id}/dashboard`; frontend `api.ownerDashboard` sends no auth and only logs in as owner when posting. Result in live mode: "Couldn't load this — Missing bearer token" on the dashboard + a console 401; posting works. Found by a pre-merge e2e dry run against frontend 616b593. Fix belongs to frontend (`auth: true` + `login('owner', venueId)` before the query) — reported to master.
 - **live-sim vs recs snapshots differ.** `make data` (simulator with recs importable) writes `demo_night_snapshots.csv` from `simulator/replay.py`, which derives time-of-view statuses (pending/disputed) and as-of reputation before calling recs. The backend (and `python -m recs snapshots`) use stored status + current reputation (contract: "the live app uses current reputation"). Max diff: vibe 26, conf 0.07 on 193/525 rows. Integration commits the recs-CLI file (matches the API, `test_demo_snapshots` green). **Running `make data` overwrites it — run `make snapshots` afterwards.** Owner: live-sim/ml-recs to agree on one path.
 - Deploy not run (no accounts). Steps in `DEMO.md` §Deploy.
 
