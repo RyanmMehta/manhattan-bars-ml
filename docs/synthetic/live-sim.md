@@ -4,8 +4,7 @@
 these bars. The venues are real (SLA licences, public data), but their attributes, crowds, Scouts, users and
 outcomes are invented. Show the "demo data" badge wherever any of it appears.
 
-Built by `python -I -m simulator --seed 42 --out data/live_sim.db` (needs `pip install -e ./simulator` once;
-no-install form: `python -I simulator --seed 42 --out data/live_sim.db`). Seed 42 gives byte-identical CSVs (sha256 in
+Built by `python -m simulator --seed 42 --out data/live_sim.db`, run from the repo root (CONTRACTS f5c95d2). Seed 42 gives byte-identical CSVs (sha256 in
 `data/synthetic_live/manifest.json`). CSVs go to `data/synthetic_live/` (gitignored except the snapshots file);
 the same tables are loaded into `data/live_sim.db` (never committed).
 

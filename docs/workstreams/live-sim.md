@@ -6,16 +6,16 @@ Everything it produces is synthetic (`is_synthetic = 1`). Registry: `docs/synthe
 ## How to run
 
 ```bash
-pip install -e ./simulator              # once; needed for `python -I -m simulator` (see CCR-1)
-python -I -m simulator --seed 42 --out data/live_sim.db          # fixed build, 36 nights, ~7 s
-python -I -m simulator --seed 42 --out data/live_sim.db --nights 3   # quick mode (last 3 nights, ends Sat Nov 14)
-python -I -m simulator validate                                  # re-check CSVs in data/synthetic_live/
-python -I -m simulator replay --now 2026-11-14T23:30:00-05:00 [--venue <license_id>]
-python -I -m simulator replay --shift-to 2026-11-17               # demo night re-dated -> data/synthetic_live/shifted/
-python -I -m simulator extract-inputs                            # only to refresh simulator/data/venue_inputs.csv
-python -I -m pytest simulator/tests -q                           # 27 tests, ~6 s
+python -m simulator --seed 42 --out data/live_sim.db          # fixed build, 36 nights, ~7 s
+python -m simulator --seed 42 --out data/live_sim.db --nights 3   # quick mode (last 3 nights, ends Sat Nov 14)
+python -m simulator validate                                  # re-check CSVs in data/synthetic_live/
+python -m simulator replay --now 2026-11-14T23:30:00-05:00 [--venue <license_id>]
+python -m simulator replay --shift-to 2026-11-17               # demo night re-dated -> data/synthetic_live/shifted/
+python -m simulator extract-inputs                            # only to refresh simulator/data/venue_inputs.csv
+python -m pytest simulator/tests -q                           # 27 tests, ~6 s
 ```
-No install? `python -I simulator ...` (directory form) from the repo root does the same thing.
+Run from the repo root (CONTRACTS f5c95d2: no `-I`). Also works: `python -I simulator ...` (directory form),
+or `pip install -e ./simulator` and then `python -I -m simulator ...` from anywhere.
 
 The build: generate → write 13 CSVs + `demo_night_snapshots.csv` + `extracts/hourly_by_style.csv` →
 load `data/live_sim.db` (only `^syn_[a-z_]+$` tables; refuses a target named `manhattan_bars.db`) →
@@ -83,10 +83,8 @@ updates 662, disputes 250, feedback 1,440, users 300, true state 35,420, snapsho
 - `stream` mode (post to `POST /api/reports`) and feedback via `recs.scoring.recommend` are not built (later).
 
 ## Contract change requests
-- **CCR-1 (build command)**: `python -I -m simulator ...` cannot import a package from the current directory,
-  because `-I` removes it from `sys.path`. Integration's `make data` and backend's Render build need either
-  `pip install -e ./simulator` first (provided: `simulator/pyproject.toml`), or the equivalent
-  `python -I simulator --seed 42 --out data/live_sim.db` (directory form, works with no install). Flags unchanged.
+- **CCR-1 (build command)**: resolved by CONTRACTS f5c95d2 (`python -m simulator ...` from the repo root,
+  no `-I`). The `-I` forms still work via `python -I simulator ...` or after `pip install -e ./simulator`.
 - **CCR-2 (owner pseudo-IDs)**: `syn_disputes.opened_by` uses `syn-o-<venue_id>` until demo-login issues owner IDs.
 - **CCR-3 (column order)**: v2 additions are placed before `is_synthetic` (which stays last) in every table.
 - **CCR-4 (dispute status enum)**: `open|upheld|rejected|auto_rejected`.
