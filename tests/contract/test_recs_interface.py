@@ -103,8 +103,8 @@ def test_exclusion_has_reason(recs):
 
 
 def test_golden_files_if_present(root, recs):
-    """Run every specs golden vector that carries an expected live state."""
-    from recs import live_state
+    """Run every specs golden vector (docs/specs/golden_synthetic/G*.json) through recs."""
+    from recs import live_state, scoring
     gdir = root / "docs/specs/golden_synthetic"
     files = sorted(gdir.glob("G*.json")) if gdir.exists() else []
     if not files:
@@ -112,16 +112,30 @@ def test_golden_files_if_present(root, recs):
     checked = 0
     for f in files:
         g = json.loads(f.read_text())
-        exp = (g.get("expected") or {}).get("state") or g.get("expected_state")
-        if not exp or not g.get("reports") and not g.get("updates"):
-            continue
-        vid = (g.get("reports") or g.get("updates"))[0]["venue_id"]
-        st = live_state.compute(vid, g.get("reports", []), g.get("updates", []), datetime.fromisoformat(g["now"]))
-        if exp.get("vibe_score") is not None:
-            assert st["vibe_score"] is not None and abs(st["vibe_score"] - exp["vibe_score"]) <= 1, f.name
-        if exp.get("confidence") is not None:
-            assert abs(st["confidence"] - exp["confidence"]) <= 0.01, f.name
-        checked += 1
+        exp = g.get("expected") or {}
+        now = datetime.fromisoformat(g["now"])
+        states = []
+        for es in exp.get("states") or []:
+            vid = es["venue_id"]
+            reps = [r for r in g.get("reports", []) if r["venue_id"] == vid]
+            ups = [u for u in g.get("updates", []) if u["venue_id"] == vid]
+            st = live_state.compute(vid, reps, ups, now)
+            states.append(st)
+            if es.get("vibe_score") is None:
+                assert st["vibe_score"] is None, f"{f.name} {vid}"
+            else:
+                assert st["vibe_score"] is not None and abs(st["vibe_score"] - es["vibe_score"]) <= 1, f"{f.name} {vid}: {st}"
+            if es.get("confidence") is not None:
+                assert abs((st["confidence"] or 0) - es["confidence"]) <= 0.01, f"{f.name} {vid}"
+            assert st.get("trend") == es.get("trend"), f"{f.name} {vid} trend"
+            checked += 1
+        if exp.get("recommendations") and g.get("prefs") and g.get("venues"):
+            out = {r["venue_id"]: r for r in scoring.recommend(g["prefs"], states, g["venues"], now)}
+            for er in exp["recommendations"]:
+                got = out[er["venue_id"]]
+                assert got["excluded"] == er["excluded"], f"{f.name} {er['venue_id']}"
+                if er.get("match_score") is not None and not er["excluded"]:
+                    assert abs(got["match_score"] - er["match_score"]) <= 1, f"{f.name} {er['venue_id']}"
     assert checked >= 1
 
 
