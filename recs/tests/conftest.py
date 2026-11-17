@@ -11,7 +11,7 @@ NOW = "2026-11-14T23:30:00-05:00"
 
 
 def golden(name):
-    return json.loads((HERE / "golden" / f"{name}.json").read_text())
+    return json.loads((HERE / "golden_recs_derived" / f"{name}.json").read_text())
 
 
 @pytest.fixture(scope="session")

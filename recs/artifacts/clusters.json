@@ -1,5 +1,5 @@
 {
- "trained_at": "2026-11-17T05:53:13+00:00",
+ "trained_at": "2026-11-17T05:56:22+00:00",
  "data_source": "data/manhattan_bars.db venue_features JOIN v_bars (real public data)",
  "rows": 1709,
  "with_geo": false,
@@ -20,7 +20,7 @@
   },
   {
    "k": 5,
-   "inertia": 17371.885119210056,
+   "inertia": 17371.88511921006,
    "silhouette": 0.1882606120171789,
    "min_share": 0.03686366296079579
   },

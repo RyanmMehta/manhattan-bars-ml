@@ -107,8 +107,7 @@
    "0370-24-138636": {
     "excluded": true,
     "excluded_reason": "cover $25 over your $20",
-    "rank": null,
-    "reasons_0": "Excluded: cover $25 over your $20"
+    "rank": 2
    },
    "syn-v-unknown-cover": {
     "excluded": false,

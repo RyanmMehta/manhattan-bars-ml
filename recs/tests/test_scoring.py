@@ -38,12 +38,12 @@ def test_each_exclusion_rule():
         (dict(st, line_minutes=30), v, p, "line ~30 min over your 15"),
         (st, dict(v, lat=v["lat"] + 0.05), p, "over your 1.5 km"),
         (st, dict(v, opening_hours="Mo-Su 12:00-20:00"), p, "closed now"),
-        (st, v, dict(p, exclude_venue_ids=[v["venue_id"]]), "excluded by you"),
+        (st, dict(v, is_open_now=False), p, "closed now"),
     ]
     for s, ven, pr, txt in cases:
         (r,) = scoring.recommend(pr, [s], [ven], NOW)
-        assert r["excluded"] and txt in r["excluded_reason"] and r["rank"] is None
-        assert r["reasons"][0].startswith("Excluded: ")
+        assert r["excluded"] and txt in r["excluded_reason"] and r["rank"] == 1
+    assert scoring.recommend(dict(p, exclude_venue_ids=[v["venue_id"]]), [st], [v], NOW) == []
     (r,) = scoring.recommend(p, [st], [dict(v, opening_hours="sunrise-sunset")], NOW)
     assert not r["excluded"]  # unparseable hours never exclude
 
@@ -54,7 +54,7 @@ def test_rank_ordering_and_determinism(fx, prefs):
     b = scoring.recommend(prefs, list(reversed(states)), fx["venues"].iloc[::-1], NOW)
     assert a == b
     inc = [r for r in a if not r["excluded"]]
-    assert [r["rank"] for r in inc] == list(range(1, len(inc) + 1))
+    assert [r["rank"] for r in a] == list(range(1, len(a) + 1))
     assert all(x["rank_score"] >= y["rank_score"] for x, y in zip(inc, inc[1:]))
     seen_exc = False
     for r in a:

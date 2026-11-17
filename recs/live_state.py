@@ -170,8 +170,6 @@ def _raw(venue_id, reports: list[dict], updates: list[dict], now: datetime) -> d
         cv = num(u.get("cover_usd"))
         gs = split_genres(u.get("genres"))
         dj = clean(u.get("dj"))
-        if cv is None and not gs and not dj:
-            continue  # contributes nothing to state fields (offers/events live on the profile)
         sources.add("venue_update")
         seen(age)
         op_total += w
@@ -220,7 +218,7 @@ def _raw(venue_id, reports: list[dict], updates: list[dict], now: datetime) -> d
         agree = 1 - 0.5 * min(1.0, sd / C.AGREE_SD_SCALE)
         diverse = 1.0 if len(crowd_scouts) >= 2 else C.DIVERSE_SINGLE
         conf = support * agree * diverse
-    elif op_total > 0 and n_reports == 0:
+    elif sources and "venue_update" in sources:
         conf = min(C.OPERATOR_ONLY_CONF_CAP, C.OPERATOR_ONLY_CONF_CAP * op_total)
     else:
         conf = 0.0

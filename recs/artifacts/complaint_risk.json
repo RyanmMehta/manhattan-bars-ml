@@ -1,6 +1,6 @@
 {
  "label": "311 noise-complaint risk",
- "trained_at": "2026-11-17T05:53:18+00:00",
+ "trained_at": "2026-11-17T05:56:27+00:00",
  "data_source": "data/manhattan_bars.db venue_features (real public data)",
  "rows": 5704,
  "target": "high_noise (>= 3 noise complaints in 3 yrs)",

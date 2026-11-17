@@ -27,118 +27,119 @@ REC_KEYS = (
 )
 
 
+def _is_open(venue: dict, now) -> bool | None:
+    """Caller-supplied `is_open_now` wins; else parse OSM `opening_hours` (unknown -> None, never excludes)."""
+    v = clean(venue.get("is_open_now"))
+    if v is not None:
+        return bool(v)
+    return H.is_open(clean(venue.get("opening_hours")), now)
+
+
+def _fmt_num(x: float) -> str:
+    return f"{x:g}" if x != int(x) else str(int(x))
+
+
 def _exclusion(prefs: dict, st: dict, venue: dict, dist: float | None, now) -> str | None:
-    """First broken hard limit on a KNOWN value, else None. Unknown values never exclude."""
-    max_cover = num(prefs.get("max_cover_usd"))
-    max_line = num(prefs.get("max_line_minutes"))
-    max_dist = num(prefs.get("max_distance_km"))
-    cover, line = num(st.get("cover_usd")), num(st.get("line_minutes"))
-    if venue.get("venue_id") in set(prefs.get("exclude_venue_ids") or []):
-        return "excluded by you"
-    if max_cover is not None and cover is not None and cover > max_cover:
-        return f"cover ${cover:.0f} over your ${max_cover:.0f}"
-    if max_line is not None and line is not None and line > max_line:
-        return f"line ~{line:.0f} min over your {max_line:.0f}"
-    if max_dist is not None and dist is not None and dist > max_dist + 1e-9:
-        return f"{dist:.1f} km away, over your {max_dist:g} km"
-    if H.is_open(clean(venue.get("opening_hours")), now) is False:
+    """First broken hard limit on a KNOWN value (specs SCORING §5.9 order), else None."""
+    if _is_open(venue, now) is False:
         return "closed now"
+    if prefs.get("launch_only") and venue.get("is_launch") is False:
+        return "outside launch area"
+    max_dist = num(prefs.get("max_distance_km"))
+    if max_dist is not None and dist is not None and dist > max_dist:
+        return f"{dist:.1f} km away, over your {max_dist:g} km"
+    max_cover, cover = num(prefs.get("max_cover_usd")), num(st.get("cover_usd"))
+    if max_cover is not None and cover is not None and cover > max_cover:
+        return f"cover ${_fmt_num(cover)} over your ${_fmt_num(max_cover)}"
+    max_line, line = num(prefs.get("max_line_minutes")), num(st.get("line_minutes"))
+    if max_line is not None and line is not None and line > max_line:
+        return f"line ~{_fmt_num(line)} min over your {_fmt_num(max_line)}"
     return None
 
 
 def components(prefs: dict, st: dict, venue: dict, dist: float | None) -> dict:
-    """{name: (weight, score, known, evidence)} for the 7 match components (specs §5.10)."""
-    W = C.MATCH_WEIGHTS
-    U = C.UNKNOWN_SCORE
+    """{name: (weight, score, reason|None, missing|None)} for the 7 match components (specs §5.10).
+
+    weight 0 means the pref is not set (renormalised away). Unknown inputs score 0.4 and set `missing`.
+    """
+    W, U = C.MATCH_WEIGHTS, C.UNKNOWN_SCORE
+    n, fresh = st.get("n_reports") or 0, st.get("freshness_minutes")
     out = {}
 
-    # genre
-    want = [g.lower() for g in (prefs.get("genres") or [])]
-    live = st.get("music_genres")
+    want = [str(g).lower() for g in (prefs.get("genres") or [])]
+    live = st.get("music_genres") or []
     static = split_genres(venue.get("genres"))
+    hit = [g for g in live if g in want]
+    s_hit = [g for g in static if g in want]
     if not want:
-        out["genre"] = (W["genre"], 1.0, True, {"kind": "any"})
-    elif live and set(live) & set(want):
-        g = next(x for x in live if x in want)
-        out["genre"] = (W["genre"], 1.0, True, {"kind": "live", "genre": g})
-    elif static and set(static) & set(want):
-        g = next(x for x in static if x in want)
-        out["genre"] = (W["genre"], C.STATIC_GENRE_SCORE, True, {"kind": "static", "genre": g})
+        out["genre"] = (W["genre"], 1.0, None, None)
+    elif hit:
+        ev = f"({n} reports, {fresh} min ago)" if n else "(posted by venue)"
+        out["genre"] = (W["genre"], 1.0, f"{R.genre_label(hit[0])} playing {ev}", None)
+    elif s_hit:
+        out["genre"] = (W["genre"], C.STATIC_GENRE_SCORE, f"Usually plays {R.genre_label(s_hit[0])}", None)
     elif live or static:
-        out["genre"] = (W["genre"], 0.0, True, {"kind": "none"})
+        out["genre"] = (W["genre"], 0.0, None, None)
     else:
-        out["genre"] = (W["genre"], U, False, {})
+        out["genre"] = (W["genre"], U, None, R.MISSING["genre"])
 
-    # dancing
-    wd = prefs.get("want_dancing")
-    d = num(st.get("dancing"))
+    wd, d = prefs.get("want_dancing"), num(st.get("dancing"))
     if wd is None:
-        out["dancing"] = (0.0, 0.0, True, {})
+        out["dancing"] = (0.0, 0.0, None, None)
     elif d is None:
-        out["dancing"] = (W["dancing"], U, False, {})
+        out["dancing"] = (W["dancing"], U, None, R.MISSING["dancing"])
+    elif truthy(wd):
+        out["dancing"] = (W["dancing"], d / 2, f"Dancing reported ({n} reports)", None)
     else:
-        s = d / 2 if truthy(wd) else 1 - d / 2
-        out["dancing"] = (W["dancing"], min(1.0, max(0.0, s)), True, {"want": truthy(wd), "dancing": d})
+        out["dancing"] = (W["dancing"], 1 - d / 2, "Low-key, little dancing", None)
 
-    # crowd
-    cp = num(prefs.get("crowd_pref"))
-    c = num(st.get("crowd"))
+    cp, c = num(prefs.get("crowd_pref")), num(st.get("crowd"))
     if cp is None:
-        out["crowd"] = (0.0, 0.0, True, {})
+        out["crowd"] = (0.0, 0.0, None, None)
     elif c is None:
-        out["crowd"] = (W["crowd"], U, False, {})
+        out["crowd"] = (W["crowd"], U, None, R.MISSING["crowd"])
     else:
-        out["crowd"] = (W["crowd"], max(0.0, 1 - abs(c - cp) / 4), True, {"crowd": c, "pref": cp})
+        out["crowd"] = (W["crowd"], 1 - abs(c - cp) / 4, f"Crowd {c:g} of 5, close to your {_fmt_num(cp)}", None)
 
-    # line
-    ml = num(prefs.get("max_line_minutes"))
-    ln = num(st.get("line_minutes"))
-    if ml is None:
-        out["line"] = (0.0, 0.0, True, {})
-    elif ln is None:
-        out["line"] = (W["line"], U, False, {})
-    else:
-        s = 1 - 0.5 * ln / ml if ml > 0 else (1.0 if ln == 0 else 0.0)
-        out["line"] = (W["line"], min(1.0, max(0.0, s)), True, {"line": ln, "max": ml})
+    for key, field, pref, what in (("line", "line_minutes", "max_line_minutes", "line"),
+                                   ("cover", "cover_usd", "max_cover_usd", "cover")):
+        lim, val = num(prefs.get(pref)), num(st.get(field))
+        if lim is None:
+            out[key] = (0.0, 0.0, None, None)
+        elif val is None:
+            out[key] = (W[key], U, None, R.MISSING[key])
+        elif key == "cover" and val == 0:
+            out[key] = (W[key], 1.0, "No cover", None)
+        else:
+            sc = max(0.0, 1 - 0.5 * val / lim) if lim > 0 else 0.0
+            txt = (f"Line ~{_fmt_num(val)} min, under your {_fmt_num(lim)}" if key == "line"
+                   else f"Cover ${_fmt_num(val)}, under your ${_fmt_num(lim)}")
+            out[key] = (W[key], sc, txt, None)
 
-    # cover
-    mc = num(prefs.get("max_cover_usd"))
-    cv = num(st.get("cover_usd"))
-    if mc is None:
-        out["cover"] = (0.0, 0.0, True, {})
-    elif cv is None:
-        out["cover"] = (W["cover"], U, False, {})
-    else:
-        s = 1.0 if cv == 0 else (1 - 0.5 * cv / mc if mc > 0 else 0.0)
-        out["cover"] = (W["cover"], min(1.0, max(0.0, s)), True, {"cover": cv, "max": mc})
-
-    # distance
     md = num(prefs.get("max_distance_km"))
     if md is None:
-        out["distance"] = (0.0, 0.0, True, {})
+        out["distance"] = (0.0, 0.0, None, None)
     elif dist is None:
-        out["distance"] = (W["distance"], U, False, {})
+        out["distance"] = (W["distance"], U, None, R.MISSING["distance"])
     else:
-        s = 1 - dist / md if md > 0 else 0.0
-        out["distance"] = (W["distance"], min(1.0, max(0.0, s)), True, {"km": dist})
+        txt = "Under 0.1 km away" if dist < 0.1 else f"{dist:.1f} km away"
+        out["distance"] = (W["distance"], max(0.0, 1 - dist / md) if md > 0 else 0.0, txt, None)
 
-    # group
-    gs = num(prefs.get("group_size"))
-    cap = num(venue.get("capacity"))
-    if gs is None or gs <= 0:
-        out["group"] = (0.0, 0.0, True, {})
+    gs, cap = num(prefs.get("group_size")), num(venue.get("capacity"))
+    if not gs:
+        out["group"] = (0.0, 0.0, None, None)
     elif cap is None:
-        out["group"] = (W["group"], U, False, {})
+        out["group"] = (W["group"], U, None, R.MISSING["group"])
     else:
-        out["group"] = (W["group"], min(1.0, cap / (10 * gs)), True, {"group_size": gs, "capacity": cap})
+        out["group"] = (W["group"], min(1.0, cap / (10 * gs)), f"Room for your group of {_fmt_num(gs)}", None)
     return out
 
 
 def match_raw(comps: dict) -> float:
-    tw = sum(w for w, _, _, _ in comps.values())
+    tw = sum(w for w, *_ in comps.values())
     if tw <= 0:
         return 0.0
-    return 100 * sum(w * s for w, s, _, _ in comps.values()) / tw
+    return 100 * sum(w * s for w, s, *_ in comps.values()) / tw
 
 
 def rank_value(match: float, conf) -> float:
@@ -171,10 +172,8 @@ def score_one(prefs: dict, st: dict, venue: dict, now) -> dict:
     match = int(round_half_up(m))
     rs = rank_value(match, st.get("confidence"))
     excl = _exclusion(prefs, st, venue, dist, now)
-    reasons = R.reasons(comps, st, prefs)
-    missing = R.missing(comps, st, prefs)
-    if excl:
-        reasons = [f"Excluded: {excl}"] + reasons[: C.MAX_REASONS - 1]
+    reasons = R.reasons(comps)
+    missing = R.missing(comps)
     cr = _lookup(venue, "complaint_risk")
     return {
         "venue_id": vid,
@@ -193,35 +192,32 @@ def score_one(prefs: dict, st: dict, venue: dict, now) -> dict:
         "complaint_risk": None if cr is None else round_half_up(float(cr), 3),
         "is_synthetic": bool(st.get("is_synthetic") or truthy(venue.get("is_synthetic"))),
         "_rs": rs,
-        "_dist": dist if dist is not None else float("inf"),
+        "_dist": dist if dist is not None else 1e9,
     }
 
 
 def recommend(prefs: dict, states, venues, now) -> list[dict]:
-    """Rank `venues` for `prefs` at `now` (datetime or ISO).
+    """Rank `venues` for `prefs` at `now` (datetime or ISO). Order and fields follow specs' reference_scoring.
 
-    Returns included venues sorted by rank_score desc, distance asc, venue_id (rank 1..n), then excluded
-    venues (excluded=true, rank=null, excluded_reason set and repeated as reasons[0]).
-    match_score/rank_score are still computed for excluded venues (debugging; frontend shows only a count).
+    Sorted by (excluded, -rank_score, distance_km, venue_id); `rank` is 1-based over the whole list, so excluded
+    venues come last with excluded=true and excluded_reason set (frontend shows "N hidden by your limits").
+    Venues in prefs.exclude_venue_ids are dropped. Unknown values never exclude; they are listed in `missing`.
     """
     now = to_dt(now)
     prefs = dict(prefs or {})
+    skip = set(prefs.get("exclude_venue_ids") or [])
     st_by = by_key(rows(states))
     out = []
     for v in rows(venues):
         vid = v.get("venue_id") or v.get("license_id")
-        if vid is None:
+        if vid is None or vid in skip:
             continue
         v["venue_id"] = vid
         st = st_by.get(vid) or live_state.empty_state(vid)
         out.append(score_one(prefs, st, v, now))
-    key = lambda r: (-r["_rs"], r["_dist"], str(r["venue_id"]))  # noqa: E731
-    inc = sorted((r for r in out if not r["excluded"]), key=key)
-    exc = sorted((r for r in out if r["excluded"]), key=key)
-    for i, r in enumerate(inc, 1):
+    out.sort(key=lambda r: (r["excluded"], -r["rank_score"], r["_dist"], str(r["venue_id"])))
+    for i, r in enumerate(out, 1):
         r["rank"] = i
-    res = inc + exc
-    for r in res:
         r.pop("_rs")
         r.pop("_dist")
-    return res
+    return out

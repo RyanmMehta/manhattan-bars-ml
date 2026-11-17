@@ -1,0 +1,493 @@
+{
+  "description": "Crowd 2→4 (rising), 4→2 (falling), thin prior window (null).",
+  "expected": {
+    "debug": {
+      "0370-21-116653": {
+        "W": 2.7849317503569972,
+        "agree": 0.6964036204116313,
+        "conf_raw": 0.5876257148705121,
+        "cover_usd_raw": null,
+        "crowd_raw": 2.5871281739964376,
+        "dancing_raw": 1.0,
+        "diverse": 1.0,
+        "line_minutes_raw": 5,
+        "sd_w": 0.9107891387651063,
+        "support": 0.8438004881754885,
+        "vibe_raw": 39.83910217495547
+      },
+      "0370-23-138427": {
+        "W": 2.1012424152624245,
+        "agree": 0.8371782641937185,
+        "conf_raw": 0.6309035692945857,
+        "cover_usd_raw": null,
+        "crowd_raw": 3.872583372028866,
+        "dancing_raw": 1.0,
+        "diverse": 1.0,
+        "line_minutes_raw": 5,
+        "sd_w": 0.48846520741884436,
+        "support": 0.7536072020481864,
+        "vibe_raw": 55.907292150360824
+      },
+      "0370-24-136624": {
+        "W": 2.7849317503569972,
+        "agree": 0.6964036204116313,
+        "conf_raw": 0.5876257148705121,
+        "cover_usd_raw": null,
+        "crowd_raw": 3.412871826003563,
+        "dancing_raw": 1.0,
+        "diverse": 1.0,
+        "line_minutes_raw": 5,
+        "sd_w": 0.9107891387651063,
+        "support": 0.8438004881754885,
+        "vibe_raw": 50.160897825044536
+      }
+    },
+    "recommendations": null,
+    "states": [
+      {
+        "confidence": 0.59,
+        "cover_usd": null,
+        "crowd": 2.6,
+        "dancing": 1.0,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 5,
+        "music_genres": null,
+        "n_reports": 6,
+        "sources": [
+          "scout"
+        ],
+        "trend": "falling",
+        "venue_id": "0370-21-116653",
+        "vibe_score": 40
+      },
+      {
+        "confidence": 0.63,
+        "cover_usd": null,
+        "crowd": 3.9,
+        "dancing": 1.0,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 5,
+        "music_genres": null,
+        "n_reports": 4,
+        "sources": [
+          "scout"
+        ],
+        "trend": null,
+        "venue_id": "0370-23-138427",
+        "vibe_score": 56
+      },
+      {
+        "confidence": 0.59,
+        "cover_usd": null,
+        "crowd": 3.4,
+        "dancing": 1.0,
+        "display": "show",
+        "freshness_minutes": 5,
+        "is_synthetic": true,
+        "line_minutes": 5,
+        "music_genres": null,
+        "n_reports": 6,
+        "sources": [
+          "scout"
+        ],
+        "trend": "rising",
+        "venue_id": "0370-24-136624",
+        "vibe_score": 50
+      }
+    ],
+    "ui": {
+      "0370-21-116653": {
+        "stale": false,
+        "vibe_label": "Lively"
+      },
+      "0370-23-138427": {
+        "stale": false,
+        "vibe_label": "Lively"
+      },
+      "0370-24-136624": {
+        "stale": false,
+        "vibe_label": "Lively"
+      }
+    }
+  },
+  "hand_checked": false,
+  "id": "G8",
+  "is_synthetic": 1,
+  "name": "G8_trend_rising_falling",
+  "now": "2026-11-14T23:30:00-05:00",
+  "prefs": null,
+  "reports": [
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000001",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0031",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000002",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0032",
+      "status": "accepted",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000003",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0033",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000004",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0034",
+      "status": "accepted",
+      "ts": "2026-11-14T22:50:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000005",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0035",
+      "status": "accepted",
+      "ts": "2026-11-14T22:40:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000006",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0036",
+      "status": "accepted",
+      "ts": "2026-11-14T22:30:00-05:00",
+      "venue_id": "0370-24-136624",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000007",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0041",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000008",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0042",
+      "status": "accepted",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000009",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0043",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000010",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0044",
+      "status": "accepted",
+      "ts": "2026-11-14T22:50:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000011",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0045",
+      "status": "accepted",
+      "ts": "2026-11-14T22:40:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000012",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0046",
+      "status": "accepted",
+      "ts": "2026-11-14T22:30:00-05:00",
+      "venue_id": "0370-21-116653",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000013",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0051",
+      "status": "accepted",
+      "ts": "2026-11-14T23:25:00-05:00",
+      "venue_id": "0370-23-138427",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000014",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0052",
+      "status": "accepted",
+      "ts": "2026-11-14T23:20:00-05:00",
+      "venue_id": "0370-23-138427",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 4,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000015",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0053",
+      "status": "accepted",
+      "ts": "2026-11-14T23:10:00-05:00",
+      "venue_id": "0370-23-138427",
+      "verified_presence": 1
+    },
+    {
+      "cover_usd": null,
+      "crowd": 2,
+      "dancing": 1,
+      "distance_m": 40,
+      "is_synthetic": 1,
+      "line_minutes": 5,
+      "music_genre": null,
+      "report_id": "syn-r-000016",
+      "reputation": 0.8,
+      "scout_id": "syn-s-0054",
+      "status": "accepted",
+      "ts": "2026-11-14T22:10:00-05:00",
+      "venue_id": "0370-23-138427",
+      "verified_presence": 1
+    }
+  ],
+  "scouts": [
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0031"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0032"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0033"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0034"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0035"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0036"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0041"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0042"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0043"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0044"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0045"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0046"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0051"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0052"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0053"
+    },
+    {
+      "is_synthetic": 1,
+      "reputation": 0.8,
+      "scout_id": "syn-s-0054"
+    }
+  ],
+  "updates": [],
+  "venues": [
+    {
+      "capacity": 100,
+      "genres": "rock",
+      "is_synthetic": 1,
+      "lat": 40.71999,
+      "lon": -73.98461,
+      "name": "DONNYBROOK",
+      "venue_id": "0370-24-136624"
+    },
+    {
+      "capacity": 80,
+      "genres": "hip-hop",
+      "is_synthetic": 1,
+      "lat": 40.7215,
+      "lon": -73.98479,
+      "name": "SUBJECT",
+      "venue_id": "0370-21-116653"
+    },
+    {
+      "capacity": 70,
+      "genres": null,
+      "is_synthetic": 1,
+      "lat": 40.72162,
+      "lon": -73.98457,
+      "name": "MAYFLY",
+      "venue_id": "0370-23-138427"
+    }
+  ]
+}

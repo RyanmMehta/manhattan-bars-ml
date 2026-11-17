@@ -51,7 +51,6 @@ def test_g6_exclusion_known_vs_unknown():
         assert r["rank"] == exp["rank"]
         if "excluded_reason" in exp:
             assert r["excluded_reason"] == exp["excluded_reason"]
-            assert r["reasons"][0] == exp["reasons_0"]
         if "missing_contains" in exp:
             assert exp["missing_contains"] in r["missing"]
     out = scoring.recommend(g["prefs"], states, g["venues"], g["now"])
