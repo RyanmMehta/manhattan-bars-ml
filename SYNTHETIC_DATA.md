@@ -70,6 +70,16 @@ evaluation then uses post-visit feedback and audits instead.
 | live-sim | `syn_scout_truth` | **EVALUATION ONLY**: archetype (honest/casual/sloppy/gamer/shill), accuracy, cohort, latent churn date | moderation outcomes, real last-active; drop when real |  |
 | live-sim | `demo_night_snapshots.csv` (committed) | Live Venue State every 30 min, Sat Nov 14 20:00–03:00 (tableau, v2.2 §J) | same query over real reports at those times |  |
 | live-sim | `extracts/hourly_by_style.csv` | hourly report volume / mean crowd by style × weekday × hour (tableau) | same query over real `scout_reports` |  |
+| ml-recs | `data/live_sim.db` `syn_scout_reports`, `syn_scouts`, `syn_scout_reputation_history`, `syn_venue_updates`, `syn_venue_attributes` (live-sim, consumed) | scout vibe checks, reputation, operator posts, venue facts, 36 Thu–Sat nights | app tables `scout_reports`, `scouts`, `scout_reputation_history`, `venue_updates`; `data/venue_attributes_manual.csv` | backend passes real rows (`INCLUDE_SYNTHETIC=0`); recs code unchanged; `python -m recs eval` to retrain |
+| ml-recs | `data/live_sim.db` `syn_true_state`, `syn_scout_truth` (live-sim, evaluation only) | ground truth | none in production (field audits) | read only by `crowd_model.evaluate` / `true_crowd_lookup` / `chain.ablation`; drop truth metrics from reports |
+| ml-recs | `recs/synthetic/stub_nights.py` output (in memory) | the same syn_* tables, used only when no `live_sim.db` | `data/live_sim.db`, then real tables | build `live_sim.db` (`make data`) or set `LIVE_SIM_DB`; recs prefers it automatically; delete the stub when live data is permanent |
+| ml-recs | `recs/artifacts/synthetic/crowd_model.joblib` + `.json` (`is_synthetic: true`) | demand model (crowd by venue × hour) | retrain on ≥ 4 weeks of real `scout_reports` | `python -m recs train-crowd` with real data; move out of `synthetic/`; set `is_synthetic: false` |
+| ml-recs | `recs/reports/crowd_model.md`, `chaining.md`, `routing.md` | evaluation write-ups | re-run on real data | each starts with a "Demo data — synthetic" banner |
+| ml-recs | `data/synthetic_live/demo_night_snapshots.csv` (live-sim writes; values come from `recs.chain.snapshots`) | Live State every 30 min, Sat Nov 14 20:00–03:00 | not needed with real data (backend computes live) | regenerate after any `live_state` change |
+| ml-recs | `recs/tests/golden_recs_derived/G1–G8.json` | worked examples | stays synthetic (tests) | none |
+| ml-recs | `recs/tests/specs_copy/` (copy of specs' `golden_synthetic/`, `PARAMETERS.md`, `tools/reference_scoring.py`) | specs' golden vectors + oracle | stays synthetic (tests) | re-copy when specs changes; tests use `docs/specs/` when present |
+| ml-recs | `recs/tests/fixtures/synthetic/*.csv` (`syn-v-*`, `syn-s-*`, `syn-r-*`, `syn-u-*`) | a tiny night: 5 venues, 3 scouts, 40 reports, 4 updates | stays synthetic (tests) | none |
+| ml-recs | `recs/examples/prefs_*.json` | a group's preferences | real user prefs from the request | none |
 | research | `research/synthetic/syn_interviews.csv` (15 rows: 8 consumer, 3 scout, 4 operator) | Coded notes from semi-structured interviews | `research/interviews/interviews.csv`, filled from `research/interview_guide/note_template.md` (IDs `int-r-###`, `is_synthetic=0`) | 1. Log real rows with the same columns. 2. `python -I research/validate.py --real`. 3. `python -I research/analysis.py --source real`. 4. Re-tag `research/summary.md` findings as `[REAL n=…]`. 5. Keep the synthetic CSV for demos or delete it; there's no DB to clean. |
 | research | `research/synthetic/syn_interview_quotes.csv` (4–6 per interview; 75 rows) | Tagged, anonymized verbatim quotes | `research/interviews/quotes.csv` (IDs `q-r-####`), transcribed from notes with no PII | Same as above. Remove the `[SYNTHETIC] ` prefix rule only for real rows (the validator checks it only for synthetic ones). |
 | research | `research/synthetic/syn_survey_responses.csv` (300 rows) | Online survey export (Google Forms) mapped to the codebook | `research/survey/responses.csv`: the real export renamed and recoded per `research/survey/codebook.csv` (IDs `srv-r-####`, `is_synthetic=0`) | 1. Export the CSV. 2. Rename and recode columns per the codebook (see `research/survey/questions.md`, "Export → codebook mapping"). 3. `python -I research/validate.py --real`. 4. `python -I research/analysis.py --source real`. 5. Point the tableau extract at `research/survey/summary_tables.csv`. |
@@ -134,8 +144,7 @@ No `data/synthetic_demo/` overrides or `tests/fixtures/synthetic/` fixture were 
 these bars. The venues are real (SLA licences, public data), but their attributes, crowds, Scouts, users and
 outcomes are invented. Show the "demo data" badge wherever any of it appears.
 
-Built by `python -I -m simulator --seed 42 --out data/live_sim.db` (needs `pip install -e ./simulator` once;
-no-install form: `python -I simulator --seed 42 --out data/live_sim.db`). Seed 42 gives byte-identical CSVs (sha256 in
+Built by `python -m simulator --seed 42 --out data/live_sim.db`, run from the repo root (CONTRACTS f5c95d2). Seed 42 gives byte-identical CSVs (sha256 in
 `data/synthetic_live/manifest.json`). CSVs go to `data/synthetic_live/` (gitignored except the snapshots file);
 the same tables are loaded into `data/live_sim.db` (never committed).
 
@@ -181,6 +190,28 @@ CONTRACTS v2 §A, not invented here.
 If `data/venue_attributes_manual.csv` exists (same columns as `syn_venue_attributes`, `is_synthetic=0`), its
 non-empty values replace the generated attributes before the true state is simulated, so synthetic reports
 agree with hand-labelled facts. The simulator never writes that file.
+
+### ml-recs  (`docs/synthetic/ml-recs.md`)
+
+### Synthetic data registry: ml-recs
+
+Every synthetic dataset or artifact that `recs/` creates or consumes. Code spots carry `# SYNTHETIC:` comments.
+
+| File / table | Imitates | How generated | Real replacement | Swap steps |
+|---|---|---|---|---|
+| `data/live_sim.db` `syn_scout_reports`, `syn_scouts`, `syn_scout_reputation_history`, `syn_venue_updates`, `syn_venue_attributes` (live-sim, consumed) | scout vibe checks, reputation, operator posts, venue facts, 36 Thu–Sat nights | live-sim, `python -m simulator --seed 42` | app tables `scout_reports`, `scouts`, `scout_reputation_history`, `venue_updates`; `data/venue_attributes_manual.csv` | backend passes real rows (`INCLUDE_SYNTHETIC=0`); recs code unchanged; `python -m recs eval` to retrain |
+| `data/live_sim.db` `syn_true_state`, `syn_scout_truth` (live-sim, evaluation only) | ground truth | live-sim | none in production (field audits) | read only by `crowd_model.evaluate` / `true_crowd_lookup` / `chain.ablation`; drop truth metrics from reports |
+| `recs/synthetic/stub_nights.py` output (in memory) | the same syn_* tables, used only when no `live_sim.db` | Poisson report arrivals ∝ true crowd; style-specific hour curves; scout archetypes (honest/casual/sloppy/gamer/shill); nightly reputation update; seed 42 | `data/live_sim.db`, then real tables | build `live_sim.db` (`make data`) or set `LIVE_SIM_DB`; recs prefers it automatically; delete the stub when live data is permanent |
+| `recs/artifacts/synthetic/crowd_model.joblib` + `.json` (`is_synthetic: true`) | demand model (crowd by venue × hour) | `python -m recs train-crowd` on live-sim data (origin/nightlife/live-sim beaa382) | retrain on ≥ 4 weeks of real `scout_reports` | `python -m recs train-crowd` with real data; move out of `synthetic/`; set `is_synthetic: false` |
+| `recs/reports/crowd_model.md`, `chaining.md`, `routing.md` | evaluation write-ups | `python -m recs eval` | re-run on real data | each starts with a "Demo data — synthetic" banner |
+| `data/synthetic_live/demo_night_snapshots.csv` (live-sim writes; values come from `recs.chain.snapshots`) | Live State every 30 min, Sat Nov 14 20:00–03:00 | `python -m recs snapshots --out …` | not needed with real data (backend computes live) | regenerate after any `live_state` change |
+| `recs/tests/golden_recs_derived/G1–G8.json` | worked examples | hand-derived by ml-recs from specs PRD §5 before specs pushed theirs | stays synthetic (tests) | none |
+| `recs/tests/specs_copy/` (copy of specs' `golden_synthetic/`, `PARAMETERS.md`, `tools/reference_scoring.py`) | specs' golden vectors + oracle | specs | stays synthetic (tests) | re-copy when specs changes; tests use `docs/specs/` when present |
+| `recs/tests/fixtures/synthetic/*.csv` (`syn-v-*`, `syn-s-*`, `syn-r-*`, `syn-u-*`) | a tiny night: 5 venues, 3 scouts, 40 reports, 4 updates | one-off seeded script (seed 42) | stays synthetic (tests) | none |
+| `recs/examples/prefs_*.json` | a group's preferences | hand-written | real user prefs from the request | none |
+
+Not synthetic: `recs/artifacts/clusters.*` and `recs/artifacts/complaint_risk.*` are trained on real public data
+(`data/manhattan_bars.db`), `is_synthetic: false`.
 
 ### research  (`docs/synthetic/research.md`)
 
@@ -251,10 +282,11 @@ Evaluation-only tables `syn_true_state` / `syn_scout_truth` are never read.
 | `analytics/` | 8 |
 | `backend/` | 14 |
 | `docs/` | 4 |
+| `recs/` | 9 |
 | `research/` | 25 |
 | `scripts/` | 1 |
 | `simulator/` | 12 |
 | `tests/` | 1 |
-| **total** | **65** |
+| **total** | **74** |
 
-_Generated from 6 registries at commit `1a7ba99`._
+_Generated from 7 registries at commit `3533a79`._

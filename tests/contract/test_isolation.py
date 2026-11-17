@@ -70,6 +70,16 @@ def test_api_works_without_truth_tables(root, live_db, tmp_path):
 
 
 TRUTH = re.compile(r"syn_true_state|syn_scout_truth")
+# Reviewed at the ml-recs merge (5e10061): evaluation/CLI/stub code only. The backend imports
+# recs.live_state/scoring/routing, which never touch these tables, and
+# test_api_works_without_truth_tables proves the API runs with them dropped.
+EVAL_ALLOW = {
+    "recs/crowd_model.py": "evaluate()/_truth_by_slot()/true_crowd_lookup() are EVALUATION ONLY; predict() uses the saved artifact",
+    "recs/data.py": "live_tables() loader for the eval/train CLI (python -m recs eval)",
+    "recs/__main__.py": "CLI report text",
+    "recs/synthetic/stub_nights.py": "interim stub generator (SYNTHETIC) used only without live_sim.db",
+}
+RUNTIME_MODULES = ["recs/live_state.py", "recs/scoring.py", "recs/routing.py", "recs/__init__.py"]
 
 
 def test_truth_tables_not_referenced_by_runtime(root):
@@ -80,12 +90,17 @@ def test_truth_tables_not_referenced_by_runtime(root):
             continue
         for f in base.rglob("*.py"):
             rel = f.relative_to(root).as_posix()
-            if re.search(r"(^|/)(tests?|eval\w*|evaluation)(/|_|\.py$)|/test_", rel):
+            if re.search(r"(^|/)(tests?|eval\w*|evaluation)(/|_|\.py$)|/test_", rel) or rel in EVAL_ALLOW:
                 continue
             for i, line in enumerate(f.read_text(errors="ignore").splitlines(), 1):
                 if TRUTH.search(line) and not line.lstrip().startswith("#"):
                     hits.append(f"{rel}:{i}: {line.strip()[:120]}")
     assert not hits, "evaluation-only tables read by runtime code:\n" + "\n".join(hits)
+    for m in RUNTIME_MODULES:
+        f = root / m
+        if f.exists():
+            assert not TRUTH.search(f.read_text()), m
+            assert "live_tables" not in f.read_text(), f"{m} loads the eval table set"
 
 
 def test_final_reputation_not_joined_in_eval(root):

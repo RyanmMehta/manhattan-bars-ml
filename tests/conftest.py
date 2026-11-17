@@ -86,6 +86,16 @@ def _migrate(url: str) -> None:
 @pytest.fixture(scope="session")
 def api():
     """httpx-like client: TestClient in-process, or httpx.Client against API_URL."""
+    yield from _client(fresh=False)
+
+
+@pytest.fixture(scope="module")
+def clean_api():
+    """Like `api` but with its own empty app DB, so other tests' writes can't leak in."""
+    yield from _client(fresh=True)
+
+
+def _client(fresh: bool):
     url = os.environ.get("API_URL")
     if url:
         import httpx
@@ -98,10 +108,18 @@ def api():
     os.environ.setdefault("DEMO_NOW", DEMO_NOW)
     os.environ.setdefault("INCLUDE_SYNTHETIC", "1")
     import tempfile
-    os.environ.setdefault("DATABASE_URL", f"sqlite:///{tempfile.mkdtemp(prefix='contract-')}/app.db")
-    _migrate(os.environ["DATABASE_URL"])
     from fastapi.testclient import TestClient
-    with TestClient(_load_app()) as c:
+    if not fresh:
+        os.environ.setdefault("DATABASE_URL", f"sqlite:///{tempfile.mkdtemp(prefix='contract-')}/app.db")
+        _migrate(os.environ["DATABASE_URL"])
+        with TestClient(_load_app()) as c:
+            yield c
+        return
+    url = f"sqlite:///{tempfile.mkdtemp(prefix='contract-clean-')}/app.db"
+    _migrate(url)
+    from backend.app.config import Settings
+    from backend.app.main import create_app
+    with TestClient(create_app(Settings(database_url=url))) as c:
         yield c
 
 

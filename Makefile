@@ -10,7 +10,7 @@ WEB_PORT ?= 5173
 DATA_NIGHTS ?=
 NIGHTS_FLAG := $(if $(DATA_NIGHTS),--nights $(DATA_NIGHTS),)
 
-.PHONY: setup launch-venues data test test-smoke test-units test-contract test-e2e test-deployed demo synthetic-docs audit status clean
+.PHONY: setup launch-venues data snapshots tableau test test-smoke test-units test-contract test-e2e test-deployed demo synthetic-docs audit status clean
 
 setup:
 	$(PY) -m pip install -q -r requirements.txt -r requirements-dev.txt
@@ -49,6 +49,14 @@ test-deployed:
 demo:
 	@[ -f data/live_sim.db ] || $(MAKE) data
 	$(PY) -I scripts/integration/run_demo.py --api-port $(API_PORT) --web-port $(WEB_PORT) --now $(DEMO_NOW)
+
+# v2.2 §J snapshots = recs Live Venue State at each snapshot_ts (matches the API). Run after `make data`.
+snapshots:
+	python -m recs snapshots --out data/synthetic_live/demo_night_snapshots.csv
+
+tableau:
+	$(PY) -I analytics/tableau/export_extracts.py
+	$(PY) -I analytics/tableau/render_standin.py
 
 synthetic-docs:
 	$(PY) -I scripts/integration/consolidate_synthetic.py

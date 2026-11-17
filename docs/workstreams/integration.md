@@ -22,6 +22,7 @@ make status                            # which workstreams are done / merged
 - A2 No Render/Vercel accounts: deploy is prepared (root `render.yaml`, Vercel steps in `DEMO.md`) but not run (instruction for this build session).
 - A3 Backend app import path unknown until merge; tests and scripts auto-detect `backend.app.main:app`, `backend.main:app`, … or `BACKEND_APP`.
 - A5 Backend's complaint_risk is an object `{label, noise_complaints_3y, level}` (label \"311 noise-complaint risk\"); contract tests accept number or object.
+- A7 Truth-table grep test uses a reviewed allowlist (recs eval/CLI/stub files); runtime modules `recs/{live_state,scoring,routing}.py` must not mention them.
 - A6 `POST` endpoints may return 201; tests accept 200/201.
 - A4 Merge order from OUTLINE §2 is followed where branches are ready at the same time; a branch that signals done early is merged as soon as its dependencies are in.
 
@@ -37,6 +38,7 @@ make status                            # which workstreams are done / merged
 | 5 | live-sim | 9921e56 | `.gitignore` | union of both | simulator 27 pass; contract 72 pass / 10 skip / 1 xfail (snapshots vs stub engine) | `make data` 36 nights in ~11 s |
 | 6 | backend (re-merge) | d66cde0 | none | — | backend 94 pass | G1–G8 tests |
 | 7 | live-sim + backend (re-merge) | 0d2a26c, 9bb542c | `backend/scripts/build_sim.sh` | took backend (same contract command) | backend 96, simulator 28, contract 72 pass | integration fix to build_sim.sh now upstream |
+| 8 | ml-recs | 5e10061 | none | — | recs 65, backend 96 (recs engine), contract 83/83, tableau 13 | snapshots regenerated with `python -m recs snapshots`; tableau extracts + stand-in PNG/PDF re-rendered (HH:30 rule checked: 245/245 cells match) |
 
 ## Seeded demo data (US-7)
 `make data` run twice from scratch → identical per-table fingerprints (`scripts/integration/db_fingerprint.py`):
@@ -64,6 +66,7 @@ make status                            # which workstreams are done / merged
 | backend | `backend/scripts/build_sim.sh` | run exactly `python -m simulator --seed 42 --out …` (no `-I` attempt first) | contracts f5c95d2 / CR-15 |
 
 ## Open issues
+- **live-sim vs recs snapshots differ.** `make data` (simulator with recs importable) writes `demo_night_snapshots.csv` from `simulator/replay.py`, which derives time-of-view statuses (pending/disputed) and as-of reputation before calling recs. The backend (and `python -m recs snapshots`) use stored status + current reputation (contract: "the live app uses current reputation"). Max diff: vibe 26, conf 0.07 on 193/525 rows. Integration commits the recs-CLI file (matches the API, `test_demo_snapshots` green). **Running `make data` overwrites it — run `make snapshots` afterwards.** Owner: live-sim/ml-recs to agree on one path.
 - Deploy not run (no accounts). Steps in `DEMO.md` §Deploy.
 
 ## Contract change requests

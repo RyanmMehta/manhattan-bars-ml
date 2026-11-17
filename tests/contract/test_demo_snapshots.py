@@ -32,7 +32,8 @@ def _f(x):
     return None if x in ("", None, "None", "nan") else float(x)
 
 
-def test_snapshots_match_api(api, snaps):
+def test_snapshots_match_api(clean_api, snaps):
+    api = clean_api
     if api.get("/api/health").json().get("recs") != "real":
         pytest.xfail("backend on stub engine; snapshots are recs output (regenerated after ml-recs merge)")
     sample = [r for r in snaps if r["snapshot_ts"].startswith("2026-11-14T23:30") or r["snapshot_ts"].startswith("2026-11-14T21:00")]
