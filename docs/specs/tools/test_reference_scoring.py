@@ -177,5 +177,12 @@ class Golden(unittest.TestCase):
         self.assertTrue(g2["expected"]["ui"][s["venue_id"]]["stale"])
 
 
+class Docs(unittest.TestCase):
+    def test_mermaid_and_links_and_params(self):
+        import check_docs as D
+        self.assertEqual(D.mermaid_errors() + D.link_errors() + D.param_errors()
+                         + D.story_errors() + D.synthetic_errors(), [])
+
+
 if __name__ == "__main__":
     unittest.main()
