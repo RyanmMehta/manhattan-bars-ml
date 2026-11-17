@@ -7,6 +7,6 @@ if [ ! -f simulator/__main__.py ]; then
   echo "build_sim: simulator/ not present (live-sim not merged yet); skipping" >&2
   exit 0
 fi
-# Exactly the contract command (v2.2 §J, CR-15: no -I).
+# Contract command (v2.2 §J, contracts f5c95d2; no -I, per CR-15).
 python -m simulator --seed 42 --out "$OUT" "$@"
 ls -la "$OUT"
