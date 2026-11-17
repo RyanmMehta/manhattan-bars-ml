@@ -26,8 +26,9 @@ Every script has `--help`, a docstring with its steps, and `[N#]` tags pointing 
 
 - Transformer: val loss **2.113 nats/char** (perplexity 8.27) vs bigram baseline 2.643, so **20% lower**. 39 s of training on CPU.
   Novelty 100% at T = 0.8.
-- Churn (synthetic): logistic regression selected by CV. Out-of-time test ROC AUC **0.826 [0.73, 0.91]**, PR AUC
-  **0.760** vs base rate 0.36. The riskiest 10% of Scouts churned at 89%.
+- Churn (synthetic, live-sim seed 42, 209 Scouts): logistic regression selected by CV. Out-of-time test ROC AUC
+  **0.852 [0.77, 0.92]**, PR AUC **0.780** vs base rate 0.41 (1.92×; the 2× target is missed). The riskiest 10% of
+  Scouts churned at 90%. Stand-in results are in the appendix of `churn/NOTES.md`.
 
 ## Layout
 
@@ -43,8 +44,9 @@ tests/                   22 pytest tests (+ fixtures/synthetic/)
 ## Data
 
 - Transformer corpus: **real** public data (`data/manhattan_bars.db`, `venues.name`, read-only).
-- Churn: **synthetic**. It reads `data/live_sim.db` (live-sim, seed 42) when that file exists. Until then
-  it uses the stand-in generator `churn/make_standin_data.py` (seed 0). Every synthetic file has
+- Churn: **synthetic**. It reads `data/live_sim.db`, built from a checkout of `nightlife/live-sim` with
+  `python -m simulator --seed 42 --out data/live_sim.db` (no `-I`; the DB is not committed). If the file is
+  missing, it falls back to the stand-in generator `churn/make_standin_data.py` (seed 0). Every synthetic file has
   `is_synthetic=1` and a `synthetic` path. Registry: `docs/synthetic/coursework.md`.
 
 ## Versions used for the committed outputs

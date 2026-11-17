@@ -149,12 +149,13 @@ def results_markdown(results: dict, train: pd.DataFrame, test: pd.DataFrame, sel
     best_brier = min((n for n in results if n != "majority"), key=lambda n: results[n]["test"]["brier"])
     lines += ["", "Threshold = max F1 on out-of-fold train predictions, then applied unchanged to test. "
               "Test ROC AUC brackets are bootstrap 95% CIs (1,000 resamples of Scouts). "
-              "With under 100 Scouts per snapshot the CIs overlap a lot, so the ranking between the "
+              "With only about 60-100 Scouts per snapshot the CIs overlap a lot, so the ranking between the "
               "non-baseline models is not reliable; only 'better than the majority baseline' is.", "",
               "### PRD targets (placeholders) vs result", "",
               f"- Selected model test ROC AUC >= 0.75: **{sel['test']['roc_auc']:.3f}** "
               f"({'met' if sel['test']['roc_auc'] >= 0.75 else 'MISSED'})",
-              f"- PR AUC lift >= 2x base rate: **{lift:.2f}x** ({'met' if lift >= 2 else 'MISSED'})",
+              f"- PR AUC lift >= 2x base rate: **{lift:.2f}x** ({'met' if lift >= 2 else 'MISSED'}; the most any "
+              f"model can reach at this base rate is 1/{sel['test']['base_rate']:.3f} = {1 / sel['test']['base_rate']:.2f}x)",
               f"- Best test Brier <= logistic regression's: best is {best_brier} "
               f"({results[best_brier]['test']['brier']:.3f} vs logistic {results['logistic']['test']['brier']:.3f})",
               f"- Snapshot sizes: train {len(train)} Scouts / {int(train.churned.sum())} churners "

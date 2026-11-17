@@ -19,7 +19,7 @@ echo "== (b) churn: data"
 # SYNTHETIC: Scout data comes from live-sim (data/live_sim.db). Build it with the contract command
 # when the simulator exists; otherwise fall back to the marked stand-in generator.
 if [ ! -f "${LIVE_SIM_DB:-data/live_sim.db}" ] && [ -f simulator/__main__.py ]; then
-  $PY -I -m simulator --seed 42 --out data/live_sim.db
+  $PY -m simulator --seed 42 --out data/live_sim.db   # contract command; -I would hide simulator/
 fi
 if [ ! -f "${LIVE_SIM_DB:-data/live_sim.db}" ]; then
   echo "data/live_sim.db not available -> using the SYNTHETIC stand-in generator"

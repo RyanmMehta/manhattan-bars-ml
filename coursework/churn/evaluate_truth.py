@@ -74,8 +74,8 @@ def main() -> None:
           f"{truth_only} reported in the window and then quit (label 0, truth 1).",
           f"- ROC AUC of the risk score vs our label: {auc_label:.3f}; vs the truth quit flag: "
           f"{auc_truth:.3f}." if auc_truth is not None else "- truth flag has one class only",
-          f"- Spearman correlation of risk with `true_accuracy`: {rho:+.2f} (accuracy is not a churn driver "
-          "in the simulator, so a value near 0 is expected).",
+          f"- Spearman correlation of risk with `true_accuracy`: {rho:+.2f} (near 0 means the risk score "
+          "is not just tracking how accurate a Scout's reports are).",
           f"- {warn}", "", "### By archetype", "", table(auc_by(df, "archetype")), "",
           "### By cohort week", "", table(auc_by(df, "cohort_week"))]
     write_section(OUT / "report.md", "truth", "\n".join(md))
