@@ -23,7 +23,7 @@ Plan: `docs/prd/backend/` (PRD, RULES, OUTLINE). Contract: `docs/CONTRACTS.md` v
   `render.yaml`.
 
 ## Verified
-- `cd backend && pytest -q --cov=app`: **94 passed, ~5 s, ~95% coverage**; `ruff check` clean.
+- `cd backend && pytest -q --cov=app`: **94 passed (+2 skipped without a real live_sim.db), ~5 s, ~95% coverage**; `ruff check` clean.
 - **Specs golden vectors G1–G8** (`docs/specs/golden_vectors.json` from origin/nightlife/specs `fdcd327`,
   copied as test fixture `backend/tests/fixtures/specs_golden_vectors.json`): all 8 states and the
   G4/G5/G6 recommendations match within specs' tolerances, on the stub and on real recs.
@@ -36,8 +36,16 @@ Plan: `docs/prd/backend/` (PRD, RULES, OUTLINE). Contract: `docs/CONTRACTS.md` v
   served by recs, 0 stub fallbacks; `/api/venues` ~10 ms, `/api/recommend` ~16 ms,
   `/api/heatmap?by=hour` ~27 ms.
 - Local boot with `start.sh` + `smoke.py`: all endpoints OK (stub and recs).
+- **Real `live_sim.db`** (live-sim `9921e56`, built with `python -m simulator --seed 42 --out data/live_sim.db`
+  in 12 s, 18 MB): schema matches v2 §E with no diffs; with real recs (`ef9717c`) the full suite passes (109,
+  incl. `tests/test_real_livesim.py`), smoke 18/18 with 0 stub fallbacks; at DEMO_NOW the 35 launch
+  venues show 16 show / 12 low / 7 none; every endpoint < 100 ms (`launch_only=false` 88 ms).
+- Heatmap `by=hour` vs live-sim's `demo_night_snapshots.csv`: 209/245 HH:30 cells identical; the rest
+  differ because live-sim computed snapshots with its own `simulator/_live_state.py`, not recs
+  (e.g. a single thin report gets vibe 25 there, null in recs). Integration already plans to regenerate
+  the snapshots after the ml-recs merge.
 - **Not verified:** Docker build (no Docker daemon in the build container), Render deploy (no
-  account yet), Postgres run, real `data/live_sim.db` (live-sim has not pushed `simulator/`).
+  account yet), Postgres run.
 
 ## How to run
 See `backend/README.md`. Short version:
@@ -98,8 +106,6 @@ Venue card: `address`, `neighborhood`. Report response: `verified_presence`, `di
 Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop: as v2 §F.
 
 ## Open issues
-- live-sim has not pushed `simulator/`; tested only on the backend fixture sim DB. When it lands:
-  `bash backend/scripts/build_sim.sh` then `ensure_sim.py` prints any column diff vs v2 §E.
 - Docker image build and Postgres run not tested here (no Docker daemon).
 - Not built (later per PRD): dispute endpoints, velocity/outlier anti-gaming checks at write time,
   pending → accepted promotion job, bounty auto-creation job, owner-created bounties.
@@ -107,14 +113,14 @@ Login response: `role`, `venue_id`. Health: `is_synthetic`. Recommendation/Stop:
   recommendation field, so either side can own it).
 
 ## Contract change requests
-- **CR-15 (build command):** `python -I -m simulator …` fails from the repo root because `-I`
+- **CR-15 (build command) — accepted (contracts `f5c95d2`), build_sim.sh now runs `python -m simulator …`:** `python -I -m simulator …` fails from the repo root because `-I`
   drops the cwd from `sys.path` ("No module named simulator"; reproduced). Either install
   `simulator` as a package before running it, or drop `-I` (use `-P`-free `python -m`).
   `backend/scripts/build_sim.sh` tries the contract command, then falls back to `python -m simulator`.
-- **CR-16 (Stop shape):** `walk_minutes_from_prev` is a float in real recs (e.g. 5.3) — the
+- **CR-16 (Stop shape) — accepted:** `walk_minutes_from_prev` is a float in real recs (e.g. 5.3) — the
   backend schema accepts float; please state "number" in the contract.
-- **CR-18 (rank):** recs returns `rank: null` for excluded rows; the contract implies a 1-based
+- **CR-18 (rank) — accepted (contracts `ad2dd2f`, API owns final rank):** recs returns `rank: null` for excluded rows; the contract implies a 1-based
   rank on every row. The backend fills it in; recs or the contract should pick one.
-- **CR-17 (heatmap):** document that `by=hour` omits hours that haven't started at `now`.
+- **CR-17 (heatmap) — accepted:** document that `by=hour` omits hours that haven't started at `now`.
 - Still open from PRD §13: backend keeps internal `users`, `venue_attributes` (and now
   `bounty_claims`) real tables — integration please confirm.
