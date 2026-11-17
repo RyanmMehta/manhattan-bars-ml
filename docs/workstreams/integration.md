@@ -36,6 +36,7 @@ make status                            # which workstreams are done / merged
 
 | 5 | live-sim | 9921e56 | `.gitignore` | union of both | simulator 27 pass; contract 72 pass / 10 skip / 1 xfail (snapshots vs stub engine) | `make data` 36 nights in ~11 s |
 | 6 | backend (re-merge) | d66cde0 | none | — | backend 94 pass | G1–G8 tests |
+| 7 | live-sim + backend (re-merge) | 0d2a26c, 9bb542c | `backend/scripts/build_sim.sh` | took backend (same contract command) | backend 96, simulator 28, contract 72 pass | integration fix to build_sim.sh now upstream |
 
 ## Seeded demo data (US-7)
 `make data` run twice from scratch → identical per-table fingerprints (`scripts/integration/db_fingerprint.py`):
